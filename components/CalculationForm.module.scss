@@ -1,0 +1,295 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.summaryColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  position: sticky;
+  top: 110px;
+  align-self: start;
+  max-height: calc(100vh - 130px);
+  overflow-y: auto;
+}
+
+@media (max-width: 960px) {
+  .summaryColumn {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+.fieldset {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  margin: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.legend {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: var(--space-4);
+  padding: 0;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-3);
+}
+
+@media (max-width: 600px) {
+  .grid2,
+  .grid3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldWithSuffix {
+  position: relative;
+}
+
+.suffix {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  pointer-events: none;
+}
+
+.fieldWithSuffix input {
+  padding-right: var(--space-6);
+}
+
+.repeaterList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.repeaterRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: end;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+}
+
+@media (max-width: 600px) {
+  .repeaterRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.loanRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+  align-items: end;
+}
+
+.loanList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.loanCard {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.loanCardEditing {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(196, 106, 58, 0.12);
+}
+
+.loanCardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.loanCardTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.loanTypeBadge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: var(--color-primary);
+  color: #fff;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.loanLabel {
+  font-weight: 600;
+}
+
+.loanCardActions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.loanCardDetails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.loanCardDetails > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.loanCardDetails dt {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.loanCardDetails dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.loanEditFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--color-border);
+}
+
+.loanFooterHint {
+  font-size: 0.825rem;
+  color: var(--color-accent);
+}
+
+.loanFooterActions {
+  display: flex;
+  gap: var(--space-2);
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.fieldsetHint {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  margin: 0 0 var(--space-4);
+}
+
+.fieldsetEmpty {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.repeaterControls {
+  margin-top: var(--space-3);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.removeButton {
+  background: transparent;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.875rem;
+}
+
+.removeButton:hover:not(:disabled) {
+  background: rgba(179, 38, 30, 0.08);
+}
+
+.headerBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.headerName {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.dirtyIndicator {
+  font-size: 0.825rem;
+  color: var(--color-warning);
+}
+
+.cleanIndicator {
+  font-size: 0.825rem;
+  color: var(--color-text-muted);
+}
+

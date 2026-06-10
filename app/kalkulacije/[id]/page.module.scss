@@ -1,0 +1,14 @@
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-5);
+}
+
+.breadcrumbs {
+  margin-bottom: var(--space-4);
+  font-size: 0.9rem;
+}
+
+.breadcrumbs a {
+  color: var(--color-text-muted);
+}

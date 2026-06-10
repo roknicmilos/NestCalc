@@ -1,0 +1,49 @@
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-3);
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-1) var(--space-3);
+}
+
+.row {
+  display: contents;
+}
+
+.label {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.capital .value {
+  color: var(--color-primary);
+}
+
+.debt .value {
+  color: var(--color-accent);
+}
+
+.warn .value {
+  color: var(--color-warning);
+}
