@@ -14,17 +14,18 @@ export function PhasesTimeline({ totals }: Props) {
       ) : totals.phases.length === 0 ? (
         <p className={styles.empty}>Nema aktivnih dugova za prikaz.</p>
       ) : (
-        <ol className={styles.phases}>
+        <ul className={styles.phases}>
           {totals.phases.map((phase, index) => (
             <li key={`${phase.startMonth.year}-${phase.startMonth.month}-${index}`}>
               <div className={styles.phase}>
                 <div className={styles.phaseHeader}>
-                  <span className={styles.phaseTitle}>Faza {index + 1}</span>
+                  <span className={styles.phaseDuration}>
+                    {formatMonthsAsYearsAndMonths(phase.durationMonths)}
+                  </span>
                   <span className={styles.phaseTotal}>{formatEur(phase.monthlyTotal)} / mes.</span>
                 </div>
                 <div className={styles.phaseMeta}>
-                  {formatMonthYear(phase.startMonth)} — {formatMonthYear(phase.endMonth)} (
-                  {formatMonthsAsYearsAndMonths(phase.durationMonths)})
+                  {formatMonthYear(phase.startMonth)} — {formatMonthYear(phase.endMonth)}
                 </div>
                 <ul className={styles.components}>
                   {phase.components.map((c) => (
@@ -37,7 +38,7 @@ export function PhasesTimeline({ totals }: Props) {
               </div>
             </li>
           ))}
-        </ol>
+        </ul>
       )}
     </div>
   );

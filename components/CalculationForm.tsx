@@ -106,14 +106,14 @@ export function CalculationForm({ initial }: Props) {
             <FieldError message={errors.name?.message} />
           </div>
           <div className={styles.headerActions}>
+            <button type="submit" disabled={!isDirty || !isValid || saving}>
+              {saving ? 'Čuvam…' : 'Sačuvaj'}
+            </button>
             {isDirty ? (
               <span className={styles.dirtyIndicator}>Imate nesačuvane izmene</span>
             ) : (
               <span className={styles.cleanIndicator}>Sve izmene su sačuvane</span>
             )}
-            <button type="submit" disabled={!isDirty || !isValid || saving}>
-              {saving ? 'Čuvam…' : 'Sačuvaj'}
-            </button>
           </div>
         </div>
 
@@ -148,7 +148,7 @@ function BasicsFieldset() {
   } = useFormContextTyped();
   return (
     <fieldset className={styles.fieldset}>
-      <legend className={styles.legend}>Osnovni podaci</legend>
+      <legend className={styles.legend}>Osnovni podaci o kupovini</legend>
       <div className={styles.grid2}>
         <div className={styles.field}>
           <label htmlFor="property-price">Ukupna cena nekretnine</label>
