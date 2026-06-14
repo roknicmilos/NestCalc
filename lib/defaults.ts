@@ -50,8 +50,15 @@ export function createDefaultCalculationInputs(now: Date = new Date()): Calculat
   const mortgageStart = addMonthsToMonthYear(currentMonthYear(now), 12);
   return {
     propertyPrice: 0,
+    propertyType: 'APARTMENT',
+    squareMeters: 0,
+    link: '',
+    address: { area: '', street: '' },
     seller: 'INDIVIDUAL',
+    ppapTiming: 'NOW',
+    ppapSavingStartMonth: currentMonthYear(now),
     purchaseCostsFixed: 0,
+    extras: [],
     capitalSources: [{ id: nanoid(8), label: 'Ušteđevina', amount: 0 }],
     mortgage: {
       downPaymentPct: 20,

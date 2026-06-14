@@ -4,9 +4,27 @@ export const loanTypeSchema = z.enum(['CASH_LOAN', 'PRIVATE_LOAN']);
 
 export const sellerSchema = z.enum(['INDIVIDUAL', 'INVESTOR']);
 
+export const propertyTypeSchema = z.enum(['HOUSE', 'APARTMENT']);
+
+export const ppapTimingSchema = z.enum(['NOW', 'LATER']);
+
+export const addressSchema = z.object({
+  area: z.string().trim().max(120, 'Deo grada je predugačak.').default(''),
+  street: z.string().trim().max(120, 'Adresa je predugačka.').default(''),
+});
+
 export const monthYearSchema = z.object({
   year: z.number().int().min(1970).max(3000),
   month: z.number().int().min(1).max(12),
+});
+
+export const propertyExtraSchema = z.object({
+  id: z.string().min(1),
+  text: z
+    .string()
+    .trim()
+    .min(1, 'Unesite opis pogodnosti.')
+    .max(120, 'Opis je predugačak.'),
 });
 
 export const capitalSourceSchema = z.object({
@@ -54,8 +72,19 @@ export const mortgageInputsSchema = z.object({
 
 export const calculationInputsSchema = z.object({
   propertyPrice: z.number().finite().min(0, 'Cena mora biti 0 ili veća.'),
+  propertyType: propertyTypeSchema.default('APARTMENT'),
+  squareMeters: z.number().finite().min(0, 'Kvadratura mora biti 0 ili veća.').default(0),
+  link: z
+    .union([z.literal(''), z.string().trim().url('Unesite ispravan link.')])
+    .default(''),
+  address: addressSchema.default({}),
   seller: sellerSchema,
+  ppapTiming: ppapTimingSchema.default('NOW'),
+  /** Month from which the deferred PPAP saving is spread. Optional for backward
+   * compatibility with saved calculations; falls back to the current month. */
+  ppapSavingStartMonth: monthYearSchema.optional(),
   purchaseCostsFixed: z.number().finite().min(0, 'Troškovi moraju biti 0 ili veći.'),
+  extras: z.array(propertyExtraSchema).default([]),
   capitalSources: z.array(capitalSourceSchema),
   mortgage: mortgageInputsSchema,
   loans: z.array(loanSchema),

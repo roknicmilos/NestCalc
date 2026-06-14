@@ -1,4 +1,4 @@
-import { formatEur } from '@/lib/format';
+import { formatEur, formatMonthYear } from '@/lib/format';
 import type { ComputedTotals } from '@/lib/types';
 import { PendingValue } from './PendingValue';
 import styles from './ComputedSummary.module.scss';
@@ -13,6 +13,9 @@ export function ComputedSummary({ totals }: Props) {
   const showPpap = !totals || totals.ppap > 0;
   const showShortfall = !!totals && totals.shortfall > 0;
   const showLeftover = !!totals && leftoverAfterDownPayment > 0;
+  // When PPAP is deferred it is not money to prepare now — show it on its own as a
+  // future obligation due once the property is ready (the mortgage start month).
+  const ppapDeferred = !!totals && totals.ppap > 0 && totals.ppapTiming === 'LATER';
 
   return (
     <div className={styles.card}>
@@ -46,11 +49,11 @@ export function ComputedSummary({ totals }: Props) {
         </dl>
       </section>
 
-      {showPpap || showLeftover ? (
+      {(showPpap && !ppapDeferred) || showLeftover ? (
         <section className={styles.section}>
           <h4 className={styles.sectionTitle}>Nakon učešća</h4>
           <dl className={styles.list}>
-            {showPpap ? (
+            {showPpap && !ppapDeferred ? (
               <Row
                 label="Porez na prenos (PPAP)"
                 value={totals ? formatEur(totals.ppap) : null}
@@ -64,6 +67,37 @@ export function ComputedSummary({ totals }: Props) {
               />
             ) : null}
           </dl>
+        </section>
+      ) : null}
+
+      {ppapDeferred ? (
+        <section className={styles.section}>
+          <h4 className={styles.sectionTitle}>Buduća obaveza</h4>
+          <dl className={styles.list}>
+            <Row
+              label="Porez na prenos (PPAP) — kasnije"
+              value={formatEur(totals.ppap)}
+            />
+            {totals.ppapMonthlySaving !== null ? (
+              <Row
+                label="Mesečna štednja za PPAP"
+                value={formatEur(totals.ppapMonthlySaving)}
+                variant="debt"
+              />
+            ) : null}
+          </dl>
+          <p className={styles.note}>
+            Ne pripremate sada — dospeva kada nekretnina bude gotova
+            {totals.ppapDueMonth ? ` (oko ${formatMonthYear(totals.ppapDueMonth)})` : ''}, uz
+            stambeni kredit.
+            {totals.ppapMonthlySaving !== null && totals.ppapSavingMonths !== null
+              ? ` Da bi bio spreman na vreme, odvajajte ${formatEur(
+                  totals.ppapMonthlySaving,
+                )} mesečno tokom ${totals.ppapSavingMonths} ${
+                  totals.ppapSavingMonths === 1 ? 'meseca' : 'meseci'
+                }.`
+              : ''}
+          </p>
         </section>
       ) : null}
 

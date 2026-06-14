@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 import type {
+  addressSchema,
   calculationInputsSchema,
   calculationSchema,
   calculationSummarySchema,
@@ -8,11 +9,18 @@ import type {
   loanTypeSchema,
   monthYearSchema,
   mortgageInputsSchema,
+  ppapTimingSchema,
+  propertyExtraSchema,
+  propertyTypeSchema,
   sellerSchema,
 } from './schemas';
 
 export type LoanType = z.infer<typeof loanTypeSchema>;
 export type Seller = z.infer<typeof sellerSchema>;
+export type PpapTiming = z.infer<typeof ppapTimingSchema>;
+export type PropertyType = z.infer<typeof propertyTypeSchema>;
+export type PropertyExtra = z.infer<typeof propertyExtraSchema>;
+export type Address = z.infer<typeof addressSchema>;
 export type MonthYear = z.infer<typeof monthYearSchema>;
 export type CapitalSource = z.infer<typeof capitalSourceSchema>;
 export type Loan = z.infer<typeof loanSchema>;
@@ -45,6 +53,17 @@ export type DebtPhase = {
 
 export type ComputedTotals = {
   ppap: number;
+  ppapTiming: PpapTiming;
+  /** When PPAP is deferred (timing === 'LATER'), the month it comes due — the
+   * mortgage start month, since the property must be ready for the mortgage to begin.
+   * `null` when there is no PPAP or it is paid now. */
+  ppapDueMonth: MonthYear | null;
+  /** Amount to set aside each month so the deferred PPAP is covered by its due month,
+   * spread evenly from the saving start month (inputs.ppapSavingStartMonth, defaulting to
+   * the current month). `null` unless PPAP is deferred. */
+  ppapMonthlySaving: number | null;
+  /** Number of months over which the deferred PPAP saving is spread. `null` unless deferred. */
+  ppapSavingMonths: number | null;
   totalCapital: number;
   loansForDownPayment: number;
   availableForDownPayment: number;

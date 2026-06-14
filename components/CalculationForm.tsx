@@ -2,24 +2,31 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import {
   Controller,
   FormProvider,
-  useFieldArray,
   useForm,
   useFormContext,
   useWatch,
   type Control,
-  type SubmitHandler,
 } from 'react-hook-form';
 import { computeTotals } from '@/lib/calc';
-import { createDefaultLoan } from '@/lib/defaults';
+import { createDefaultLoan, currentMonthYear } from '@/lib/defaults';
 import { calculationInputsSchema } from '@/lib/schemas';
-import type { Calculation, CalculationInputs, ComputedTotals, Loan } from '@/lib/types';
+import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths } from '@/lib/format';
+import type {
+  Calculation,
+  CalculationInputs,
+  CapitalSource,
+  ComputedTotals,
+  Loan,
+  PropertyExtra,
+} from '@/lib/types';
 import { z } from 'zod';
 import { ComputedSummary } from './ComputedSummary';
 import { FieldError } from './FieldError';
+import { CapitalSourceRow } from './CapitalSourceRow';
 import { LoanRow } from './LoanRow';
 import { MonthYearInput } from './MonthYearInput';
 import { PhasesTimeline } from './PhasesTimeline';
@@ -34,6 +41,14 @@ const formSchema = z.object({
 
 type Props = { initial: Calculation };
 
+/** Shared edit/save plumbing handed to every section. `onSave` persists the whole
+ * calculation and resolves to whether it succeeded; `onCancel` reverts to last saved. */
+type SectionProps = {
+  saving: boolean;
+  onSave: () => Promise<boolean>;
+  onCancel: () => void;
+};
+
 export function CalculationForm({ initial }: Props) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -44,13 +59,7 @@ export function CalculationForm({ initial }: Props) {
     resolver: zodResolver(formSchema),
     mode: 'onChange',
   });
-  const {
-    register,
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors, isDirty, isValid },
-  } = methods;
+  const { control, reset } = methods;
 
   const watched = useWatch({ control });
 
@@ -64,7 +73,10 @@ export function CalculationForm({ initial }: Props) {
     }
   }, [watched]);
 
-  const onSubmit: SubmitHandler<CalculationFormValues> = async (values) => {
+  const saveCalculation = async (): Promise<boolean> => {
+    const valid = await methods.trigger();
+    if (!valid) return false;
+    const values = methods.getValues();
     setSaveError(null);
     setSaving(true);
     const payload: Calculation = {
@@ -83,39 +95,31 @@ export function CalculationForm({ initial }: Props) {
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
         setSaveError(body.error ?? 'Greška pri čuvanju kalkulacije.');
-        setSaving(false);
-        return;
+        return false;
       }
       const stored: Calculation = await response.json();
       reset({ name: stored.name, inputs: stored.inputs });
       router.refresh();
+      return true;
     } catch {
       setSaveError('Greška u komunikaciji sa serverom.');
+      return false;
     } finally {
       setSaving(false);
     }
   };
 
+  function revert() {
+    reset();
+    setSaveError(null);
+  }
+
+  const section: SectionProps = { saving, onSave: saveCalculation, onCancel: revert };
+
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className={styles.headerBar}>
-          <div className={styles.headerName}>
-            <label htmlFor="calc-name">Naziv kalkulacije</label>
-            <input id="calc-name" type="text" maxLength={80} {...register('name')} />
-            <FieldError message={errors.name?.message} />
-          </div>
-          <div className={styles.headerActions}>
-            <button type="submit" disabled={!isDirty || !isValid || saving}>
-              {saving ? 'Čuvam…' : 'Sačuvaj'}
-            </button>
-            {isDirty ? (
-              <span className={styles.dirtyIndicator}>Imate nesačuvane izmene</span>
-            ) : (
-              <span className={styles.cleanIndicator}>Sve izmene su sačuvane</span>
-            )}
-          </div>
-        </div>
+      <form onSubmit={(e) => e.preventDefault()} noValidate>
+        <NameSection {...section} />
 
         {saveError ? (
           <p style={{ color: 'var(--color-danger)', marginBottom: 'var(--space-4)' }}>
@@ -125,10 +129,11 @@ export function CalculationForm({ initial }: Props) {
 
         <div className={styles.layout}>
           <div className={styles.formColumn}>
-            <BasicsFieldset />
-            <CapitalSourcesFieldset />
-            <MortgageFieldset />
-            <ManualLoansFieldset />
+            <BasicsFieldset {...section} />
+            <ExtrasFieldset {...section} />
+            <CapitalSourcesFieldset {...section} />
+            <MortgageFieldset {...section} />
+            <ManualLoansFieldset {...section} />
           </div>
           <div className={styles.summaryColumn}>
             <ComputedSummary totals={totals} />
@@ -140,145 +145,542 @@ export function CalculationForm({ initial }: Props) {
   );
 }
 
-function BasicsFieldset() {
-  const {
-    register,
-    control,
-    formState: { errors },
-  } = useFormContextTyped();
+/** Izmeni → Otkaži/Sačuvaj toggle. Rendered outside the disabled fieldset so it stays
+ * interactive while the section's fields are locked. */
+function SectionControls({
+  editing,
+  setEditing,
+  saving,
+  onSave,
+  onCancel,
+}: SectionProps & {
+  editing: boolean;
+  setEditing: (value: boolean) => void;
+}) {
+  async function handleSave() {
+    const ok = await onSave();
+    if (ok) setEditing(false);
+  }
+  function handleCancel() {
+    onCancel();
+    setEditing(false);
+  }
+
+  if (!editing) {
+    return (
+      <button type="button" className="secondary" onClick={() => setEditing(true)}>
+        Izmeni
+      </button>
+    );
+  }
   return (
-    <fieldset className={styles.fieldset}>
-      <legend className={styles.legend}>Osnovni podaci o kupovini</legend>
-      <div className={styles.grid2}>
-        <div className={styles.field}>
-          <label htmlFor="property-price">Ukupna cena nekretnine</label>
-          <div className={styles.fieldWithSuffix}>
-            <input
-              id="property-price"
-              type="number"
-              inputMode="decimal"
-              step="any"
-              min={0}
-              {...register('inputs.propertyPrice', { valueAsNumber: true })}
-            />
-            <span className={styles.suffix}>EUR</span>
-          </div>
-          <FieldError message={errors.inputs?.propertyPrice?.message} />
-        </div>
-
-        <div className={styles.field}>
-          <label htmlFor="seller">Prodavac</label>
-          <Controller
-            control={control as Control<CalculationFormValues>}
-            name="inputs.seller"
-            render={({ field }) => (
-              <select
-                id="seller"
-                value={field.value}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-              >
-                <option value="INDIVIDUAL">Fizičko lice</option>
-                <option value="INVESTOR">Investitor</option>
-              </select>
-            )}
-          />
-          <FieldError message={errors.inputs?.seller?.message} />
-        </div>
-
-        <div className={styles.field}>
-          <label htmlFor="purchase-costs">Fiksni troškovi kupovine (notar, advokat…)</label>
-          <div className={styles.fieldWithSuffix}>
-            <input
-              id="purchase-costs"
-              type="number"
-              inputMode="decimal"
-              step="any"
-              min={0}
-              {...register('inputs.purchaseCostsFixed', { valueAsNumber: true })}
-            />
-            <span className={styles.suffix}>EUR</span>
-          </div>
-          <FieldError message={errors.inputs?.purchaseCostsFixed?.message} />
-        </div>
-      </div>
-    </fieldset>
+    <div className={styles.sectionControls}>
+      <button type="button" className="secondary" onClick={handleCancel} disabled={saving}>
+        Otkaži
+      </button>
+      <button type="button" onClick={handleSave} disabled={saving}>
+        {saving ? 'Čuvam…' : 'Sačuvaj'}
+      </button>
+    </div>
   );
 }
 
-function CapitalSourcesFieldset() {
+/** A card section with its own edit/save controls. Children get the current `editing`
+ * flag so they can render editable inputs or a read-only, card-like presentation. */
+function SectionFieldset({
+  title,
+  accentClass,
+  saving,
+  onSave,
+  onCancel,
+  children,
+}: SectionProps & {
+  title: string;
+  accentClass: string;
+  children: (editing: boolean) => ReactNode;
+}) {
+  const [editing, setEditing] = useState(false);
+  return (
+    <div className={`${styles.section} ${accentClass}`}>
+      <div className={styles.sectionHeader}>
+        <h3 className={styles.sectionTitle}>{title}</h3>
+        <SectionControls
+          editing={editing}
+          setEditing={setEditing}
+          saving={saving}
+          onSave={onSave}
+          onCancel={onCancel}
+        />
+      </div>
+      <fieldset className={styles.sectionBody} disabled={!editing}>
+        {children(editing)}
+      </fieldset>
+    </div>
+  );
+}
+
+/** A read-only label/value pair, matching the look of the loan/capital detail cards. */
+function ViewRow({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
+}
+
+function NameSection({ saving, onSave, onCancel }: SectionProps) {
   const {
     register,
     control,
     formState: { errors },
   } = useFormContextTyped();
-  const { fields, append, remove } = useFieldArray({ control, name: 'inputs.capitalSources' });
+  const [editing, setEditing] = useState(false);
+  const name = useWatch({ control, name: 'name' });
+  return (
+    <div className={styles.headerBar}>
+      <div className={styles.headerName}>
+        <label htmlFor="calc-name">Naziv kalkulacije</label>
+        {editing ? (
+          <input id="calc-name" type="text" maxLength={80} {...register('name')} />
+        ) : (
+          <span className={styles.nameValue}>{name}</span>
+        )}
+        <FieldError message={errors.name?.message} />
+      </div>
+      <div className={styles.headerActions}>
+        <SectionControls
+          editing={editing}
+          setEditing={setEditing}
+          saving={saving}
+          onSave={onSave}
+          onCancel={onCancel}
+        />
+      </div>
+    </div>
+  );
+}
+
+function BasicsFieldset(props: SectionProps) {
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContextTyped();
+
+  const propertyType = useWatch({ control, name: 'inputs.propertyType' });
+  const seller = useWatch({ control, name: 'inputs.seller' });
+  const ppapTiming = useWatch({ control, name: 'inputs.ppapTiming' });
+  const ppapSavingStartMonth = useWatch({ control, name: 'inputs.ppapSavingStartMonth' });
+  const propertyPrice = useWatch({ control, name: 'inputs.propertyPrice' });
+  const squareMeters = useWatch({ control, name: 'inputs.squareMeters' });
+  const purchaseCostsFixed = useWatch({ control, name: 'inputs.purchaseCostsFixed' });
+  const area = useWatch({ control, name: 'inputs.address.area' });
+  const street = useWatch({ control, name: 'inputs.address.street' });
+  const link = useWatch({ control, name: 'inputs.link' });
+  const pricePerSqm =
+    Number.isFinite(propertyPrice) && Number.isFinite(squareMeters) && squareMeters > 0
+      ? propertyPrice / squareMeters
+      : null;
 
   return (
-    <fieldset className={styles.fieldset}>
-      <legend className={styles.legend}>Početni kapital</legend>
-      <div className={styles.repeaterList}>
-        {fields.map((field, index) => {
-          const rowErrors = errors.inputs?.capitalSources?.[index];
-          return (
-            <div key={field.id} className={styles.repeaterRow}>
-              <div className={styles.field}>
-                <label htmlFor={`cap-${index}-label`}>Izvor</label>
-                <input
-                  id={`cap-${index}-label`}
-                  type="text"
-                  defaultValue={field.label}
-                  {...register(`inputs.capitalSources.${index}.label`)}
+    <SectionFieldset title="Osnovni podaci o kupovini" accentClass={styles.fieldsetBasics} {...props}>
+      {(editing) =>
+        editing ? (
+          <div className={styles.grid2}>
+            <div className={styles.field}>
+              <label htmlFor="property-type">Tip nekretnine</label>
+              <Controller
+                control={control as Control<CalculationFormValues>}
+                name="inputs.propertyType"
+                render={({ field }) => (
+                  <select
+                    id="property-type"
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  >
+                    <option value="APARTMENT">STAN</option>
+                    <option value="HOUSE">KUĆA</option>
+                  </select>
+                )}
+              />
+              <FieldError message={errors.inputs?.propertyType?.message} />
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="seller">Prodavac</label>
+              <Controller
+                control={control as Control<CalculationFormValues>}
+                name="inputs.seller"
+                render={({ field }) => (
+                  <select
+                    id="seller"
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  >
+                    <option value="INDIVIDUAL">Fizičko lice</option>
+                    <option value="INVESTOR">Investitor</option>
+                  </select>
+                )}
+              />
+              <FieldError message={errors.inputs?.seller?.message} />
+            </div>
+
+            {seller === 'INDIVIDUAL' ? (
+              <div className={`${styles.field} ${styles.fieldFull}`}>
+                <label htmlFor="ppap-timing">Kada se plaća porez na prenos (PPAP)</label>
+                <Controller
+                  control={control as Control<CalculationFormValues>}
+                  name="inputs.ppapTiming"
+                  render={({ field }) => (
+                    <select
+                      id="ppap-timing"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    >
+                      <option value="NOW">Sada (pripremam novac uz učešće)</option>
+                      <option value="LATER">
+                        Kasnije (kada je nekretnina gotova, uz stambeni kredit)
+                      </option>
+                    </select>
+                  )}
                 />
-                <FieldError message={rowErrors?.label?.message} />
+                <span className={styles.fieldHint}>
+                  „Kasnije“ znači da porez ne ulazi u novac koji pripremate sada, već dospeva kada
+                  nekretnina bude gotova i odobren stambeni kredit.
+                </span>
+                <FieldError message={errors.inputs?.ppapTiming?.message} />
               </div>
+            ) : null}
+
+            {seller === 'INDIVIDUAL' && ppapTiming === 'LATER' ? (
               <div className={styles.field}>
-                <label htmlFor={`cap-${index}-amount`}>Iznos</label>
-                <div className={styles.fieldWithSuffix}>
-                  <input
-                    id={`cap-${index}-amount`}
-                    type="number"
-                    inputMode="decimal"
-                    step="any"
-                    min={0}
-                    defaultValue={field.amount}
-                    {...register(`inputs.capitalSources.${index}.amount`, {
-                      valueAsNumber: true,
-                    })}
-                  />
-                  <span className={styles.suffix}>EUR</span>
-                </div>
-                <FieldError message={rowErrors?.amount?.message} />
+                <label htmlFor="ppap-saving-start">Početak štednje za PPAP</label>
+                <Controller
+                  control={control as Control<CalculationFormValues>}
+                  name="inputs.ppapSavingStartMonth"
+                  render={({ field }) => (
+                    <MonthYearInput
+                      id="ppap-saving-start"
+                      value={field.value ?? currentMonthYear()}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+                <span className={styles.fieldHint}>
+                  Mesec od kog počinjete da odvajate novac za PPAP.
+                </span>
               </div>
+            ) : null}
+
+            <div className={styles.field}>
+              <label htmlFor="property-price">Ukupna cena nekretnine</label>
+              <div className={styles.fieldWithSuffix}>
+                <input
+                  id="property-price"
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  min={0}
+                  {...register('inputs.propertyPrice', { valueAsNumber: true })}
+                />
+                <span className={styles.suffix}>EUR</span>
+              </div>
+              <FieldError message={errors.inputs?.propertyPrice?.message} />
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="square-meters">Kvadratura</label>
+              <div className={styles.fieldWithSuffix}>
+                <input
+                  id="square-meters"
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  min={0}
+                  {...register('inputs.squareMeters', { valueAsNumber: true })}
+                />
+                <span className={styles.suffix}>m²</span>
+              </div>
+              <FieldError message={errors.inputs?.squareMeters?.message} />
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="price-per-sqm">Cena po m²</label>
+              <div className={styles.fieldWithSuffix}>
+                <input
+                  id="price-per-sqm"
+                  type="text"
+                  readOnly
+                  tabIndex={-1}
+                  value={pricePerSqm === null ? '—' : formatEur(pricePerSqm)}
+                />
+                <span className={styles.suffix}>/ m²</span>
+              </div>
+              <span className={styles.fieldHint}>Automatski izračunato iz cene i kvadrature.</span>
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="purchase-costs">Fiksni troškovi kupovine (notar, advokat…)</label>
+              <div className={styles.fieldWithSuffix}>
+                <input
+                  id="purchase-costs"
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  min={0}
+                  {...register('inputs.purchaseCostsFixed', { valueAsNumber: true })}
+                />
+                <span className={styles.suffix}>EUR</span>
+              </div>
+              <FieldError message={errors.inputs?.purchaseCostsFixed?.message} />
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="address-area">Deo grada</label>
+              <input
+                id="address-area"
+                type="text"
+                placeholder="npr. Sremska Kamenica"
+                {...register('inputs.address.area')}
+              />
+              <FieldError message={errors.inputs?.address?.area?.message} />
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="address-street">Ulica i broj</label>
+              <input
+                id="address-street"
+                type="text"
+                placeholder="npr. Jablanova 12"
+                {...register('inputs.address.street')}
+              />
+              <FieldError message={errors.inputs?.address?.street?.message} />
+            </div>
+
+            <div className={`${styles.field} ${styles.fieldFull}`}>
+              <label htmlFor="property-link">Link ka oglasu</label>
+              <input
+                id="property-link"
+                type="url"
+                inputMode="url"
+                placeholder="https://…"
+                {...register('inputs.link')}
+              />
+              <FieldError message={errors.inputs?.link?.message} />
+            </div>
+          </div>
+        ) : (
+          <dl className={styles.viewList}>
+            <ViewRow label="Tip nekretnine" value={propertyType === 'HOUSE' ? 'KUĆA' : 'STAN'} />
+            <ViewRow
+              label="Prodavac"
+              value={seller === 'INDIVIDUAL' ? 'Fizičko lice' : 'Investitor'}
+            />
+            {seller === 'INDIVIDUAL' ? (
+              <ViewRow
+                label="Plaćanje poreza na prenos (PPAP)"
+                value={
+                  ppapTiming === 'LATER'
+                    ? 'Kasnije (kada je nekretnina gotova)'
+                    : 'Sada (uz učešće)'
+                }
+              />
+            ) : null}
+            {seller === 'INDIVIDUAL' && ppapTiming === 'LATER' ? (
+              <ViewRow
+                label="Početak štednje za PPAP"
+                value={formatMonthYear(ppapSavingStartMonth ?? currentMonthYear())}
+              />
+            ) : null}
+            <ViewRow label="Ukupna cena nekretnine" value={formatEur(propertyPrice)} />
+            <ViewRow
+              label="Kvadratura"
+              value={Number.isFinite(squareMeters) ? `${squareMeters} m²` : '—'}
+            />
+            <ViewRow
+              label="Cena po m²"
+              value={pricePerSqm === null ? '—' : formatEur(pricePerSqm)}
+            />
+            <ViewRow label="Fiksni troškovi kupovine" value={formatEur(purchaseCostsFixed)} />
+            <ViewRow label="Deo grada" value={area || '—'} />
+            <ViewRow label="Ulica i broj" value={street || '—'} />
+            <ViewRow
+              label="Link ka oglasu"
+              value={
+                link ? (
+                  <a
+                    className={styles.linkValue}
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={link}
+                  >
+                    {link.length > 20 ? `${link.slice(0, 20)}...` : link}
+                  </a>
+                ) : (
+                  '—'
+                )
+              }
+            />
+          </dl>
+        )
+      }
+    </SectionFieldset>
+  );
+}
+
+/** Free-text list of perks bundled with the property (garage, parking, pantry…).
+ * Purely descriptive — no amounts, no effect on the calculation. Uses the shared
+ * section-level edit/save, so changes persist when the section is saved. */
+function ExtrasFieldset(props: SectionProps) {
+  const { control, setValue } = useFormContextTyped();
+  const extras = (useWatch({ control, name: 'inputs.extras' }) ?? []) as PropertyExtra[];
+
+  function update(next: PropertyExtra[]) {
+    setValue('inputs.extras', next, { shouldDirty: true, shouldValidate: true });
+  }
+
+  return (
+    <SectionFieldset
+      title="Uključeno uz nekretninu"
+      accentClass={styles.fieldsetExtras}
+      {...props}
+    >
+      {(editing) =>
+        editing ? (
+          <div>
+            <p className={styles.fieldsetHint}>
+              Sve što ide uz nekretninu (npr. garaža, parking, ostava, kuhinja…). Dodajte koliko
+              god stavki želite.
+            </p>
+            {extras.length > 0 ? (
+              <div className={styles.extrasEditList}>
+                {extras.map((extra, index) => (
+                  <div key={extra.id} className={styles.extrasEditRow}>
+                    <input
+                      type="text"
+                      maxLength={120}
+                      placeholder="npr. Garažno mesto"
+                      value={extra.text}
+                      onChange={(e) =>
+                        update(
+                          extras.map((x, i) =>
+                            i === index ? { ...x, text: e.target.value } : x,
+                          ),
+                        )
+                      }
+                    />
+                    <button
+                      type="button"
+                      className={styles.removeButton}
+                      onClick={() => update(extras.filter((_, i) => i !== index))}
+                      title="Ukloni stavku"
+                    >
+                      Ukloni
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+            <div className={styles.repeaterControls}>
               <button
                 type="button"
-                className={styles.removeButton}
-                onClick={() => remove(index)}
-                disabled={fields.length === 1}
-                title={
-                  fields.length === 1 ? 'Mora postojati barem jedan izvor.' : 'Ukloni izvor'
-                }
+                className="secondary"
+                onClick={() => update([...extras, { id: nanoid(8), text: '' }])}
               >
-                Ukloni
+                Dodaj stavku
               </button>
             </div>
-          );
-        })}
+          </div>
+        ) : extras.length === 0 ? (
+          <p className={styles.fieldsetEmpty}>Nema dodatnih stavki uz nekretninu.</p>
+        ) : (
+          <ul className={styles.extrasViewList}>
+            {extras.map((extra) => (
+              <li key={extra.id}>{extra.text}</li>
+            ))}
+          </ul>
+        )
+      }
+    </SectionFieldset>
+  );
+}
+
+/** Like loans, capital sources have no section-level edit/save: each card manages its
+ * own edit/remove, and applying or removing a card persists the calculation. */
+function CapitalSourcesFieldset({ saving, onSave }: SectionProps) {
+  const { control, setValue } = useFormContextTyped();
+  const sources = (useWatch({ control, name: 'inputs.capitalSources' }) ?? []) as CapitalSource[];
+  const [newIds, setNewIds] = useState<Set<string>>(new Set());
+
+  function handleAdd() {
+    const newSource: CapitalSource = { id: nanoid(8), label: 'Novi izvor', amount: 0 };
+    setValue('inputs.capitalSources', [...sources, newSource], {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setNewIds((prev) => {
+      const next = new Set(prev);
+      next.add(newSource.id);
+      return next;
+    });
+  }
+
+  function handleApply(index: number, updated: CapitalSource) {
+    const next = sources.map((s, i) => (i === index ? updated : s));
+    setValue('inputs.capitalSources', next, { shouldDirty: true, shouldValidate: true });
+    setNewIds((prev) => {
+      const ns = new Set(prev);
+      ns.delete(updated.id);
+      return ns;
+    });
+    void onSave();
+  }
+
+  function handleRemove(index: number) {
+    const removed = sources[index];
+    const next = sources.filter((_, i) => i !== index);
+    setValue('inputs.capitalSources', next, { shouldDirty: true, shouldValidate: true });
+    setNewIds((prev) => {
+      const ns = new Set(prev);
+      ns.delete(removed.id);
+      return ns;
+    });
+    // A brand-new card that was never applied has nothing persisted yet — skip the save.
+    if (!newIds.has(removed.id)) void onSave();
+  }
+
+  return (
+    <div className={`${styles.section} ${styles.fieldsetCapital}`}>
+      <div className={styles.sectionHeader}>
+        <h3 className={styles.sectionTitle}>Početni kapital</h3>
+      </div>
+      <div className={styles.loanList}>
+        {sources.map((source, index) => (
+          <CapitalSourceRow
+            key={source.id}
+            source={source}
+            isNew={newIds.has(source.id)}
+            canRemove={sources.length > 1}
+            onApply={(updated) => handleApply(index, updated)}
+            onRemove={() => handleRemove(index)}
+          />
+        ))}
       </div>
       <div className={styles.repeaterControls}>
-        <button
-          type="button"
-          className="secondary"
-          onClick={() => append({ id: nanoid(8), label: 'Novi izvor', amount: 0 })}
-        >
+        <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
           Dodaj izvor
         </button>
       </div>
-    </fieldset>
+    </div>
   );
 }
 
-function MortgageFieldset() {
+function MortgageFieldset(props: SectionProps) {
   const {
     register,
     control,
@@ -286,77 +688,99 @@ function MortgageFieldset() {
   } = useFormContextTyped();
   const mortgageErrors = errors.inputs?.mortgage;
 
+  const downPaymentPct = useWatch({ control, name: 'inputs.mortgage.downPaymentPct' });
+  const interestRatePct = useWatch({ control, name: 'inputs.mortgage.interestRatePct' });
+  const termMonths = useWatch({ control, name: 'inputs.mortgage.termMonths' });
+  const startMonth = useWatch({ control, name: 'inputs.mortgage.startMonth' });
+
   return (
-    <fieldset className={styles.fieldset}>
-      <legend className={styles.legend}>Stambeni kredit</legend>
-      <div className={styles.grid3}>
-        <div className={styles.field}>
-          <label htmlFor="mortgage-downpayment">Procenat učešća</label>
-          <div className={styles.fieldWithSuffix}>
-            <input
-              id="mortgage-downpayment"
-              type="number"
-              inputMode="decimal"
-              step="any"
-              min={0}
-              max={100}
-              {...register('inputs.mortgage.downPaymentPct', { valueAsNumber: true })}
-            />
-            <span className={styles.suffix}>%</span>
-          </div>
-          <FieldError message={mortgageErrors?.downPaymentPct?.message} />
-        </div>
-        <div className={styles.field}>
-          <label htmlFor="mortgage-rate">Kamatna stopa (NKS)</label>
-          <div className={styles.fieldWithSuffix}>
-            <input
-              id="mortgage-rate"
-              type="number"
-              inputMode="decimal"
-              step="any"
-              min={0}
-              max={100}
-              {...register('inputs.mortgage.interestRatePct', { valueAsNumber: true })}
-            />
-            <span className={styles.suffix}>%</span>
-          </div>
-          <FieldError message={mortgageErrors?.interestRatePct?.message} />
-        </div>
-        <div className={styles.field}>
-          <label htmlFor="mortgage-term">Rok otplate</label>
-          <div className={styles.fieldWithSuffix}>
-            <input
-              id="mortgage-term"
-              type="number"
-              inputMode="numeric"
-              step="1"
-              min={1}
-              {...register('inputs.mortgage.termMonths', { valueAsNumber: true })}
-            />
-            <span className={styles.suffix}>mes.</span>
-          </div>
-          <FieldError message={mortgageErrors?.termMonths?.message} />
-        </div>
-        <div className={styles.field}>
-          <label htmlFor="mortgage-start">Početak otplate</label>
-          <Controller
-            control={control as Control<CalculationFormValues>}
-            name="inputs.mortgage.startMonth"
-            render={({ field }) => (
-              <MonthYearInput
-                id="mortgage-start"
-                value={field.value}
-                onChange={field.onChange}
+    <SectionFieldset title="Stambeni kredit" accentClass={styles.fieldsetMortgage} {...props}>
+      {(editing) =>
+        editing ? (
+          <div className={styles.grid3}>
+            <div className={styles.field}>
+              <label htmlFor="mortgage-downpayment">Procenat učešća</label>
+              <div className={styles.fieldWithSuffix}>
+                <input
+                  id="mortgage-downpayment"
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  min={0}
+                  max={100}
+                  {...register('inputs.mortgage.downPaymentPct', { valueAsNumber: true })}
+                />
+                <span className={styles.suffix}>%</span>
+              </div>
+              <FieldError message={mortgageErrors?.downPaymentPct?.message} />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="mortgage-rate">Kamatna stopa (NKS)</label>
+              <div className={styles.fieldWithSuffix}>
+                <input
+                  id="mortgage-rate"
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  min={0}
+                  max={100}
+                  {...register('inputs.mortgage.interestRatePct', { valueAsNumber: true })}
+                />
+                <span className={styles.suffix}>%</span>
+              </div>
+              <FieldError message={mortgageErrors?.interestRatePct?.message} />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="mortgage-term">Rok otplate</label>
+              <div className={styles.fieldWithSuffix}>
+                <input
+                  id="mortgage-term"
+                  type="number"
+                  inputMode="numeric"
+                  step="1"
+                  min={1}
+                  {...register('inputs.mortgage.termMonths', { valueAsNumber: true })}
+                />
+                <span className={styles.suffix}>mes.</span>
+              </div>
+              <FieldError message={mortgageErrors?.termMonths?.message} />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="mortgage-start">Početak otplate</label>
+              <Controller
+                control={control as Control<CalculationFormValues>}
+                name="inputs.mortgage.startMonth"
+                render={({ field }) => (
+                  <MonthYearInput
+                    id="mortgage-start"
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                )}
               />
-            )}
-          />
-        </div>
-      </div>
-    </fieldset>
+            </div>
+          </div>
+        ) : (
+          <dl className={styles.viewList}>
+            <ViewRow label="Procenat učešća" value={`${downPaymentPct} %`} />
+            <ViewRow label="Kamatna stopa (NKS)" value={`${interestRatePct} %`} />
+            <ViewRow
+              label="Rok otplate"
+              value={
+                Number.isFinite(termMonths) ? formatMonthsAsYearsAndMonths(termMonths) : '—'
+              }
+            />
+            <ViewRow label="Početak otplate" value={formatMonthYear(startMonth)} />
+          </dl>
+        )
+      }
+    </SectionFieldset>
   );
 }
 
-function ManualLoansFieldset() {
+/** Unlike the other sections, loans have no section-level edit/save: each card manages
+ * its own edit/remove, and applying or removing a card persists the calculation. */
+function ManualLoansFieldset({ saving, onSave }: SectionProps) {
   const { control, getValues, setValue } = useFormContextTyped();
   const loans = (useWatch({ control, name: 'inputs.loans' }) ?? []) as Loan[];
   const [newLoanIds, setNewLoanIds] = useState<Set<string>>(new Set());
@@ -381,6 +805,7 @@ function ManualLoansFieldset() {
       ns.delete(updated.id);
       return ns;
     });
+    void onSave();
   }
 
   function handleRemove(index: number) {
@@ -392,14 +817,18 @@ function ManualLoansFieldset() {
       ns.delete(removed.id);
       return ns;
     });
+    // A brand-new card that was never applied has nothing persisted yet — skip the save.
+    if (!newLoanIds.has(removed.id)) void onSave();
   }
 
   return (
-    <fieldset className={styles.fieldset}>
-      <legend className={styles.legend}>Dodatne pozajmice</legend>
+    <div className={`${styles.section} ${styles.fieldsetLoans}`}>
+      <div className={styles.sectionHeader}>
+        <h3 className={styles.sectionTitle}>Dodatne pozajmice</h3>
+      </div>
       <p className={styles.fieldsetHint}>
-        Sve dodate pozajmice (keš kredit ili pozajmica) ulaze u učešće. Izmene se primenjuju na
-        „Pregled” i „Faze otplate” tek kada kliknete na <strong>Primeni</strong>.
+        Sve dodate pozajmice (keš kredit ili pozajmica) ulaze u učešće. Svaka stavka ima svoje
+        dugmad za izmenu i uklanjanje; izmene se čuvaju kada kliknete na <strong>Primeni</strong>.
       </p>
       {loans.length === 0 ? (
         <p className={styles.fieldsetEmpty}>
@@ -419,11 +848,11 @@ function ManualLoansFieldset() {
         </div>
       )}
       <div className={styles.repeaterControls}>
-        <button type="button" className="secondary" onClick={handleAdd}>
+        <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
           Dodaj pozajmicu
         </button>
       </div>
-    </fieldset>
+    </div>
   );
 }
 

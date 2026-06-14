@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { defaultInterestRateForLoanType, defaultLoanLabel } from '@/lib/defaults';
+import { computeLoan } from '@/lib/calc/loanComputation';
 import { loanSchema } from '@/lib/schemas';
 import type { Loan, LoanType, MonthYear } from '@/lib/types';
 import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths } from '@/lib/format';
@@ -80,6 +81,7 @@ export function LoanRow({ loan, isNew, onApply, onRemove }: Props) {
   }
 
   if (!editing) {
+    const { totalInterest } = computeLoan(loan);
     return (
       <div className={styles.loanCard}>
         <div className={styles.loanCardHeader}>
@@ -112,6 +114,10 @@ export function LoanRow({ loan, isNew, onApply, onRemove }: Props) {
           <div>
             <dt>Rok otplate</dt>
             <dd>{formatMonthsAsYearsAndMonths(loan.termMonths)}</dd>
+          </div>
+          <div>
+            <dt>Ukupna kamata</dt>
+            <dd>{formatEur(totalInterest)}</dd>
           </div>
         </dl>
       </div>

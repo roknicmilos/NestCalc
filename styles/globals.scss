@@ -100,6 +100,14 @@ input[aria-invalid='true'] {
   border-color: var(--color-danger);
 }
 
+input:disabled,
+select:disabled {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  cursor: default;
+  opacity: 1;
+}
+
 label {
   display: block;
   font-size: 0.875rem;
