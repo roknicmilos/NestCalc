@@ -1,0 +1,55 @@
+{
+  "id": "uwhZNPhJ38",
+  "name": "Stan u Kamenici 2 (u izgradnji)",
+  "createdAt": "2026-06-14T06:07:26.354Z",
+  "updatedAt": "2026-06-14T13:47:01.908Z",
+  "inputs": {
+    "propertyPrice": 250000,
+    "propertyType": "APARTMENT",
+    "squareMeters": 95,
+    "link": "",
+    "address": {
+      "area": "Sremska Kamenica",
+      "street": "Nova 10"
+    },
+    "seller": "INDIVIDUAL",
+    "ppapTiming": "LATER",
+    "ppapSavingStartMonth": {
+      "year": 2026,
+      "month": 7
+    },
+    "purchaseCostsFixed": 2000,
+    "eurToRsdRate": 117.5,
+    "extras": [],
+    "capitalSources": [
+      {
+        "id": "YcHSVy30",
+        "label": "Ušteđevina",
+        "amount": 18000
+      }
+    ],
+    "mortgage": {
+      "downPaymentPct": 20,
+      "interestRatePct": 4.5,
+      "termMonths": 360,
+      "startMonth": {
+        "year": 2028,
+        "month": 1
+      }
+    },
+    "loans": [
+      {
+        "id": "jIPZJB4h",
+        "type": "CASH_LOAN",
+        "label": "Keš kredit za učešće",
+        "amount": 28000,
+        "interestRatePct": 10,
+        "startMonth": {
+          "year": 2026,
+          "month": 7
+        },
+        "termMonths": 71
+      }
+    ]
+  }
+}

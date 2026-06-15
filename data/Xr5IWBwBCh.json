@@ -1,0 +1,60 @@
+{
+  "id": "Xr5IWBwBCh",
+  "name": "Square Garden",
+  "createdAt": "2026-06-14T14:26:31.580Z",
+  "updatedAt": "2026-06-15T23:24:06.503Z",
+  "inputs": {
+    "propertyPrice": 165000,
+    "propertyType": "APARTMENT",
+    "squareMeters": 75,
+    "link": "https://www.facebook.com/groups/324157952694021/posts/1314558753653931/?mibextid=rS40aB7S9Ucbxw6v",
+    "address": {
+      "area": "Avijatičarsko naselje",
+      "street": "Gorana Jojića 17"
+    },
+    "seller": "INDIVIDUAL",
+    "ppapTiming": "NOW",
+    "ppapSavingStartMonth": {
+      "year": 2026,
+      "month": 6
+    },
+    "purchaseCostsFixed": 2000,
+    "eurToRsdRate": 117.5,
+    "extras": [],
+    "capitalSources": [
+      {
+        "id": "7HmdvLYD",
+        "label": "Ušteđevina",
+        "amount": 18000
+      },
+      {
+        "id": "0Nf55Rdf",
+        "label": "Poklon porodice",
+        "amount": 10000
+      }
+    ],
+    "mortgage": {
+      "downPaymentPct": 20,
+      "interestRatePct": 4.5,
+      "termMonths": 360,
+      "startMonth": {
+        "year": 2027,
+        "month": 6
+      }
+    },
+    "loans": [
+      {
+        "id": "Do7EIYvy",
+        "type": "CASH_LOAN",
+        "label": "Keš kredit",
+        "amount": 12000,
+        "interestRatePct": 10,
+        "startMonth": {
+          "year": 2027,
+          "month": 6
+        },
+        "termMonths": 71
+      }
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "id": "N-YgxhWILG",
+  "name": "Stan u Kamenici 1 (manje dvorište)",
+  "createdAt": "2026-06-10T21:13:52.805Z",
+  "updatedAt": "2026-06-13T22:10:53.885Z",
+  "inputs": {
+    "propertyPrice": 225000,
+    "propertyType": "APARTMENT",
+    "squareMeters": 95,
+    "link": "https://cityexpert.rs/prodaja-nekretnina/novi-sad/78640/cetvorosoban-stan-jablanova-sremska-kamenica#photo360",
+    "address": {
+      "area": "Sremska Kamenica",
+      "street": "Nova 10"
+    },
+    "seller": "INDIVIDUAL",
+    "ppapTiming": "NOW",
+    "purchaseCostsFixed": 2000,
+    "extras": [
+      {
+        "id": "kivkmJEz",
+        "text": "2 garažna mesta"
+      },
+      {
+        "id": "GdUuLdG0",
+        "text": "parking mesto ispred garaže"
+      },
+      {
+        "id": "uR0FkeRN",
+        "text": "ostava u garaži"
+      },
+      {
+        "id": "ol0z5us_",
+        "text": "malo dvorište od ?? m2"
+      }
+    ],
+    "capitalSources": [
+      {
+        "id": "a",
+        "label": "Ušteđevina",
+        "amount": 18000
+      },
+      {
+        "id": "b",
+        "label": "Poklon porodice",
+        "amount": 10000
+      }
+    ],
+    "mortgage": {
+      "downPaymentPct": 20,
+      "interestRatePct": 4.5,
+      "termMonths": 360,
+      "startMonth": {
+        "year": 2026,
+        "month": 7
+      }
+    },
+    "loans": [
+      {
+        "id": "cash",
+        "type": "CASH_LOAN",
+        "label": "Keš kredit",
+        "amount": 25000,
+        "interestRatePct": 10,
+        "startMonth": {
+          "year": 2026,
+          "month": 7
+        },
+        "termMonths": 71
+      }
+    ]
+  }
+}

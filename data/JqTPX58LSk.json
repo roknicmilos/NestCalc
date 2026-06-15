@@ -1,0 +1,77 @@
+{
+  "id": "JqTPX58LSk",
+  "name": "Veternik, Leptirova",
+  "createdAt": "2026-06-15T22:56:24.149Z",
+  "updatedAt": "2026-06-15T23:21:17.478Z",
+  "inputs": {
+    "propertyPrice": 195000,
+    "propertyType": "HOUSE",
+    "squareMeters": 90,
+    "link": "",
+    "address": {
+      "area": "Veternik",
+      "street": "Leptirova"
+    },
+    "seller": "INVESTOR",
+    "ppapTiming": "NOW",
+    "ppapSavingStartMonth": {
+      "year": 2026,
+      "month": 6
+    },
+    "purchaseCostsFixed": 2000,
+    "eurToRsdRate": 117.5,
+    "extras": [
+      {
+        "id": "AdJtMkW9",
+        "text": "Dvorište od 150 m2"
+      }
+    ],
+    "capitalSources": [
+      {
+        "id": "eeTPQ8Jp",
+        "label": "Ušteđevina",
+        "amount": 18000
+      },
+      {
+        "id": "clfD3SiL",
+        "label": "Poklon porodice",
+        "amount": 10000
+      }
+    ],
+    "mortgage": {
+      "downPaymentPct": 20,
+      "interestRatePct": 4.5,
+      "termMonths": 300,
+      "startMonth": {
+        "year": 2027,
+        "month": 10
+      }
+    },
+    "loans": [
+      {
+        "id": "uBZeJ_dU",
+        "type": "CASH_LOAN",
+        "label": "Keš kredit",
+        "amount": 6000,
+        "interestRatePct": 10,
+        "startMonth": {
+          "year": 2027,
+          "month": 7
+        },
+        "termMonths": 48
+      },
+      {
+        "id": "LB0Sb-Ak",
+        "type": "PRIVATE_LOAN",
+        "label": "Pozajmica prijatelja",
+        "amount": 7000,
+        "interestRatePct": 0,
+        "startMonth": {
+          "year": 2027,
+          "month": 7
+        },
+        "termMonths": 24
+      }
+    ]
+  }
+}
