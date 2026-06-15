@@ -6,6 +6,12 @@ const eurFormatter = new Intl.NumberFormat('sr-Latn-RS', {
   maximumFractionDigits: 2,
 });
 
+const rsdFormatter = new Intl.NumberFormat('sr-Latn-RS', {
+  style: 'currency',
+  currency: 'RSD',
+  maximumFractionDigits: 0,
+});
+
 const monthYearFormatter = new Intl.DateTimeFormat('sr-Latn-RS', {
   month: 'long',
   year: 'numeric',
@@ -22,6 +28,12 @@ const dateTimeFormatter = new Intl.DateTimeFormat('sr-Latn-RS', {
 export function formatEur(value: number): string {
   if (!Number.isFinite(value)) return '—';
   return eurFormatter.format(value);
+}
+
+/** Format an EUR amount as its RSD equivalent using the given EUR→RSD rate. */
+export function formatRsd(eurValue: number, eurToRsdRate: number): string {
+  if (!Number.isFinite(eurValue) || !Number.isFinite(eurToRsdRate)) return '—';
+  return rsdFormatter.format(eurValue * eurToRsdRate);
 }
 
 export function formatMonthYear(my: MonthYear): string {

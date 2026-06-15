@@ -27,6 +27,16 @@ export function PhasesTimeline({ totals }: Props) {
                 <div className={styles.phaseMeta}>
                   {formatMonthYear(phase.startMonth)} — {formatMonthYear(phase.endMonth)}
                 </div>
+                {phase.monthlyBankTotal > 0 ? (
+                  <div className={styles.bankTotal}>
+                    <span className={styles.bankTotalLabel}>
+                      Dug banci (stambeni + keš)
+                    </span>
+                    <span className={styles.bankTotalAmount}>
+                      {formatEur(phase.monthlyBankTotal)} / mes.
+                    </span>
+                  </div>
+                ) : null}
                 <ul className={styles.components}>
                   {phase.components.map((c) => (
                     <li key={c.loanId} className={styles.componentRow}>

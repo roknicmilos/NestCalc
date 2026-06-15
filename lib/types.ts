@@ -41,6 +41,9 @@ export type DebtPhaseComponent = {
   loanId: string;
   label: string;
   amount: number;
+  /** True for debt owed to a bank (stambeni kredit / keš kredit), false for
+   * private loans (pozajmica) and PPAP savings. */
+  bankDebt: boolean;
 };
 
 export type DebtPhase = {
@@ -48,6 +51,8 @@ export type DebtPhase = {
   endMonth: MonthYear;
   durationMonths: number;
   monthlyTotal: number;
+  /** Monthly total of only the bank debt components (stambeni + keš kredit). */
+  monthlyBankTotal: number;
   components: DebtPhaseComponent[];
 };
 

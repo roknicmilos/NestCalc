@@ -29,6 +29,7 @@ export function buildPhases(loanComputations: LoanComputation[]): DebtPhase[] {
     startIdx: number;
     endIdx: number;
     monthlyTotal: number;
+    monthlyBankTotal: number;
     components: DebtPhaseComponent[];
     componentKey: string;
   };
@@ -45,14 +46,20 @@ export function buildPhases(loanComputations: LoanComputation[]): DebtPhase[] {
         loanId: a.computation.loan.id,
         label: a.computation.loan.label,
         amount: a.computation.monthlyPayment,
+        bankDebt: a.computation.loan.type === 'CASH_LOAN',
       }))
       .sort((a, b) => a.loanId.localeCompare(b.loanId));
     const monthlyTotal = components.reduce((acc, c) => acc + c.amount, 0);
+    const monthlyBankTotal = components.reduce(
+      (acc, c) => acc + (c.bankDebt ? c.amount : 0),
+      0,
+    );
     const componentKey = components.map((c) => c.loanId).join('|');
     intervals.push({
       startIdx: left,
       endIdx: right - 1,
       monthlyTotal,
+      monthlyBankTotal,
       components,
       componentKey,
     });
@@ -78,6 +85,7 @@ export function buildPhases(loanComputations: LoanComputation[]): DebtPhase[] {
     endMonth: indexToMonthYear(iv.endIdx),
     durationMonths: iv.endIdx - iv.startIdx + 1,
     monthlyTotal: iv.monthlyTotal,
+    monthlyBankTotal: iv.monthlyBankTotal,
     components: iv.components,
   }));
 }

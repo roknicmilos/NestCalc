@@ -12,6 +12,7 @@ describe('computeTotals — 230k EUR sample with cash + private loans covering d
     seller: 'INDIVIDUAL',
     ppapTiming: 'NOW',
     purchaseCostsFixed: 2000,
+    eurToRsdRate: 117.5,
     extras: [],
     capitalSources: [
       { id: 'a', label: 'Moje', amount: 17000 },
@@ -79,6 +80,7 @@ describe('computeTotals — PPAP deferred to property readiness', () => {
     seller: 'INDIVIDUAL',
     ppapTiming: 'LATER',
     purchaseCostsFixed: 2000,
+    eurToRsdRate: 117.5,
     extras: [],
     capitalSources: [{ id: 'a', label: 'Moje', amount: 48000 }],
     mortgage: {
@@ -153,6 +155,7 @@ describe('computeTotals — no loans, capital below requirement', () => {
       seller: 'INVESTOR',
       ppapTiming: 'NOW',
       purchaseCostsFixed: 0,
+      eurToRsdRate: 117.5,
       extras: [],
       capitalSources: [{ id: 'a', label: 'A', amount: 5000 }],
       mortgage: {

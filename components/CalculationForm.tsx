@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   Controller,
   FormProvider,
@@ -12,7 +12,7 @@ import {
   type Control,
 } from 'react-hook-form';
 import { computeTotals } from '@/lib/calc';
-import { createDefaultLoan, currentMonthYear } from '@/lib/defaults';
+import { createDefaultLoan, currentMonthYear, DEFAULT_EUR_TO_RSD_RATE } from '@/lib/defaults';
 import { calculationInputsSchema } from '@/lib/schemas';
 import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths } from '@/lib/format';
 import type {
@@ -474,59 +474,66 @@ function BasicsFieldset(props: SectionProps) {
             </div>
           </div>
         ) : (
-          <dl className={styles.viewList}>
-            <ViewRow label="Tip nekretnine" value={propertyType === 'HOUSE' ? 'KUĆA' : 'STAN'} />
-            <ViewRow
-              label="Prodavac"
-              value={seller === 'INDIVIDUAL' ? 'Fizičko lice' : 'Investitor'}
-            />
-            {seller === 'INDIVIDUAL' ? (
+          <>
+            <dl className={styles.viewList}>
+              <ViewRow label="Tip nekretnine" value={propertyType === 'HOUSE' ? 'KUĆA' : 'STAN'} />
               <ViewRow
-                label="Plaćanje poreza na prenos (PPAP)"
-                value={
-                  ppapTiming === 'LATER'
-                    ? 'Kasnije (kada je nekretnina gotova)'
-                    : 'Sada (uz učešće)'
-                }
+                label="Prodavac"
+                value={seller === 'INDIVIDUAL' ? 'Fizičko lice' : 'Investitor'}
               />
-            ) : null}
-            {seller === 'INDIVIDUAL' && ppapTiming === 'LATER' ? (
+              {seller === 'INDIVIDUAL' ? (
+                <ViewRow
+                  label="Plaćanje poreza na prenos (PPAP)"
+                  value={
+                    ppapTiming === 'LATER'
+                      ? 'Kasnije (kada je nekretnina gotova)'
+                      : 'Sada (uz učešće)'
+                  }
+                />
+              ) : null}
+              {seller === 'INDIVIDUAL' && ppapTiming === 'LATER' ? (
+                <ViewRow
+                  label="Početak štednje za PPAP"
+                  value={formatMonthYear(ppapSavingStartMonth ?? currentMonthYear())}
+                />
+              ) : null}
+              <ViewRow label="Ukupna cena nekretnine" value={formatEur(propertyPrice)} />
               <ViewRow
-                label="Početak štednje za PPAP"
-                value={formatMonthYear(ppapSavingStartMonth ?? currentMonthYear())}
+                label="Kvadratura"
+                value={Number.isFinite(squareMeters) ? `${squareMeters} m²` : '—'}
               />
-            ) : null}
-            <ViewRow label="Ukupna cena nekretnine" value={formatEur(propertyPrice)} />
-            <ViewRow
-              label="Kvadratura"
-              value={Number.isFinite(squareMeters) ? `${squareMeters} m²` : '—'}
-            />
-            <ViewRow
-              label="Cena po m²"
-              value={pricePerSqm === null ? '—' : formatEur(pricePerSqm)}
-            />
-            <ViewRow label="Fiksni troškovi kupovine" value={formatEur(purchaseCostsFixed)} />
-            <ViewRow label="Deo grada" value={area || '—'} />
-            <ViewRow label="Ulica i broj" value={street || '—'} />
-            <ViewRow
-              label="Link ka oglasu"
-              value={
-                link ? (
-                  <a
-                    className={styles.linkValue}
-                    href={link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={link}
-                  >
-                    {link.length > 20 ? `${link.slice(0, 20)}...` : link}
-                  </a>
-                ) : (
-                  '—'
-                )
-              }
-            />
-          </dl>
+              <ViewRow label="Fiksni troškovi kupovine" value={formatEur(purchaseCostsFixed)} />
+              <ViewRow label="Deo grada" value={area || '—'} />
+            </dl>
+            <details className={styles.collapsible}>
+              <summary className={styles.collapsibleSummary}>Više detalja o nekretnini</summary>
+              <dl className={`${styles.viewList} ${styles.collapsibleContent}`}>
+                <ViewRow
+                  label="Cena po m²"
+                  value={pricePerSqm === null ? '—' : formatEur(pricePerSqm)}
+                />
+                <ViewRow label="Ulica i broj" value={street || '—'} />
+                <ViewRow
+                  label="Link ka oglasu"
+                  value={
+                    link ? (
+                      <a
+                        className={styles.linkValue}
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={link}
+                      >
+                        {link.length > 20 ? `${link.slice(0, 20)}...` : link}
+                      </a>
+                    ) : (
+                      '—'
+                    )
+                  }
+                />
+              </dl>
+            </details>
+          </>
         )
       }
     </SectionFieldset>
@@ -783,7 +790,11 @@ function MortgageFieldset(props: SectionProps) {
 function ManualLoansFieldset({ saving, onSave }: SectionProps) {
   const { control, getValues, setValue } = useFormContextTyped();
   const loans = (useWatch({ control, name: 'inputs.loans' }) ?? []) as Loan[];
+  const eurToRsdRate = (useWatch({ control, name: 'inputs.eurToRsdRate' }) ??
+    DEFAULT_EUR_TO_RSD_RATE) as number;
   const [newLoanIds, setNewLoanIds] = useState<Set<string>>(new Set());
+
+  const hasCashLoan = loans.some((l) => l.type === 'CASH_LOAN');
 
   function handleAdd() {
     const mortgageStart = getValues('inputs.mortgage.startMonth');
@@ -830,6 +841,9 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
         Sve dodate pozajmice (keš kredit ili pozajmica) ulaze u učešće. Svaka stavka ima svoje
         dugmad za izmenu i uklanjanje; izmene se čuvaju kada kliknete na <strong>Primeni</strong>.
       </p>
+      {hasCashLoan ? (
+        <EurToRsdRateField rate={eurToRsdRate} saving={saving} onSave={onSave} />
+      ) : null}
       {loans.length === 0 ? (
         <p className={styles.fieldsetEmpty}>
           Nema dodatnih pozajmica. Dodajte keš kredit ili pozajmicu od prijatelja/porodice.
@@ -841,6 +855,7 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
               key={loan.id}
               loan={loan}
               isNew={newLoanIds.has(loan.id)}
+              eurToRsdRate={eurToRsdRate}
               onApply={(updated) => handleApply(index, updated)}
               onRemove={() => handleRemove(index)}
             />
@@ -852,6 +867,71 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
           Dodaj pozajmicu
         </button>
       </div>
+    </div>
+  );
+}
+
+/** EUR→RSD rate: read-only by default with its own Izmeni toggle, matching the rest of
+ * the page. Edits stay in a local draft until Sačuvaj persists them. */
+function EurToRsdRateField({
+  rate,
+  saving,
+  onSave,
+}: {
+  rate: number;
+  saving: boolean;
+  onSave: () => Promise<boolean>;
+}) {
+  const { setValue } = useFormContextTyped();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(rate);
+
+  useEffect(() => {
+    setDraft(rate);
+  }, [rate]);
+
+  async function handleSave() {
+    setValue('inputs.eurToRsdRate', draft, { shouldDirty: true, shouldValidate: true });
+    const ok = await onSave();
+    if (ok) setEditing(false);
+  }
+
+  function handleCancel() {
+    setDraft(rate);
+    setEditing(false);
+  }
+
+  return (
+    <div className={`${styles.field} ${styles.rateField}`}>
+      <label htmlFor="eur-to-rsd-rate">Kurs EUR → RSD (za prikaz keš kredita u dinarima)</label>
+      {editing ? (
+        <>
+          <input
+            id="eur-to-rsd-rate"
+            type="number"
+            inputMode="decimal"
+            step="any"
+            min={0}
+            value={Number.isFinite(draft) ? draft : 0}
+            onChange={(e) => setDraft(e.target.valueAsNumber)}
+          />
+          <div className={styles.sectionControls}>
+            <button type="button" className="secondary" onClick={handleCancel} disabled={saving}>
+              Otkaži
+            </button>
+            <button type="button" onClick={handleSave} disabled={saving}>
+              {saving ? 'Čuvam…' : 'Sačuvaj'}
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className={styles.readonlyField}>
+          <span>{Number.isFinite(rate) ? rate : DEFAULT_EUR_TO_RSD_RATE}</span>
+          <button type="button" className="secondary" onClick={() => setEditing(true)}>
+            Izmeni
+          </button>
+        </div>
+      )}
     </div>
   );
 }

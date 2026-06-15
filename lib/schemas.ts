@@ -84,6 +84,13 @@ export const calculationInputsSchema = z.object({
    * compatibility with saved calculations; falls back to the current month. */
   ppapSavingStartMonth: monthYearSchema.optional(),
   purchaseCostsFixed: z.number().finite().min(0, 'Troškovi moraju biti 0 ili veći.'),
+  /** EUR→RSD rate used for secondary RSD amounts in the UI. Optional for backward
+   * compatibility with saved calculations; falls back to the default in defaults.ts. */
+  eurToRsdRate: z
+    .number()
+    .finite()
+    .min(0, 'Kurs mora biti veći od 0.')
+    .default(117.5),
   extras: z.array(propertyExtraSchema).default([]),
   capitalSources: z.array(capitalSourceSchema),
   mortgage: mortgageInputsSchema,

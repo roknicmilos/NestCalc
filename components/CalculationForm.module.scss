@@ -58,6 +58,53 @@
   gap: var(--space-2);
 }
 
+.readonlyField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* EUR→RSD rate field: extra space below so its Izmeni button doesn't crowd the loan list. */
+.rateField {
+  margin-bottom: var(--space-4);
+}
+
+/* Collapsible "more details" block in the read-only basics view. */
+.collapsible {
+  margin-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-3);
+}
+
+.collapsibleSummary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  list-style: none;
+  user-select: none;
+}
+
+.collapsibleSummary::-webkit-details-marker {
+  display: none;
+}
+
+.collapsibleSummary::before {
+  content: '▸ ';
+  display: inline-block;
+}
+
+details[open] > .collapsibleSummary::before {
+  content: '▾ ';
+}
+
+.collapsibleContent {
+  margin-top: var(--space-3);
+}
+
 /* Section accents: green = your own (non-debt) money, warmer/red tones = debt. */
 .fieldsetBasics {
   border-left: 4px solid var(--color-border);
@@ -337,6 +384,14 @@
   margin: 0;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+.rsdAmount {
+  display: block;
+  margin-top: 2px;
+  font-weight: 500;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
 }
 
 .loanEditFooter {

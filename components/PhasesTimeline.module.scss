@@ -53,6 +53,30 @@
   color: var(--color-text-muted);
 }
 
+.bankTotal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  background: rgba(179, 38, 30, 0.06);
+  border-radius: var(--radius-sm);
+}
+
+.bankTotalLabel {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+.bankTotalAmount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--color-danger);
+}
+
 .components {
   list-style: none;
   padding: 0;

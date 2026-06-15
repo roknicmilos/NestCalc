@@ -7,6 +7,9 @@ import type {
   MonthYear,
 } from './types';
 
+/** Default EUR→RSD rate; overridable per calculation in the UI. */
+export const DEFAULT_EUR_TO_RSD_RATE = 117.5;
+
 export function currentMonthYear(now: Date = new Date()): MonthYear {
   return { year: now.getFullYear(), month: now.getMonth() + 1 };
 }
@@ -58,6 +61,7 @@ export function createDefaultCalculationInputs(now: Date = new Date()): Calculat
     ppapTiming: 'NOW',
     ppapSavingStartMonth: currentMonthYear(now),
     purchaseCostsFixed: 0,
+    eurToRsdRate: DEFAULT_EUR_TO_RSD_RATE,
     extras: [],
     capitalSources: [{ id: nanoid(8), label: 'Ušteđevina', amount: 0 }],
     mortgage: {

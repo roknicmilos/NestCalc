@@ -9,11 +9,12 @@ function makeComputation(
   startMonth: number,
   termMonths: number,
   pmt: number,
+  type: 'CASH_LOAN' | 'PRIVATE_LOAN' = 'PRIVATE_LOAN',
 ): LoanComputation {
   return {
     loan: {
       id,
-      type: 'PRIVATE_LOAN',
+      type,
       label,
       amount: pmt * termMonths,
       interestRatePct: 0,
@@ -56,6 +57,29 @@ describe('buildPhases', () => {
     expect(phases[0].durationMonths).toBe(12);
     expect(phases[0].startMonth).toEqual({ year: 2026, month: 6 });
     expect(phases[0].endMonth).toEqual({ year: 2027, month: 5 });
+  });
+
+  it('sums only bank debt (mortgage + keš kredit) into monthlyBankTotal', () => {
+    // Mortgage (bank) + keš kredit (bank) + pozajmica (private), all overlapping.
+    const mortgage = makeComputation('mortgage', 'Stambeni kredit', 2026, 1, 12, 900, 'CASH_LOAN');
+    const cash = makeComputation('c', 'Keš kredit', 2026, 1, 12, 300, 'CASH_LOAN');
+    const priv = makeComputation('p', 'Pozajmica', 2026, 1, 12, 200, 'PRIVATE_LOAN');
+    const phases = buildPhases([mortgage, cash, priv]);
+
+    expect(phases).toHaveLength(1);
+    expect(phases[0].monthlyTotal).toBe(1400);
+    expect(phases[0].monthlyBankTotal).toBe(1200);
+    expect(phases[0].components.filter((c) => c.bankDebt).map((c) => c.loanId)).toEqual([
+      'c',
+      'mortgage',
+    ]);
+  });
+
+  it('reports zero bank debt when only private loans are active', () => {
+    const priv = makeComputation('p', 'Pozajmica', 2026, 1, 12, 200, 'PRIVATE_LOAN');
+    const phases = buildPhases([priv]);
+    expect(phases[0].monthlyTotal).toBe(200);
+    expect(phases[0].monthlyBankTotal).toBe(0);
   });
 
   it('does not merge identical totals from different loan compositions', () => {

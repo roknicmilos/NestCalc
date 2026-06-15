@@ -5,7 +5,7 @@ import { defaultInterestRateForLoanType, defaultLoanLabel } from '@/lib/defaults
 import { computeLoan } from '@/lib/calc/loanComputation';
 import { loanSchema } from '@/lib/schemas';
 import type { Loan, LoanType, MonthYear } from '@/lib/types';
-import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths } from '@/lib/format';
+import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths, formatRsd } from '@/lib/format';
 import { FieldError } from './FieldError';
 import { MonthYearInput } from './MonthYearInput';
 import styles from './CalculationForm.module.scss';
@@ -23,13 +23,15 @@ const LOAN_TYPE_LABEL: Record<LoanType, string> = {
 type Props = {
   loan: Loan;
   isNew: boolean;
+  /** EUR→RSD rate; used to show secondary RSD amounts for keš kredit. */
+  eurToRsdRate: number;
   onApply: (loan: Loan) => void;
   onRemove: () => void;
 };
 
 type DraftErrors = Partial<Record<keyof Loan, string>>;
 
-export function LoanRow({ loan, isNew, onApply, onRemove }: Props) {
+export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props) {
   const [draft, setDraft] = useState<Loan>(loan);
   const [editing, setEditing] = useState<boolean>(isNew);
 
@@ -81,7 +83,8 @@ export function LoanRow({ loan, isNew, onApply, onRemove }: Props) {
   }
 
   if (!editing) {
-    const { totalInterest } = computeLoan(loan);
+    const { monthlyPayment, totalInterest } = computeLoan(loan);
+    const showRsd = loan.type === 'CASH_LOAN';
     return (
       <div className={styles.loanCard}>
         <div className={styles.loanCardHeader}>
@@ -101,7 +104,12 @@ export function LoanRow({ loan, isNew, onApply, onRemove }: Props) {
         <dl className={styles.loanCardDetails}>
           <div>
             <dt>Iznos</dt>
-            <dd>{formatEur(loan.amount)}</dd>
+            <dd>
+              {formatEur(loan.amount)}
+              {showRsd ? (
+                <span className={styles.rsdAmount}>{formatRsd(loan.amount, eurToRsdRate)}</span>
+              ) : null}
+            </dd>
           </div>
           <div>
             <dt>Kamatna stopa</dt>
@@ -116,8 +124,22 @@ export function LoanRow({ loan, isNew, onApply, onRemove }: Props) {
             <dd>{formatMonthsAsYearsAndMonths(loan.termMonths)}</dd>
           </div>
           <div>
+            <dt>Mesečna rata</dt>
+            <dd>
+              {formatEur(monthlyPayment)}
+              {showRsd ? (
+                <span className={styles.rsdAmount}>{formatRsd(monthlyPayment, eurToRsdRate)}</span>
+              ) : null}
+            </dd>
+          </div>
+          <div>
             <dt>Ukupna kamata</dt>
-            <dd>{formatEur(totalInterest)}</dd>
+            <dd>
+              {formatEur(totalInterest)}
+              {showRsd ? (
+                <span className={styles.rsdAmount}>{formatRsd(totalInterest, eurToRsdRate)}</span>
+              ) : null}
+            </dd>
           </div>
         </dl>
       </div>
