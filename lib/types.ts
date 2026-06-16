@@ -5,6 +5,7 @@ import type {
   calculationSchema,
   calculationSummarySchema,
   capitalSourceSchema,
+  incomeSourceSchema,
   loanSchema,
   loanTypeSchema,
   monthYearSchema,
@@ -23,6 +24,7 @@ export type PropertyExtra = z.infer<typeof propertyExtraSchema>;
 export type Address = z.infer<typeof addressSchema>;
 export type MonthYear = z.infer<typeof monthYearSchema>;
 export type CapitalSource = z.infer<typeof capitalSourceSchema>;
+export type IncomeSource = z.infer<typeof incomeSourceSchema>;
 export type Loan = z.infer<typeof loanSchema>;
 export type MortgageInputs = z.infer<typeof mortgageInputsSchema>;
 export type CalculationInputs = z.infer<typeof calculationInputsSchema>;
@@ -40,10 +42,14 @@ export type LoanComputation = {
 export type DebtPhaseComponent = {
   loanId: string;
   label: string;
+  /** Monthly amount: positive for debt/savings, negative for income that offsets the
+   * monthly burden. */
   amount: number;
   /** True for debt owed to a bank (stambeni kredit / keš kredit), false for
    * private loans (pozajmica) and PPAP savings. */
   bankDebt: boolean;
+  /** True for recurring income (e.g. rent) that reduces the monthly total. */
+  income: boolean;
 };
 
 export type DebtPhase = {

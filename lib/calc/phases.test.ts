@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { LoanComputation } from '../types';
+import type { IncomeSource, LoanComputation } from '../types';
 import { buildPhases } from './phases';
 
 function makeComputation(
@@ -80,6 +80,64 @@ describe('buildPhases', () => {
     const phases = buildPhases([priv]);
     expect(phases[0].monthlyTotal).toBe(200);
     expect(phases[0].monthlyBankTotal).toBe(0);
+  });
+
+  it('offsets the monthly total with income active for the whole phase', () => {
+    const only = makeComputation('a', 'A', 2026, 1, 12, 500);
+    const income: IncomeSource = {
+      id: 'rent',
+      label: 'Kirija od stana',
+      monthlyAmount: 300,
+      startMonth: { year: 2026, month: 1 },
+    };
+    const phases = buildPhases([only], [income]);
+    expect(phases).toHaveLength(1);
+    expect(phases[0].monthlyTotal).toBe(200);
+    // Bank total is unaffected by income.
+    expect(phases[0].monthlyBankTotal).toBe(0);
+    const incomeComponent = phases[0].components.find((c) => c.income);
+    expect(incomeComponent).toMatchObject({ loanId: 'rent', amount: -300, bankDebt: false });
+  });
+
+  it('splits a phase when income starts mid-way', () => {
+    // Loan runs Jan–Dec 2026; rent starts Jul 2026.
+    const loan = makeComputation('a', 'A', 2026, 1, 12, 500);
+    const income: IncomeSource = {
+      id: 'rent',
+      label: 'Kirija',
+      monthlyAmount: 200,
+      startMonth: { year: 2026, month: 7 },
+    };
+    const phases = buildPhases([loan], [income]);
+    expect(phases).toHaveLength(2);
+    expect(phases[0].durationMonths).toBe(6);
+    expect(phases[0].monthlyTotal).toBe(500);
+    expect(phases[1].durationMonths).toBe(6);
+    expect(phases[1].monthlyTotal).toBe(300);
+  });
+
+  it('ignores income that starts after the last loan is paid off', () => {
+    const loan = makeComputation('a', 'A', 2026, 1, 12, 500);
+    const income: IncomeSource = {
+      id: 'rent',
+      label: 'Kirija',
+      monthlyAmount: 200,
+      startMonth: { year: 2030, month: 1 },
+    };
+    const phases = buildPhases([loan], [income]);
+    expect(phases).toHaveLength(1);
+    expect(phases[0].monthlyTotal).toBe(500);
+    expect(phases[0].components.some((c) => c.income)).toBe(false);
+  });
+
+  it('never produces a phase from income alone', () => {
+    const income: IncomeSource = {
+      id: 'rent',
+      label: 'Kirija',
+      monthlyAmount: 200,
+      startMonth: { year: 2026, month: 1 },
+    };
+    expect(buildPhases([], [income])).toEqual([]);
   });
 
   it('does not merge identical totals from different loan compositions', () => {

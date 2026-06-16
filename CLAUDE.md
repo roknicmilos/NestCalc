@@ -13,7 +13,11 @@ npm run build    # Production build
 npm run start    # Serve the production build (run `npm run build` first)
 ```
 
-The dev server runs on **http://localhost:3000** by default.
+The dev server runs on **http://localhost:3000** by default (Next.js falls back to
+another port if 3000 is taken).
+
+When running the app for the user, open the served URL in the default browser once
+the dev server reports it's ready (use the actual port from the startup output).
 
 ## Tests & linting
 

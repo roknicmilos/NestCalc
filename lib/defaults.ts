@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import type {
   Calculation,
   CalculationInputs,
+  IncomeSource,
   Loan,
   LoanType,
   MonthYear,
@@ -49,6 +50,15 @@ export function createDefaultLoan(type: LoanType = 'PRIVATE_LOAN', now: Date = n
   };
 }
 
+export function createDefaultIncomeSource(now: Date = new Date()): IncomeSource {
+  return {
+    id: nanoid(8),
+    label: 'Kirija od stana',
+    monthlyAmount: 0,
+    startMonth: currentMonthYear(now),
+  };
+}
+
 export function createDefaultCalculationInputs(now: Date = new Date()): CalculationInputs {
   const mortgageStart = addMonthsToMonthYear(currentMonthYear(now), 12);
   return {
@@ -71,6 +81,7 @@ export function createDefaultCalculationInputs(now: Date = new Date()): Calculat
       startMonth: mortgageStart,
     },
     loans: [],
+    incomeSources: [],
   };
 }
 

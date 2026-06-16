@@ -101,6 +101,11 @@
   font-variant-numeric: tabular-nums;
 }
 
+.componentIncome .componentLabel,
+.componentIncome .componentAmount {
+  color: var(--color-success);
+}
+
 .empty {
   color: var(--color-text-muted);
   font-style: italic;

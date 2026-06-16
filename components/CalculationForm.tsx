@@ -12,7 +12,12 @@ import {
   type Control,
 } from 'react-hook-form';
 import { computeTotals } from '@/lib/calc';
-import { createDefaultLoan, currentMonthYear, DEFAULT_EUR_TO_RSD_RATE } from '@/lib/defaults';
+import {
+  createDefaultIncomeSource,
+  createDefaultLoan,
+  currentMonthYear,
+  DEFAULT_EUR_TO_RSD_RATE,
+} from '@/lib/defaults';
 import { calculationInputsSchema } from '@/lib/schemas';
 import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths } from '@/lib/format';
 import type {
@@ -20,6 +25,7 @@ import type {
   CalculationInputs,
   CapitalSource,
   ComputedTotals,
+  IncomeSource,
   Loan,
   PropertyExtra,
 } from '@/lib/types';
@@ -27,6 +33,8 @@ import { z } from 'zod';
 import { ComputedSummary } from './ComputedSummary';
 import { FieldError } from './FieldError';
 import { CapitalSourceRow } from './CapitalSourceRow';
+import { ExtraRow } from './ExtraRow';
+import { IncomeSourceRow } from './IncomeSourceRow';
 import { LoanRow } from './LoanRow';
 import { MonthYearInput } from './MonthYearInput';
 import { PhasesTimeline } from './PhasesTimeline';
@@ -134,6 +142,7 @@ export function CalculationForm({ initial }: Props) {
             <CapitalSourcesFieldset {...section} />
             <MortgageFieldset {...section} />
             <ManualLoansFieldset {...section} />
+            <IncomeSourcesFieldset {...section} />
           </div>
           <div className={styles.summaryColumn}>
             <ComputedSummary totals={totals} />
@@ -541,79 +550,81 @@ function BasicsFieldset(props: SectionProps) {
 }
 
 /** Free-text list of perks bundled with the property (garage, parking, pantry…).
- * Purely descriptive — no amounts, no effect on the calculation. Uses the shared
- * section-level edit/save, so changes persist when the section is saved. */
-function ExtrasFieldset(props: SectionProps) {
+ * Purely descriptive — no amounts, no effect on the calculation. Like capital sources,
+ * there's no section-level edit/save: each card manages its own edit/remove, and applying
+ * or removing a card persists the calculation. */
+function ExtrasFieldset({ saving, onSave }: SectionProps) {
   const { control, setValue } = useFormContextTyped();
   const extras = (useWatch({ control, name: 'inputs.extras' }) ?? []) as PropertyExtra[];
+  const [newIds, setNewIds] = useState<Set<string>>(new Set());
 
-  function update(next: PropertyExtra[]) {
+  function handleAdd() {
+    const newExtra: PropertyExtra = { id: nanoid(8), text: '' };
+    setValue('inputs.extras', [...extras, newExtra], {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setNewIds((prev) => {
+      const next = new Set(prev);
+      next.add(newExtra.id);
+      return next;
+    });
+  }
+
+  function handleApply(index: number, updated: PropertyExtra) {
+    const next = extras.map((x, i) => (i === index ? updated : x));
     setValue('inputs.extras', next, { shouldDirty: true, shouldValidate: true });
+    setNewIds((prev) => {
+      const ns = new Set(prev);
+      ns.delete(updated.id);
+      return ns;
+    });
+    void onSave();
+  }
+
+  function handleRemove(index: number) {
+    const removed = extras[index];
+    const next = extras.filter((_, i) => i !== index);
+    setValue('inputs.extras', next, { shouldDirty: true, shouldValidate: true });
+    setNewIds((prev) => {
+      const ns = new Set(prev);
+      ns.delete(removed.id);
+      return ns;
+    });
+    // A brand-new card that was never applied has nothing persisted yet — skip the save.
+    if (!newIds.has(removed.id)) void onSave();
   }
 
   return (
-    <SectionFieldset
-      title="Uključeno uz nekretninu"
-      accentClass={styles.fieldsetExtras}
-      {...props}
-    >
-      {(editing) =>
-        editing ? (
-          <div>
-            <p className={styles.fieldsetHint}>
-              Sve što ide uz nekretninu (npr. garaža, parking, ostava, kuhinja…). Dodajte koliko
-              god stavki želite.
-            </p>
-            {extras.length > 0 ? (
-              <div className={styles.extrasEditList}>
-                {extras.map((extra, index) => (
-                  <div key={extra.id} className={styles.extrasEditRow}>
-                    <input
-                      type="text"
-                      maxLength={120}
-                      placeholder="npr. Garažno mesto"
-                      value={extra.text}
-                      onChange={(e) =>
-                        update(
-                          extras.map((x, i) =>
-                            i === index ? { ...x, text: e.target.value } : x,
-                          ),
-                        )
-                      }
-                    />
-                    <button
-                      type="button"
-                      className={styles.removeButton}
-                      onClick={() => update(extras.filter((_, i) => i !== index))}
-                      title="Ukloni stavku"
-                    >
-                      Ukloni
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-            <div className={styles.repeaterControls}>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => update([...extras, { id: nanoid(8), text: '' }])}
-              >
-                Dodaj stavku
-              </button>
-            </div>
-          </div>
-        ) : extras.length === 0 ? (
-          <p className={styles.fieldsetEmpty}>Nema dodatnih stavki uz nekretninu.</p>
-        ) : (
-          <ul className={styles.extrasViewList}>
-            {extras.map((extra) => (
-              <li key={extra.id}>{extra.text}</li>
-            ))}
-          </ul>
-        )
-      }
-    </SectionFieldset>
+    <div className={`${styles.section} ${styles.fieldsetExtras}`}>
+      <div className={styles.sectionHeader}>
+        <h3 className={styles.sectionTitle}>Uključeno uz nekretninu</h3>
+      </div>
+      <p className={styles.fieldsetHint}>
+        Sve što ide uz nekretninu (npr. garaža, parking, ostava, kuhinja…). Dodajte koliko god
+        stavki želite.
+      </p>
+      {extras.length === 0 ? (
+        <p className={styles.fieldsetEmpty}>Nema dodatnih stavki uz nekretninu.</p>
+      ) : (
+        <div className={styles.loanList}>
+          {extras.map((extra, index) => (
+            <ExtraRow
+              key={extra.id}
+              extra={extra}
+              isNew={newIds.has(extra.id)}
+              onApply={(updated) => handleApply(index, updated)}
+              onRemove={() => handleRemove(index)}
+            />
+          ))}
+        </div>
+      )}
+      <div className={styles.repeaterControls}>
+        <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
+          Dodaj stavku
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -865,6 +876,84 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
       <div className={styles.repeaterControls}>
         <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
           Dodaj pozajmicu
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Recurring monthly income (e.g. rent) that offsets the monthly burden in the repayment
+ * phases. Like loans and capital sources, each card manages its own edit/remove and
+ * applying or removing a card persists the calculation. */
+function IncomeSourcesFieldset({ saving, onSave }: SectionProps) {
+  const { control, setValue } = useFormContextTyped();
+  const sources = (useWatch({ control, name: 'inputs.incomeSources' }) ?? []) as IncomeSource[];
+  const [newIds, setNewIds] = useState<Set<string>>(new Set());
+
+  function handleAdd() {
+    const newSource = createDefaultIncomeSource();
+    setValue('inputs.incomeSources', [...sources, newSource], {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setNewIds((prev) => {
+      const next = new Set(prev);
+      next.add(newSource.id);
+      return next;
+    });
+  }
+
+  function handleApply(index: number, updated: IncomeSource) {
+    const next = sources.map((s, i) => (i === index ? updated : s));
+    setValue('inputs.incomeSources', next, { shouldDirty: true, shouldValidate: true });
+    setNewIds((prev) => {
+      const ns = new Set(prev);
+      ns.delete(updated.id);
+      return ns;
+    });
+    void onSave();
+  }
+
+  function handleRemove(index: number) {
+    const removed = sources[index];
+    const next = sources.filter((_, i) => i !== index);
+    setValue('inputs.incomeSources', next, { shouldDirty: true, shouldValidate: true });
+    setNewIds((prev) => {
+      const ns = new Set(prev);
+      ns.delete(removed.id);
+      return ns;
+    });
+    // A brand-new card that was never applied has nothing persisted yet — skip the save.
+    if (!newIds.has(removed.id)) void onSave();
+  }
+
+  return (
+    <div className={`${styles.section} ${styles.fieldsetIncome}`}>
+      <div className={styles.sectionHeader}>
+        <h3 className={styles.sectionTitle}>Dodatni mesečni prihodi</h3>
+      </div>
+      <p className={styles.fieldsetHint}>
+        Redovni mesečni prihodi (npr. kirija od stana) koji umanjuju mesečno opterećenje u
+        fazama otplate, počev od izabranog meseca.
+      </p>
+      {sources.length === 0 ? (
+        <p className={styles.fieldsetEmpty}>Nema dodatnih mesečnih prihoda.</p>
+      ) : (
+        <div className={styles.loanList}>
+          {sources.map((source, index) => (
+            <IncomeSourceRow
+              key={source.id}
+              source={source}
+              isNew={newIds.has(source.id)}
+              onApply={(updated) => handleApply(index, updated)}
+              onRemove={() => handleRemove(index)}
+            />
+          ))}
+        </div>
+      )}
+      <div className={styles.repeaterControls}>
+        <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
+          Dodaj prihod
         </button>
       </div>
     </div>

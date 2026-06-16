@@ -33,6 +33,13 @@ export const capitalSourceSchema = z.object({
   amount: z.number().finite().min(0, 'Iznos mora biti 0 ili veći.'),
 });
 
+export const incomeSourceSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1, 'Naziv je obavezan.').max(80),
+  monthlyAmount: z.number().finite().min(0, 'Iznos mora biti 0 ili veći.'),
+  startMonth: monthYearSchema,
+});
+
 export const loanSchema = z.object({
   id: z.string().min(1),
   type: loanTypeSchema,
@@ -95,6 +102,9 @@ export const calculationInputsSchema = z.object({
   capitalSources: z.array(capitalSourceSchema),
   mortgage: mortgageInputsSchema,
   loans: z.array(loanSchema),
+  /** Recurring monthly income (e.g. rent) that offsets the monthly burden in the
+   * repayment phases. Optional for backward compatibility with saved calculations. */
+  incomeSources: z.array(incomeSourceSchema).default([]),
 });
 
 export const calculationSchema = z.object({

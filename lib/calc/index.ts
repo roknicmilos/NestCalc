@@ -78,7 +78,7 @@ export function computeTotals(
     ...loanComputations,
     ...ppapSavingComputations,
   ];
-  const phases = buildPhases(allComputations);
+  const phases = buildPhases(allComputations, inputs.incomeSources);
 
   return {
     ppap,

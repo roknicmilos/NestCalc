@@ -14,6 +14,7 @@ describe('computeTotals — 230k EUR sample with cash + private loans covering d
     purchaseCostsFixed: 2000,
     eurToRsdRate: 117.5,
     extras: [],
+    incomeSources: [],
     capitalSources: [
       { id: 'a', label: 'Moje', amount: 17000 },
       { id: 'b', label: 'Poklon porodice', amount: 10000 },
@@ -82,6 +83,7 @@ describe('computeTotals — PPAP deferred to property readiness', () => {
     purchaseCostsFixed: 2000,
     eurToRsdRate: 117.5,
     extras: [],
+    incomeSources: [],
     capitalSources: [{ id: 'a', label: 'Moje', amount: 48000 }],
     mortgage: {
       downPaymentPct: 20,
@@ -157,6 +159,7 @@ describe('computeTotals — no loans, capital below requirement', () => {
       purchaseCostsFixed: 0,
       eurToRsdRate: 117.5,
       extras: [],
+      incomeSources: [],
       capitalSources: [{ id: 'a', label: 'A', amount: 5000 }],
       mortgage: {
         downPaymentPct: 20,
