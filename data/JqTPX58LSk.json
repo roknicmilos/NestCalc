@@ -2,7 +2,7 @@
   "id": "JqTPX58LSk",
   "name": "Veternik, Leptirova",
   "createdAt": "2026-06-15T22:56:24.149Z",
-  "updatedAt": "2026-06-16T11:18:03.577Z",
+  "updatedAt": "2026-06-16T15:32:19.345Z",
   "inputs": {
     "propertyPrice": 195000,
     "propertyType": "HOUSE",
@@ -24,6 +24,10 @@
       {
         "id": "AdJtMkW9",
         "text": "Dvorište od 150 m2"
+      },
+      {
+        "id": "OB5WcgL4",
+        "text": "Ograda sa dekorativnim kamenom"
       }
     ],
     "capitalSources": [
@@ -58,7 +62,7 @@
           "year": 2027,
           "month": 7
         },
-        "termMonths": 48
+        "termMonths": 71
       },
       {
         "id": "LB0Sb-Ak",
