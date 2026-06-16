@@ -462,7 +462,7 @@ function BasicsFieldset(props: SectionProps) {
             </div>
 
             <div className={`${styles.field} ${styles.fieldFull}`}>
-              <label htmlFor="property-link">Link ka oglasu</label>
+              <label htmlFor="property-link">Link ka detaljima</label>
               <input
                 id="property-link"
                 type="url"
@@ -514,7 +514,7 @@ function BasicsFieldset(props: SectionProps) {
                 />
                 <ViewRow label="Ulica i broj" value={street || '—'} />
                 <ViewRow
-                  label="Link ka oglasu"
+                  label="Link ka detaljima"
                   value={
                     link ? (
                       <a
