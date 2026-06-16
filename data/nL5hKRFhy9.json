@@ -1,0 +1,28 @@
+{
+  "id": "nL5hKRFhy9",
+  "name": "Kuća Veternik",
+  "createdAt": "2026-06-15T11:11:01.927Z",
+  "updatedAt": "2026-06-15T11:11:01.927Z",
+  "inputs": {
+    "propertyPrice": 0,
+    "seller": "INDIVIDUAL",
+    "purchaseCostsFixed": 0,
+    "capitalSources": [
+      {
+        "id": "0rKwoKYo",
+        "label": "Ušteđevina",
+        "amount": 0
+      }
+    ],
+    "mortgage": {
+      "downPaymentPct": 20,
+      "interestRatePct": 4.5,
+      "termMonths": 360,
+      "startMonth": {
+        "year": 2027,
+        "month": 6
+      }
+    },
+    "loans": []
+  }
+}

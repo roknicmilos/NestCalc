@@ -2,15 +2,15 @@
   "id": "JqTPX58LSk",
   "name": "Veternik, Leptirova",
   "createdAt": "2026-06-15T22:56:24.149Z",
-  "updatedAt": "2026-06-15T23:21:17.478Z",
+  "updatedAt": "2026-06-16T11:18:03.577Z",
   "inputs": {
     "propertyPrice": 195000,
     "propertyType": "HOUSE",
     "squareMeters": 90,
-    "link": "",
+    "link": "https://drive.google.com/drive/folders/1L1lBCVTRGF10--GupYJ5gIdINb4yFOZH",
     "address": {
       "area": "Veternik",
-      "street": "Leptirova"
+      "street": "Leptirova 68"
     },
     "seller": "INVESTOR",
     "ppapTiming": "NOW",
