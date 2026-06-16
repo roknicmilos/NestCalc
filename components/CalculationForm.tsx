@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   Controller,
   FormProvider,
@@ -31,6 +31,7 @@ import type {
 } from '@/lib/types';
 import { z } from 'zod';
 import { ComputedSummary } from './ComputedSummary';
+import { ExportPdfButton } from './ExportPdfButton';
 import { FieldError } from './FieldError';
 import { CapitalSourceRow } from './CapitalSourceRow';
 import { ExtraRow } from './ExtraRow';
@@ -48,6 +49,17 @@ const formSchema = z.object({
 });
 
 type Props = { initial: Calculation };
+
+/** Turn a calculation name into a safe PDF file name. */
+function toFileName(name: string): string {
+  const slug = name
+    .trim()
+    .replace(/[\\/:*?"<>|]+/g, '-')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  return slug || 'kalkulacija';
+}
 
 /** Shared edit/save plumbing handed to every section. `onSave` persists the whole
  * calculation and resolves to whether it succeeded; `onCancel` reverts to last saved. */
@@ -68,6 +80,7 @@ export function CalculationForm({ initial }: Props) {
     mode: 'onChange',
   });
   const { control, reset } = methods;
+  const exportRef = useRef<HTMLDivElement>(null);
 
   const watched = useWatch({ control });
 
@@ -127,26 +140,35 @@ export function CalculationForm({ initial }: Props) {
   return (
     <FormProvider {...methods}>
       <form onSubmit={(e) => e.preventDefault()} noValidate>
-        <NameSection {...section} />
+        <div className={styles.toolbar} data-export-ignore="true">
+          <ExportPdfButton
+            targetRef={exportRef}
+            fileName={toFileName(watched?.name ?? initial.name)}
+          />
+        </div>
 
-        {saveError ? (
-          <p style={{ color: 'var(--color-danger)', marginBottom: 'var(--space-4)' }}>
-            {saveError}
-          </p>
-        ) : null}
+        <div ref={exportRef}>
+          <NameSection {...section} />
 
-        <div className={styles.layout}>
-          <div className={styles.formColumn}>
-            <BasicsFieldset {...section} />
-            <ExtrasFieldset {...section} />
-            <CapitalSourcesFieldset {...section} />
-            <MortgageFieldset {...section} />
-            <ManualLoansFieldset {...section} />
-            <IncomeSourcesFieldset {...section} />
-          </div>
-          <div className={styles.summaryColumn}>
-            <ComputedSummary totals={totals} />
-            <PhasesTimeline totals={totals} />
+          {saveError ? (
+            <p style={{ color: 'var(--color-danger)', marginBottom: 'var(--space-4)' }}>
+              {saveError}
+            </p>
+          ) : null}
+
+          <div className={styles.layout}>
+            <div className={styles.formColumn}>
+              <BasicsFieldset {...section} />
+              <ExtrasFieldset {...section} />
+              <CapitalSourcesFieldset {...section} />
+              <MortgageFieldset {...section} />
+              <ManualLoansFieldset {...section} />
+              <IncomeSourcesFieldset {...section} />
+            </div>
+            <div className={styles.summaryColumn}>
+              <ComputedSummary totals={totals} />
+              <PhasesTimeline totals={totals} />
+            </div>
           </div>
         </div>
       </form>
@@ -210,7 +232,7 @@ function SectionFieldset({
 }) {
   const [editing, setEditing] = useState(false);
   return (
-    <div className={`${styles.section} ${accentClass}`}>
+    <div className={`${styles.section} ${accentClass}`} data-pdf-block="true">
       <div className={styles.sectionHeader}>
         <h3 className={styles.sectionTitle}>{title}</h3>
         <SectionControls
@@ -247,7 +269,7 @@ function NameSection({ saving, onSave, onCancel }: SectionProps) {
   const [editing, setEditing] = useState(false);
   const name = useWatch({ control, name: 'name' });
   return (
-    <div className={styles.headerBar}>
+    <div className={styles.headerBar} data-pdf-block="true">
       <div className={styles.headerName}>
         <label htmlFor="calc-name">Naziv kalkulacije</label>
         {editing ? (
@@ -596,7 +618,7 @@ function ExtrasFieldset({ saving, onSave }: SectionProps) {
   }
 
   return (
-    <div className={`${styles.section} ${styles.fieldsetExtras}`}>
+    <div className={`${styles.section} ${styles.fieldsetExtras}`} data-pdf-block="true">
       <div className={styles.sectionHeader}>
         <h3 className={styles.sectionTitle}>Uključeno uz nekretninu</h3>
       </div>
@@ -673,7 +695,7 @@ function CapitalSourcesFieldset({ saving, onSave }: SectionProps) {
   }
 
   return (
-    <div className={`${styles.section} ${styles.fieldsetCapital}`}>
+    <div className={`${styles.section} ${styles.fieldsetCapital}`} data-pdf-block="true">
       <div className={styles.sectionHeader}>
         <h3 className={styles.sectionTitle}>Početni kapital</h3>
       </div>
@@ -844,7 +866,7 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
   }
 
   return (
-    <div className={`${styles.section} ${styles.fieldsetLoans}`}>
+    <div className={`${styles.section} ${styles.fieldsetLoans}`} data-pdf-block="true">
       <div className={styles.sectionHeader}>
         <h3 className={styles.sectionTitle}>Dodatne pozajmice</h3>
       </div>
@@ -928,7 +950,7 @@ function IncomeSourcesFieldset({ saving, onSave }: SectionProps) {
   }
 
   return (
-    <div className={`${styles.section} ${styles.fieldsetIncome}`}>
+    <div className={`${styles.section} ${styles.fieldsetIncome}`} data-pdf-block="true">
       <div className={styles.sectionHeader}>
         <h3 className={styles.sectionTitle}>Dodatni mesečni prihodi</h3>
       </div>

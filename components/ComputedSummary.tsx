@@ -18,7 +18,7 @@ export function ComputedSummary({ totals }: Props) {
   const ppapDeferred = !!totals && totals.ppap > 0 && totals.ppapTiming === 'LATER';
 
   return (
-    <div className={styles.card}>
+    <div className={styles.card} data-pdf-block="true">
       <h3 className={styles.title}>Pregled</h3>
 
       <section className={styles.section}>

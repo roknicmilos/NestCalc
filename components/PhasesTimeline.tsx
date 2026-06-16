@@ -7,7 +7,7 @@ type Props = { totals: ComputedTotals | null };
 
 export function PhasesTimeline({ totals }: Props) {
   return (
-    <div className={styles.card}>
+    <div className={styles.card} data-pdf-block="true">
       <h3 className={styles.title}>Faze otplate</h3>
       {totals === null ? (
         <PendingValue />

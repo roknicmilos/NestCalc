@@ -15,7 +15,9 @@ export default async function CalculationPage({ params }: Props) {
     return (
       <main className={styles.page}>
         <div className={styles.breadcrumbs}>
-          <Link href="/">← Sve kalkulacije</Link>
+          <Link href="/" className={styles.backButton}>
+            ← Sve kalkulacije
+          </Link>
         </div>
         <CalculationForm initial={calc} />
       </main>

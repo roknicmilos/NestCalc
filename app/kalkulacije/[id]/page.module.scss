@@ -5,10 +5,24 @@
 }
 
 .breadcrumbs {
-  margin-bottom: var(--space-4);
-  font-size: 0.9rem;
+  margin-bottom: var(--space-5);
 }
 
-.breadcrumbs a {
-  color: var(--color-text-muted);
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-primary);
+  background: transparent;
+  color: var(--color-primary);
+  transition: background 0.15s ease;
+}
+
+.backButton:hover {
+  background: rgba(47, 111, 85, 0.08);
+  text-decoration: none;
 }

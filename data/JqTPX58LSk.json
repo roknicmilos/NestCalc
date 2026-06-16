@@ -2,7 +2,7 @@
   "id": "JqTPX58LSk",
   "name": "Veternik, Leptirova",
   "createdAt": "2026-06-15T22:56:24.149Z",
-  "updatedAt": "2026-06-16T21:24:20.398Z",
+  "updatedAt": "2026-06-16T21:57:38.605Z",
   "inputs": {
     "propertyPrice": 195000,
     "propertyType": "HOUSE",
@@ -57,14 +57,24 @@
         "type": "CASH_LOAN",
         "label": "Keš kredit",
         "amount": 13000,
-        "interestRatePct": 10,
+        "interestRatePct": 8.2,
         "startMonth": {
           "year": 2026,
           "month": 7
         },
-        "termMonths": 36
+        "termMonths": 24
       }
     ],
-    "incomeSources": []
+    "incomeSources": [
+      {
+        "id": "tG0FjXtS",
+        "label": "Kirija od stana",
+        "monthlyAmount": 300,
+        "startMonth": {
+          "year": 2027,
+          "month": 7
+        }
+      }
+    ]
   }
 }

@@ -1,3 +1,9 @@
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-4);
+}
+
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
@@ -72,6 +78,11 @@
   margin-bottom: var(--space-4);
 }
 
+/* Space between the rate input and its Otkaži/Sačuvaj buttons while editing. */
+.rateField .sectionControls {
+  margin-top: var(--space-3);
+}
+
 /* Collapsible "more details" block in the read-only basics view. */
 .collapsible {
   margin-top: var(--space-4);
@@ -93,12 +104,13 @@
 }
 
 .collapsibleSummary::before {
-  content: '▸ ';
+  content: '▸';
   display: inline-block;
+  margin-right: var(--space-2);
 }
 
 details[open] > .collapsibleSummary::before {
-  content: '▾ ';
+  content: '▾';
 }
 
 .collapsibleContent {
