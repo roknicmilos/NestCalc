@@ -20,6 +20,8 @@ const badMessages = messages(
   calculationSchema.shape.name.safeParse('x'.repeat(81)),
   shape.address.safeParse({ area: 'x'.repeat(121), street: 'x'.repeat(121) }),
   shape.propertyPrice.safeParse(-1),
+  shape.propertyPrice.safeParse(NaN),
+  loanSchema.shape.termMonths.safeParse(NaN),
   shape.squareMeters.safeParse(-1),
   shape.link.safeParse('not a url'),
   shape.purchaseCostsFixed.safeParse(-1),

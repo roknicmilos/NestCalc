@@ -169,6 +169,7 @@ export const en: Dictionary = {
     idMismatch: 'The ID in the URL and in the request body do not match.',
   },
   validation: {
+    numberInvalid: 'Enter a number.',
     nameRequired: 'Name is required.',
     nameTooLong: 'Name is too long.',
     areaTooLong: 'Neighbourhood is too long.',

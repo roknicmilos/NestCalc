@@ -167,6 +167,7 @@ export const sr = {
     idMismatch: 'ID u URL-u i telu zahteva se ne poklapaju.',
   },
   validation: {
+    numberInvalid: 'Unesite broj.',
     nameRequired: 'Naziv je obavezan.',
     nameTooLong: 'Naziv je predugačak.',
     areaTooLong: 'Deo grada je predugačak.',
