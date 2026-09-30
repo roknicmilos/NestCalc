@@ -1,5 +1,6 @@
 'use client';
 
+import { useLocale } from '@/lib/i18n/I18nProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { incomeSourceSchema } from '@/lib/schemas';
 import type { IncomeSource, MonthYear } from '@/lib/types';
@@ -19,6 +20,7 @@ type Props = {
 type DraftErrors = Partial<Record<keyof IncomeSource, string>>;
 
 export function IncomeSourceRow({ source, isNew, onApply, onRemove }: Props) {
+  const locale = useLocale();
   const [draft, setDraft] = useState<IncomeSource>(source);
   const [editing, setEditing] = useState<boolean>(isNew);
 
@@ -80,11 +82,11 @@ export function IncomeSourceRow({ source, isNew, onApply, onRemove }: Props) {
         <dl className={styles.loanCardDetails}>
           <div>
             <dt>Mesečni iznos</dt>
-            <dd>{formatEur(source.monthlyAmount)}</dd>
+            <dd>{formatEur(locale, source.monthlyAmount)}</dd>
           </div>
           <div>
             <dt>Početak</dt>
-            <dd>{formatMonthYear(source.startMonth)}</dd>
+            <dd>{formatMonthYear(locale, source.startMonth)}</dd>
           </div>
         </dl>
       </div>

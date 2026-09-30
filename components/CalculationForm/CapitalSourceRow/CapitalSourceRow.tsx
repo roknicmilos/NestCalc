@@ -1,5 +1,6 @@
 'use client';
 
+import { useLocale } from '@/lib/i18n/I18nProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { capitalSourceSchema } from '@/lib/schemas';
 import type { CapitalSource } from '@/lib/types';
@@ -19,6 +20,7 @@ type Props = {
 type DraftErrors = Partial<Record<keyof CapitalSource, string>>;
 
 export function CapitalSourceRow({ source, isNew, canRemove, onApply, onRemove }: Props) {
+  const locale = useLocale();
   const [draft, setDraft] = useState<CapitalSource>(source);
   const [editing, setEditing] = useState<boolean>(isNew);
 
@@ -83,7 +85,7 @@ export function CapitalSourceRow({ source, isNew, canRemove, onApply, onRemove }
         <dl className={styles.loanCardDetails}>
           <div>
             <dt>Iznos</dt>
-            <dd>{formatEur(source.amount)}</dd>
+            <dd>{formatEur(locale, source.amount)}</dd>
           </div>
         </dl>
       </div>

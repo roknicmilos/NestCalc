@@ -1,73 +1,87 @@
+import type { Locale } from './i18n';
 import type { MonthYear } from './types';
 
-const eurFormatter = new Intl.NumberFormat('sr-Latn-RS', {
-  style: 'currency',
-  currency: 'EUR',
-  maximumFractionDigits: 2,
-});
+const INTL_LOCALE: Record<Locale, string> = { sr: 'sr-Latn-RS', en: 'en-GB' };
 
-const rsdFormatter = new Intl.NumberFormat('sr-Latn-RS', {
-  style: 'currency',
-  currency: 'RSD',
-  maximumFractionDigits: 0,
-});
+const eurFormatters = new Map<Locale, Intl.NumberFormat>();
+const rsdFormatters = new Map<Locale, Intl.NumberFormat>();
+const monthYearFormatters = new Map<Locale, Intl.DateTimeFormat>();
 
-const monthYearFormatter = new Intl.DateTimeFormat('sr-Latn-RS', {
-  month: 'long',
-  year: 'numeric',
-});
+function cached<T>(cache: Map<Locale, T>, locale: Locale, create: () => T): T {
+  let value = cache.get(locale);
+  if (!value) {
+    value = create();
+    cache.set(locale, value);
+  }
+  return value;
+}
 
-const dateTimeFormatter = new Intl.DateTimeFormat('sr-Latn-RS', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-
-export function formatEur(value: number): string {
+export function formatEur(locale: Locale, value: number): string {
   if (!Number.isFinite(value)) return '—';
-  return eurFormatter.format(value);
+  return cached(
+    eurFormatters,
+    locale,
+    () =>
+      new Intl.NumberFormat(INTL_LOCALE[locale], {
+        style: 'currency',
+        currency: 'EUR',
+        maximumFractionDigits: 2,
+      }),
+  ).format(value);
 }
 
 /** Format an EUR amount as its RSD equivalent using the given EUR→RSD rate. */
-export function formatRsd(eurValue: number, eurToRsdRate: number): string {
+export function formatRsd(locale: Locale, eurValue: number, eurToRsdRate: number): string {
   if (!Number.isFinite(eurValue) || !Number.isFinite(eurToRsdRate)) return '—';
-  return rsdFormatter.format(eurValue * eurToRsdRate);
+  return cached(
+    rsdFormatters,
+    locale,
+    () =>
+      new Intl.NumberFormat(INTL_LOCALE[locale], {
+        style: 'currency',
+        currency: 'RSD',
+        maximumFractionDigits: 0,
+      }),
+  ).format(eurValue * eurToRsdRate);
 }
 
-export function formatMonthYear(my: MonthYear): string {
+export function formatMonthYear(locale: Locale, my: MonthYear): string {
   const d = new Date(Date.UTC(my.year, my.month - 1, 1));
-  return monthYearFormatter.format(d);
+  return cached(
+    monthYearFormatters,
+    locale,
+    () => new Intl.DateTimeFormat(INTL_LOCALE[locale], { month: 'long', year: 'numeric' }),
+  ).format(d);
 }
 
-export function formatDateTime(iso: string): string {
-  const d = new Date(iso);
-  return dateTimeFormatter.format(d);
-}
-
-export function formatMonthsAsYearsAndMonths(months: number): string {
-  if (months < 12) return `${months} ${monthsWord(months)}`;
+export function formatMonthsAsYearsAndMonths(locale: Locale, months: number): string {
+  if (months < 12) return `${months} ${monthsWord(locale, months)}`;
   const years = Math.floor(months / 12);
   const rem = months % 12;
-  if (rem === 0) return `${years} ${yearsWord(years)}`;
-  return `${years} ${yearsWord(years)} ${rem} ${monthsWord(rem)}`;
+  if (rem === 0) return `${years} ${yearsWord(locale, years)}`;
+  return `${years} ${yearsWord(locale, years)} ${rem} ${monthsWord(locale, rem)}`;
 }
 
-function yearsWord(n: number): string {
+/** Serbian plural forms: one / few (2-4, not 12-14) / many. */
+function serbianForm(n: number): 'one' | 'few' | 'many' {
   const mod10 = n % 10;
   const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return 'godina';
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'godine';
-  return 'godina';
+  if (mod10 === 1 && mod100 !== 11) return 'one';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'few';
+  return 'many';
 }
 
-function monthsWord(n: number): string {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return 'mesec';
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'meseca';
-  return 'meseci';
+const YEAR_WORDS = { one: 'godina', few: 'godine', many: 'godina' } as const;
+const MONTH_WORDS = { one: 'mesec', few: 'meseca', many: 'meseci' } as const;
+
+function yearsWord(locale: Locale, n: number): string {
+  if (locale === 'en') return n === 1 ? 'year' : 'years';
+  return YEAR_WORDS[serbianForm(n)];
+}
+
+function monthsWord(locale: Locale, n: number): string {
+  if (locale === 'en') return n === 1 ? 'month' : 'months';
+  return MONTH_WORDS[serbianForm(n)];
 }
 
 /** Convert a MonthYear to an `<input type="month">` value, "YYYY-MM". */

@@ -1,5 +1,6 @@
 'use client';
 
+import { useLocale } from '@/lib/i18n/I18nProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { defaultInterestRateForLoanType, defaultLoanLabel } from '@/lib/defaults';
 import { computeLoan } from '@/lib/calc/loanComputation';
@@ -32,6 +33,7 @@ type Props = {
 type DraftErrors = Partial<Record<keyof Loan, string>>;
 
 export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props) {
+  const locale = useLocale();
   const [draft, setDraft] = useState<Loan>(loan);
   const [editing, setEditing] = useState<boolean>(isNew);
 
@@ -105,9 +107,11 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
           <div>
             <dt>Iznos</dt>
             <dd>
-              {formatEur(loan.amount)}
+              {formatEur(locale, loan.amount)}
               {showRsd ? (
-                <span className={styles.rsdAmount}>{formatRsd(loan.amount, eurToRsdRate)}</span>
+                <span className={styles.rsdAmount}>
+                  {formatRsd(locale, loan.amount, eurToRsdRate)}
+                </span>
               ) : null}
             </dd>
           </div>
@@ -117,27 +121,31 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
           </div>
           <div>
             <dt>Početak otplate</dt>
-            <dd>{formatMonthYear(loan.startMonth)}</dd>
+            <dd>{formatMonthYear(locale, loan.startMonth)}</dd>
           </div>
           <div>
             <dt>Rok otplate</dt>
-            <dd>{formatMonthsAsYearsAndMonths(loan.termMonths)}</dd>
+            <dd>{formatMonthsAsYearsAndMonths(locale, loan.termMonths)}</dd>
           </div>
           <div>
             <dt>Mesečna rata</dt>
             <dd>
-              {formatEur(monthlyPayment)}
+              {formatEur(locale, monthlyPayment)}
               {showRsd ? (
-                <span className={styles.rsdAmount}>{formatRsd(monthlyPayment, eurToRsdRate)}</span>
+                <span className={styles.rsdAmount}>
+                  {formatRsd(locale, monthlyPayment, eurToRsdRate)}
+                </span>
               ) : null}
             </dd>
           </div>
           <div>
             <dt>Ukupna kamata</dt>
             <dd>
-              {formatEur(totalInterest)}
+              {formatEur(locale, totalInterest)}
               {showRsd ? (
-                <span className={styles.rsdAmount}>{formatRsd(totalInterest, eurToRsdRate)}</span>
+                <span className={styles.rsdAmount}>
+                  {formatRsd(locale, totalInterest, eurToRsdRate)}
+                </span>
               ) : null}
             </dd>
           </div>

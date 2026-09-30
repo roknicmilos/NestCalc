@@ -1,5 +1,6 @@
 'use client';
 
+import { useLocale } from '@/lib/i18n/I18nProvider';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
@@ -293,6 +294,7 @@ function NameSection({ saving, onSave, onCancel }: SectionProps) {
 }
 
 function BasicsFieldset(props: SectionProps) {
+  const locale = useLocale();
   const {
     register,
     control,
@@ -451,7 +453,7 @@ function BasicsFieldset(props: SectionProps) {
                   type="text"
                   readOnly
                   tabIndex={-1}
-                  value={pricePerSqm === null ? '—' : formatEur(pricePerSqm)}
+                  value={pricePerSqm === null ? '—' : formatEur(locale, pricePerSqm)}
                 />
                 <span className={styles.suffix}>/ m²</span>
               </div>
@@ -529,15 +531,18 @@ function BasicsFieldset(props: SectionProps) {
               {seller === 'INDIVIDUAL' && ppapTiming === 'LATER' ? (
                 <ViewRow
                   label="Početak štednje za PPAP"
-                  value={formatMonthYear(ppapSavingStartMonth ?? currentMonthYear())}
+                  value={formatMonthYear(locale, ppapSavingStartMonth ?? currentMonthYear())}
                 />
               ) : null}
-              <ViewRow label="Ukupna cena nekretnine" value={formatEur(propertyPrice)} />
+              <ViewRow label="Ukupna cena nekretnine" value={formatEur(locale, propertyPrice)} />
               <ViewRow
                 label="Kvadratura"
                 value={Number.isFinite(squareMeters) ? `${squareMeters} m²` : '—'}
               />
-              <ViewRow label="Fiksni troškovi kupovine" value={formatEur(purchaseCostsFixed)} />
+              <ViewRow
+                label="Fiksni troškovi kupovine"
+                value={formatEur(locale, purchaseCostsFixed)}
+              />
               <ViewRow label="Deo grada" value={area || '—'} />
             </dl>
             <details className={styles.collapsible}>
@@ -545,7 +550,7 @@ function BasicsFieldset(props: SectionProps) {
               <dl className={`${styles.viewList} ${styles.collapsibleContent}`}>
                 <ViewRow
                   label="Cena po m²"
-                  value={pricePerSqm === null ? '—' : formatEur(pricePerSqm)}
+                  value={pricePerSqm === null ? '—' : formatEur(locale, pricePerSqm)}
                 />
                 <ViewRow label="Ulica i broj" value={street || '—'} />
                 <ViewRow
@@ -725,6 +730,7 @@ function CapitalSourcesFieldset({ saving, onSave }: SectionProps) {
 }
 
 function MortgageFieldset(props: SectionProps) {
+  const locale = useLocale();
   const {
     register,
     control,
@@ -810,9 +816,11 @@ function MortgageFieldset(props: SectionProps) {
             <ViewRow label="Kamatna stopa (NKS)" value={`${interestRatePct} %`} />
             <ViewRow
               label="Rok otplate"
-              value={Number.isFinite(termMonths) ? formatMonthsAsYearsAndMonths(termMonths) : '—'}
+              value={
+                Number.isFinite(termMonths) ? formatMonthsAsYearsAndMonths(locale, termMonths) : '—'
+              }
             />
-            <ViewRow label="Početak otplate" value={formatMonthYear(startMonth)} />
+            <ViewRow label="Početak otplate" value={formatMonthYear(locale, startMonth)} />
           </dl>
         )
       }

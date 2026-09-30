@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/I18nProvider';
 import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths } from '@/lib/format';
 import type { ComputedTotals } from '@/lib/types';
 import { PendingValue } from '@/components/PendingValue';
@@ -6,6 +7,7 @@ import styles from './PhasesTimeline.module.scss';
 type Props = { totals: ComputedTotals | null };
 
 export function PhasesTimeline({ totals }: Props) {
+  const locale = useLocale();
   return (
     <div className={styles.card} data-pdf-block="true">
       <h3 className={styles.title}>Faze otplate</h3>
@@ -20,18 +22,21 @@ export function PhasesTimeline({ totals }: Props) {
               <div className={styles.phase}>
                 <div className={styles.phaseHeader}>
                   <span className={styles.phaseDuration}>
-                    {formatMonthsAsYearsAndMonths(phase.durationMonths)}
+                    {formatMonthsAsYearsAndMonths(locale, phase.durationMonths)}
                   </span>
-                  <span className={styles.phaseTotal}>{formatEur(phase.monthlyTotal)} / mes.</span>
+                  <span className={styles.phaseTotal}>
+                    {formatEur(locale, phase.monthlyTotal)} / mes.
+                  </span>
                 </div>
                 <div className={styles.phaseMeta}>
-                  {formatMonthYear(phase.startMonth)} — {formatMonthYear(phase.endMonth)}
+                  {formatMonthYear(locale, phase.startMonth)} —{' '}
+                  {formatMonthYear(locale, phase.endMonth)}
                 </div>
                 {phase.monthlyBankTotal > 0 ? (
                   <div className={styles.bankTotal}>
                     <span className={styles.bankTotalLabel}>Dug banci (stambeni + keš)</span>
                     <span className={styles.bankTotalAmount}>
-                      {formatEur(phase.monthlyBankTotal)} / mes.
+                      {formatEur(locale, phase.monthlyBankTotal)} / mes.
                     </span>
                   </div>
                 ) : null}
@@ -42,7 +47,7 @@ export function PhasesTimeline({ totals }: Props) {
                       className={`${styles.componentRow} ${c.income ? styles.componentIncome : ''}`}
                     >
                       <span className={styles.componentLabel}>{c.label}</span>
-                      <span className={styles.componentAmount}>{formatEur(c.amount)}</span>
+                      <span className={styles.componentAmount}>{formatEur(locale, c.amount)}</span>
                     </li>
                   ))}
                 </ul>
