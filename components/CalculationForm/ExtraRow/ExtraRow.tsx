@@ -1,5 +1,6 @@
 'use client';
 
+import { useT } from '@/lib/i18n/I18nProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { propertyExtraSchema } from '@/lib/schemas';
 import type { PropertyExtra } from '@/lib/types';
@@ -15,6 +16,7 @@ type Props = {
 };
 
 export function ExtraRow({ extra, isNew, onApply, onRemove }: Props) {
+  const t = useT();
   const [draft, setDraft] = useState<PropertyExtra>(extra);
   const [editing, setEditing] = useState<boolean>(isNew);
 
@@ -52,15 +54,15 @@ export function ExtraRow({ extra, isNew, onApply, onRemove }: Props) {
           </div>
           <div className={styles.loanCardActions}>
             <button type="button" className="secondary" onClick={() => setEditing(true)}>
-              Izmeni
+              {t.common.edit}
             </button>
             <button
               type="button"
               className={styles.removeButton}
               onClick={onRemove}
-              title="Ukloni stavku"
+              title={t.extraRow.removeItem}
             >
-              Ukloni
+              {t.common.remove}
             </button>
           </div>
         </div>
@@ -72,12 +74,12 @@ export function ExtraRow({ extra, isNew, onApply, onRemove }: Props) {
     <div className={`${styles.loanCard} ${styles.loanCardEditing}`}>
       <div className={styles.loanRow}>
         <div className={styles.field}>
-          <label htmlFor={`extra-${extra.id}-text`}>Stavka</label>
+          <label htmlFor={`extra-${extra.id}-text`}>{t.extraRow.item}</label>
           <input
             id={`extra-${extra.id}-text`}
             type="text"
             maxLength={120}
-            placeholder="npr. Garažno mesto"
+            placeholder={t.extraRow.placeholder}
             value={draft.text}
             onChange={(e) => setDraft((prev) => ({ ...prev, text: e.target.value }))}
             aria-invalid={textError ? true : undefined}
@@ -87,28 +89,26 @@ export function ExtraRow({ extra, isNew, onApply, onRemove }: Props) {
       </div>
 
       <div className={styles.loanEditFooter}>
-        {!isValid ? (
-          <span className={styles.loanFooterHint}>Ispravite greške pre primene.</span>
-        ) : null}
+        {!isValid ? <span className={styles.loanFooterHint}>{t.common.fixErrors}</span> : null}
         {isValid && isDirty ? (
-          <span className={styles.loanFooterHint}>Izmene još nisu primenjene.</span>
+          <span className={styles.loanFooterHint}>{t.common.unapplied}</span>
         ) : null}
         <div className={styles.loanFooterActions}>
           {!isNew ? (
             <button type="button" className="secondary" onClick={handleCancel}>
-              Otkaži izmene
+              {t.common.cancelChanges}
             </button>
           ) : null}
           <button
             type="button"
             className={styles.removeButton}
             onClick={onRemove}
-            title="Ukloni stavku"
+            title={t.extraRow.removeItem}
           >
-            Ukloni
+            {t.common.remove}
           </button>
           <button type="button" onClick={handleApply} disabled={!isValid || !isDirty}>
-            Primeni
+            {t.common.apply}
           </button>
         </div>
       </div>

@@ -13,9 +13,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang={locale === 'sr' ? 'sr-Latn' : 'en'}>
       <body>
-        <I18nProvider locale={locale} dictionary={getDictionary(locale)}>
-          {children}
-        </I18nProvider>
+        <I18nProvider locale={locale}>{children}</I18nProvider>
       </body>
     </html>
   );

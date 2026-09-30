@@ -15,15 +15,7 @@ import { FieldError } from '@/components/FieldError';
 import { MonthYearInput } from '../MonthYearInput';
 import styles from '../CalculationForm.module.scss';
 
-const LOAN_TYPE_OPTIONS: { value: LoanType; label: string }[] = [
-  { value: 'CASH_LOAN', label: 'KEŠ KREDIT' },
-  { value: 'PRIVATE_LOAN', label: 'POZAJMICA' },
-];
-
-const LOAN_TYPE_LABEL: Record<LoanType, string> = {
-  CASH_LOAN: 'KEŠ KREDIT',
-  PRIVATE_LOAN: 'POZAJMICA',
-};
+const LOAN_TYPES: LoanType[] = ['CASH_LOAN', 'PRIVATE_LOAN'];
 
 type Props = {
   loan: Loan;
@@ -96,21 +88,21 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
       <div className={styles.loanCard}>
         <div className={styles.loanCardHeader}>
           <div className={styles.loanCardTitle}>
-            <span className={styles.loanTypeBadge}>{LOAN_TYPE_LABEL[loan.type]}</span>
+            <span className={styles.loanTypeBadge}>{t.loanType[loan.type]}</span>
             <span className={styles.loanLabel}>{loan.label}</span>
           </div>
           <div className={styles.loanCardActions}>
             <button type="button" className="secondary" onClick={() => setEditing(true)}>
-              Izmeni
+              {t.common.edit}
             </button>
             <button type="button" className={styles.removeButton} onClick={onRemove}>
-              Ukloni
+              {t.common.remove}
             </button>
           </div>
         </div>
         <dl className={styles.loanCardDetails}>
           <div>
-            <dt>Iznos</dt>
+            <dt>{t.loanRow.amount}</dt>
             <dd>
               {formatEur(locale, loan.amount)}
               {showRsd ? (
@@ -121,19 +113,19 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
             </dd>
           </div>
           <div>
-            <dt>Kamatna stopa</dt>
+            <dt>{t.loanRow.interestRate}</dt>
             <dd>{loan.interestRatePct} %</dd>
           </div>
           <div>
-            <dt>Početak otplate</dt>
+            <dt>{t.loanRow.repaymentStart}</dt>
             <dd>{formatMonthYear(locale, loan.startMonth)}</dd>
           </div>
           <div>
-            <dt>Rok otplate</dt>
+            <dt>{t.loanRow.repaymentTerm}</dt>
             <dd>{formatMonthsAsYearsAndMonths(locale, loan.termMonths)}</dd>
           </div>
           <div>
-            <dt>Mesečna rata</dt>
+            <dt>{t.loanRow.monthlyPayment}</dt>
             <dd>
               {formatEur(locale, monthlyPayment)}
               {showRsd ? (
@@ -144,7 +136,7 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
             </dd>
           </div>
           <div>
-            <dt>Ukupna kamata</dt>
+            <dt>{t.loanRow.totalInterest}</dt>
             <dd>
               {formatEur(locale, totalInterest)}
               {showRsd ? (
@@ -163,22 +155,22 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
     <div className={`${styles.loanCard} ${styles.loanCardEditing}`}>
       <div className={styles.loanRow}>
         <div className={styles.field}>
-          <label htmlFor={`loan-${loan.id}-type`}>Tip</label>
+          <label htmlFor={`loan-${loan.id}-type`}>{t.loanRow.type}</label>
           <select
             id={`loan-${loan.id}-type`}
             value={draft.type}
             onChange={(e) => handleTypeChange(e.target.value as LoanType)}
           >
-            {LOAN_TYPE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
+            {LOAN_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {t.loanType[type]}
               </option>
             ))}
           </select>
         </div>
 
         <div className={styles.field}>
-          <label htmlFor={`loan-${loan.id}-label`}>Naziv</label>
+          <label htmlFor={`loan-${loan.id}-label`}>{t.loanRow.name}</label>
           <input
             id={`loan-${loan.id}-label`}
             type="text"
@@ -190,7 +182,7 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
         </div>
 
         <div className={styles.field}>
-          <label htmlFor={`loan-${loan.id}-amount`}>Iznos (EUR)</label>
+          <label htmlFor={`loan-${loan.id}-amount`}>{t.loanRow.amountEur}</label>
           <input
             id={`loan-${loan.id}-amount`}
             type="number"
@@ -205,7 +197,7 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
         </div>
 
         <div className={styles.field}>
-          <label htmlFor={`loan-${loan.id}-rate`}>Kamatna stopa (%)</label>
+          <label htmlFor={`loan-${loan.id}-rate`}>{t.loanRow.interestRatePct}</label>
           <input
             id={`loan-${loan.id}-rate`}
             type="number"
@@ -221,7 +213,7 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
         </div>
 
         <div className={styles.field}>
-          <label htmlFor={`loan-${loan.id}-start`}>Početak otplate</label>
+          <label htmlFor={`loan-${loan.id}-start`}>{t.loanRow.repaymentStart}</label>
           <MonthYearInput
             id={`loan-${loan.id}-start`}
             value={draft.startMonth}
@@ -230,7 +222,7 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
         </div>
 
         <div className={styles.field}>
-          <label htmlFor={`loan-${loan.id}-term`}>Broj meseci otplate</label>
+          <label htmlFor={`loan-${loan.id}-term`}>{t.loanRow.termMonths}</label>
           <input
             id={`loan-${loan.id}-term`}
             type="number"
@@ -246,23 +238,21 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
       </div>
 
       <div className={styles.loanEditFooter}>
-        {!isValid ? (
-          <span className={styles.loanFooterHint}>Ispravite greške pre primene.</span>
-        ) : null}
+        {!isValid ? <span className={styles.loanFooterHint}>{t.common.fixErrors}</span> : null}
         {isValid && isDirty ? (
-          <span className={styles.loanFooterHint}>Izmene još nisu primenjene.</span>
+          <span className={styles.loanFooterHint}>{t.common.unapplied}</span>
         ) : null}
         <div className={styles.loanFooterActions}>
           {!isNew ? (
             <button type="button" className="secondary" onClick={handleCancel}>
-              Otkaži izmene
+              {t.common.cancelChanges}
             </button>
           ) : null}
           <button type="button" className={styles.removeButton} onClick={onRemove}>
-            Ukloni
+            {t.common.remove}
           </button>
           <button type="button" onClick={handleApply} disabled={!isValid || !isDirty}>
-            Primeni
+            {t.common.apply}
           </button>
         </div>
       </div>

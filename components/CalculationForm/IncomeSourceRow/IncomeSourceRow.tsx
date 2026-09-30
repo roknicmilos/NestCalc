@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from '@/lib/i18n/I18nProvider';
+import { useLocale, useT } from '@/lib/i18n/I18nProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { incomeSourceSchema } from '@/lib/schemas';
 import type { IncomeSource, MonthYear } from '@/lib/types';
@@ -20,6 +20,7 @@ type Props = {
 type DraftErrors = Partial<Record<keyof IncomeSource, string>>;
 
 export function IncomeSourceRow({ source, isNew, onApply, onRemove }: Props) {
+  const t = useT();
   const locale = useLocale();
   const [draft, setDraft] = useState<IncomeSource>(source);
   const [editing, setEditing] = useState<boolean>(isNew);
@@ -67,25 +68,25 @@ export function IncomeSourceRow({ source, isNew, onApply, onRemove }: Props) {
           </div>
           <div className={styles.loanCardActions}>
             <button type="button" className="secondary" onClick={() => setEditing(true)}>
-              Izmeni
+              {t.common.edit}
             </button>
             <button
               type="button"
               className={styles.removeButton}
               onClick={onRemove}
-              title="Ukloni izvor"
+              title={t.incomeRow.removeSource}
             >
-              Ukloni
+              {t.common.remove}
             </button>
           </div>
         </div>
         <dl className={styles.loanCardDetails}>
           <div>
-            <dt>Mesečni iznos</dt>
+            <dt>{t.incomeRow.monthlyAmount}</dt>
             <dd>{formatEur(locale, source.monthlyAmount)}</dd>
           </div>
           <div>
-            <dt>Početak</dt>
+            <dt>{t.incomeRow.start}</dt>
             <dd>{formatMonthYear(locale, source.startMonth)}</dd>
           </div>
         </dl>
@@ -97,7 +98,7 @@ export function IncomeSourceRow({ source, isNew, onApply, onRemove }: Props) {
     <div className={`${styles.loanCard} ${styles.loanCardEditing}`}>
       <div className={styles.loanRow}>
         <div className={styles.field}>
-          <label htmlFor={`income-${source.id}-label`}>Naziv</label>
+          <label htmlFor={`income-${source.id}-label`}>{t.incomeRow.name}</label>
           <input
             id={`income-${source.id}-label`}
             type="text"
@@ -109,7 +110,7 @@ export function IncomeSourceRow({ source, isNew, onApply, onRemove }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label htmlFor={`income-${source.id}-amount`}>Mesečni iznos (EUR)</label>
+          <label htmlFor={`income-${source.id}-amount`}>{t.incomeRow.monthlyAmountEur}</label>
           <input
             id={`income-${source.id}-amount`}
             type="number"
@@ -124,7 +125,7 @@ export function IncomeSourceRow({ source, isNew, onApply, onRemove }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label htmlFor={`income-${source.id}-start`}>Početak</label>
+          <label htmlFor={`income-${source.id}-start`}>{t.incomeRow.start}</label>
           <MonthYearInput
             id={`income-${source.id}-start`}
             value={draft.startMonth}
@@ -134,28 +135,26 @@ export function IncomeSourceRow({ source, isNew, onApply, onRemove }: Props) {
       </div>
 
       <div className={styles.loanEditFooter}>
-        {!isValid ? (
-          <span className={styles.loanFooterHint}>Ispravite greške pre primene.</span>
-        ) : null}
+        {!isValid ? <span className={styles.loanFooterHint}>{t.common.fixErrors}</span> : null}
         {isValid && isDirty ? (
-          <span className={styles.loanFooterHint}>Izmene još nisu primenjene.</span>
+          <span className={styles.loanFooterHint}>{t.common.unapplied}</span>
         ) : null}
         <div className={styles.loanFooterActions}>
           {!isNew ? (
             <button type="button" className="secondary" onClick={handleCancel}>
-              Otkaži izmene
+              {t.common.cancelChanges}
             </button>
           ) : null}
           <button
             type="button"
             className={styles.removeButton}
             onClick={onRemove}
-            title="Ukloni izvor"
+            title={t.incomeRow.removeSource}
           >
-            Ukloni
+            {t.common.remove}
           </button>
           <button type="button" onClick={handleApply} disabled={!isValid || !isDirty}>
-            Primeni
+            {t.common.apply}
           </button>
         </div>
       </div>

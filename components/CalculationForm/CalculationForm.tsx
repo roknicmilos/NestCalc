@@ -45,21 +45,21 @@ import { nanoid } from 'nanoid';
 import styles from './CalculationForm.module.scss';
 
 const formSchema = z.object({
-  name: z.string().trim().min(1, 'Naziv je obavezan.').max(80, 'Naziv je predugačak.'),
+  name: z.string().trim().min(1, 'nameRequired').max(80, 'nameTooLong'),
   inputs: calculationInputsSchema,
 });
 
 type Props = { initial: Calculation };
 
 /** Turn a calculation name into a safe PDF file name. */
-function toFileName(name: string): string {
+function toFileName(name: string, fallback: string): string {
   const slug = name
     .trim()
     .replace(/[\\/:*?"<>|]+/g, '-')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
-  return slug || 'kalkulacija';
+  return slug || fallback;
 }
 
 /** Shared edit/save plumbing handed to every section. `onSave` persists the whole
@@ -71,6 +71,7 @@ type SectionProps = {
 };
 
 export function CalculationForm({ initial }: Props) {
+  const t = useT();
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -116,7 +117,7 @@ export function CalculationForm({ initial }: Props) {
       });
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
-        setSaveError(body.error ?? 'Greška pri čuvanju kalkulacije.');
+        setSaveError(body.error ?? t.form.saveError);
         return false;
       }
       const stored: Calculation = await response.json();
@@ -124,7 +125,7 @@ export function CalculationForm({ initial }: Props) {
       router.refresh();
       return true;
     } catch {
-      setSaveError('Greška u komunikaciji sa serverom.');
+      setSaveError(t.form.serverError);
       return false;
     } finally {
       setSaving(false);
@@ -144,7 +145,7 @@ export function CalculationForm({ initial }: Props) {
         <div className={styles.toolbar} data-export-ignore="true">
           <ExportPdfButton
             targetRef={exportRef}
-            fileName={toFileName(watched?.name ?? initial.name)}
+            fileName={toFileName(watched?.name ?? initial.name, t.form.fileNameFallback)}
           />
         </div>
 
@@ -189,6 +190,7 @@ function SectionControls({
   editing: boolean;
   setEditing: (value: boolean) => void;
 }) {
+  const t = useT();
   async function handleSave() {
     const ok = await onSave();
     if (ok) setEditing(false);
@@ -201,17 +203,17 @@ function SectionControls({
   if (!editing) {
     return (
       <button type="button" className="secondary" onClick={() => setEditing(true)}>
-        Izmeni
+        {t.common.edit}
       </button>
     );
   }
   return (
     <div className={styles.sectionControls}>
       <button type="button" className="secondary" onClick={handleCancel} disabled={saving}>
-        Otkaži
+        {t.form.cancel}
       </button>
       <button type="button" onClick={handleSave} disabled={saving}>
-        {saving ? 'Čuvam…' : 'Sačuvaj'}
+        {saving ? t.form.saving : t.form.save}
       </button>
     </div>
   );
@@ -262,6 +264,7 @@ function ViewRow({ label, value }: { label: string; value: ReactNode }) {
 }
 
 function NameSection({ saving, onSave, onCancel }: SectionProps) {
+  const t = useT();
   const {
     register,
     control,
@@ -272,7 +275,7 @@ function NameSection({ saving, onSave, onCancel }: SectionProps) {
   return (
     <div className={styles.headerBar} data-pdf-block="true">
       <div className={styles.headerName}>
-        <label htmlFor="calc-name">Naziv kalkulacije</label>
+        <label htmlFor="calc-name">{t.form.calcName}</label>
         {editing ? (
           <input id="calc-name" type="text" maxLength={80} {...register('name')} />
         ) : (
@@ -294,6 +297,7 @@ function NameSection({ saving, onSave, onCancel }: SectionProps) {
 }
 
 function BasicsFieldset(props: SectionProps) {
+  const t = useT();
   const locale = useLocale();
   const {
     register,
@@ -317,16 +321,12 @@ function BasicsFieldset(props: SectionProps) {
       : null;
 
   return (
-    <SectionFieldset
-      title="Osnovni podaci o kupovini"
-      accentClass={styles.fieldsetBasics}
-      {...props}
-    >
+    <SectionFieldset title={t.basics.title} accentClass={styles.fieldsetBasics} {...props}>
       {(editing) =>
         editing ? (
           <div className={styles.grid2}>
             <div className={styles.field}>
-              <label htmlFor="property-type">Tip nekretnine</label>
+              <label htmlFor="property-type">{t.basics.propertyType}</label>
               <Controller
                 control={control as Control<CalculationFormValues>}
                 name="inputs.propertyType"
@@ -337,8 +337,8 @@ function BasicsFieldset(props: SectionProps) {
                     onChange={field.onChange}
                     onBlur={field.onBlur}
                   >
-                    <option value="APARTMENT">STAN</option>
-                    <option value="HOUSE">KUĆA</option>
+                    <option value="APARTMENT">{t.basics.apartment}</option>
+                    <option value="HOUSE">{t.basics.house}</option>
                   </select>
                 )}
               />
@@ -346,7 +346,7 @@ function BasicsFieldset(props: SectionProps) {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="seller">Prodavac</label>
+              <label htmlFor="seller">{t.basics.seller}</label>
               <Controller
                 control={control as Control<CalculationFormValues>}
                 name="inputs.seller"
@@ -357,8 +357,8 @@ function BasicsFieldset(props: SectionProps) {
                     onChange={field.onChange}
                     onBlur={field.onBlur}
                   >
-                    <option value="INDIVIDUAL">Fizičko lice</option>
-                    <option value="INVESTOR">Investitor</option>
+                    <option value="INDIVIDUAL">{t.basics.individual}</option>
+                    <option value="INVESTOR">{t.basics.investor}</option>
                   </select>
                 )}
               />
@@ -367,7 +367,7 @@ function BasicsFieldset(props: SectionProps) {
 
             {seller === 'INDIVIDUAL' ? (
               <div className={`${styles.field} ${styles.fieldFull}`}>
-                <label htmlFor="ppap-timing">Kada se plaća porez na prenos (PPAP)</label>
+                <label htmlFor="ppap-timing">{t.basics.ppapTiming}</label>
                 <Controller
                   control={control as Control<CalculationFormValues>}
                   name="inputs.ppapTiming"
@@ -378,24 +378,19 @@ function BasicsFieldset(props: SectionProps) {
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                     >
-                      <option value="NOW">Sada (pripremam novac uz učešće)</option>
-                      <option value="LATER">
-                        Kasnije (kada je nekretnina gotova, uz stambeni kredit)
-                      </option>
+                      <option value="NOW">{t.basics.ppapNow}</option>
+                      <option value="LATER">{t.basics.ppapLater}</option>
                     </select>
                   )}
                 />
-                <span className={styles.fieldHint}>
-                  „Kasnije“ znači da porez ne ulazi u novac koji pripremate sada, već dospeva kada
-                  nekretnina bude gotova i odobren stambeni kredit.
-                </span>
+                <span className={styles.fieldHint}>{t.basics.ppapHint}</span>
                 <FieldError message={errors.inputs?.ppapTiming?.message} />
               </div>
             ) : null}
 
             {seller === 'INDIVIDUAL' && ppapTiming === 'LATER' ? (
               <div className={styles.field}>
-                <label htmlFor="ppap-saving-start">Početak štednje za PPAP</label>
+                <label htmlFor="ppap-saving-start">{t.basics.ppapSavingStart}</label>
                 <Controller
                   control={control as Control<CalculationFormValues>}
                   name="inputs.ppapSavingStartMonth"
@@ -407,14 +402,12 @@ function BasicsFieldset(props: SectionProps) {
                     />
                   )}
                 />
-                <span className={styles.fieldHint}>
-                  Mesec od kog počinjete da odvajate novac za PPAP.
-                </span>
+                <span className={styles.fieldHint}>{t.basics.ppapSavingHint}</span>
               </div>
             ) : null}
 
             <div className={styles.field}>
-              <label htmlFor="property-price">Ukupna cena nekretnine</label>
+              <label htmlFor="property-price">{t.basics.price}</label>
               <div className={styles.fieldWithSuffix}>
                 <input
                   id="property-price"
@@ -430,7 +423,7 @@ function BasicsFieldset(props: SectionProps) {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="square-meters">Kvadratura</label>
+              <label htmlFor="square-meters">{t.basics.squareMeters}</label>
               <div className={styles.fieldWithSuffix}>
                 <input
                   id="square-meters"
@@ -446,7 +439,7 @@ function BasicsFieldset(props: SectionProps) {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="price-per-sqm">Cena po m²</label>
+              <label htmlFor="price-per-sqm">{t.basics.pricePerSqm}</label>
               <div className={styles.fieldWithSuffix}>
                 <input
                   id="price-per-sqm"
@@ -457,11 +450,11 @@ function BasicsFieldset(props: SectionProps) {
                 />
                 <span className={styles.suffix}>/ m²</span>
               </div>
-              <span className={styles.fieldHint}>Automatski izračunato iz cene i kvadrature.</span>
+              <span className={styles.fieldHint}>{t.basics.pricePerSqmHint}</span>
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="purchase-costs">Fiksni troškovi kupovine (notar, advokat…)</label>
+              <label htmlFor="purchase-costs">{t.basics.purchaseCosts}</label>
               <div className={styles.fieldWithSuffix}>
                 <input
                   id="purchase-costs"
@@ -477,29 +470,29 @@ function BasicsFieldset(props: SectionProps) {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="address-area">Deo grada</label>
+              <label htmlFor="address-area">{t.basics.area}</label>
               <input
                 id="address-area"
                 type="text"
-                placeholder="npr. Sremska Kamenica"
+                placeholder={t.basics.areaPlaceholder}
                 {...register('inputs.address.area')}
               />
               <FieldError message={errors.inputs?.address?.area?.message} />
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="address-street">Ulica i broj</label>
+              <label htmlFor="address-street">{t.basics.street}</label>
               <input
                 id="address-street"
                 type="text"
-                placeholder="npr. Jablanova 12"
+                placeholder={t.basics.streetPlaceholder}
                 {...register('inputs.address.street')}
               />
               <FieldError message={errors.inputs?.address?.street?.message} />
             </div>
 
             <div className={`${styles.field} ${styles.fieldFull}`}>
-              <label htmlFor="property-link">Link ka detaljima</label>
+              <label htmlFor="property-link">{t.basics.link}</label>
               <input
                 id="property-link"
                 type="url"
@@ -513,48 +506,47 @@ function BasicsFieldset(props: SectionProps) {
         ) : (
           <>
             <dl className={styles.viewList}>
-              <ViewRow label="Tip nekretnine" value={propertyType === 'HOUSE' ? 'KUĆA' : 'STAN'} />
               <ViewRow
-                label="Prodavac"
-                value={seller === 'INDIVIDUAL' ? 'Fizičko lice' : 'Investitor'}
+                label={t.basics.propertyType}
+                value={propertyType === 'HOUSE' ? t.basics.house : t.basics.apartment}
+              />
+              <ViewRow
+                label={t.basics.seller}
+                value={seller === 'INDIVIDUAL' ? t.basics.individual : t.basics.investor}
               />
               {seller === 'INDIVIDUAL' ? (
                 <ViewRow
-                  label="Plaćanje poreza na prenos (PPAP)"
-                  value={
-                    ppapTiming === 'LATER'
-                      ? 'Kasnije (kada je nekretnina gotova)'
-                      : 'Sada (uz učešće)'
-                  }
+                  label={t.basics.viewPpapTiming}
+                  value={ppapTiming === 'LATER' ? t.basics.viewPpapLater : t.basics.viewPpapNow}
                 />
               ) : null}
               {seller === 'INDIVIDUAL' && ppapTiming === 'LATER' ? (
                 <ViewRow
-                  label="Početak štednje za PPAP"
+                  label={t.basics.ppapSavingStart}
                   value={formatMonthYear(locale, ppapSavingStartMonth ?? currentMonthYear())}
                 />
               ) : null}
-              <ViewRow label="Ukupna cena nekretnine" value={formatEur(locale, propertyPrice)} />
+              <ViewRow label={t.basics.price} value={formatEur(locale, propertyPrice)} />
               <ViewRow
-                label="Kvadratura"
+                label={t.basics.squareMeters}
                 value={Number.isFinite(squareMeters) ? `${squareMeters} m²` : '—'}
               />
               <ViewRow
-                label="Fiksni troškovi kupovine"
+                label={t.basics.viewPurchaseCosts}
                 value={formatEur(locale, purchaseCostsFixed)}
               />
-              <ViewRow label="Deo grada" value={area || '—'} />
+              <ViewRow label={t.basics.area} value={area || '—'} />
             </dl>
             <details className={styles.collapsible}>
-              <summary className={styles.collapsibleSummary}>Više detalja o nekretnini</summary>
+              <summary className={styles.collapsibleSummary}>{t.basics.moreDetails}</summary>
               <dl className={`${styles.viewList} ${styles.collapsibleContent}`}>
                 <ViewRow
-                  label="Cena po m²"
+                  label={t.basics.pricePerSqm}
                   value={pricePerSqm === null ? '—' : formatEur(locale, pricePerSqm)}
                 />
-                <ViewRow label="Ulica i broj" value={street || '—'} />
+                <ViewRow label={t.basics.street} value={street || '—'} />
                 <ViewRow
-                  label="Link ka detaljima"
+                  label={t.basics.link}
                   value={
                     link ? (
                       <a
@@ -585,6 +577,7 @@ function BasicsFieldset(props: SectionProps) {
  * there's no section-level edit/save: each card manages its own edit/remove, and applying
  * or removing a card persists the calculation. */
 function ExtrasFieldset({ saving, onSave }: SectionProps) {
+  const t = useT();
   const { control, setValue } = useFormContextTyped();
   const extras = (useWatch({ control, name: 'inputs.extras' }) ?? []) as PropertyExtra[];
   const [newIds, setNewIds] = useState<Set<string>>(new Set());
@@ -629,14 +622,11 @@ function ExtrasFieldset({ saving, onSave }: SectionProps) {
   return (
     <div className={`${styles.section} ${styles.fieldsetExtras}`} data-pdf-block="true">
       <div className={styles.sectionHeader}>
-        <h3 className={styles.sectionTitle}>Uključeno uz nekretninu</h3>
+        <h3 className={styles.sectionTitle}>{t.extras.title}</h3>
       </div>
-      <p className={styles.fieldsetHint}>
-        Sve što ide uz nekretninu (npr. garaža, parking, ostava, kuhinja…). Dodajte koliko god
-        stavki želite.
-      </p>
+      <p className={styles.fieldsetHint}>{t.extras.hint}</p>
       {extras.length === 0 ? (
-        <p className={styles.fieldsetEmpty}>Nema dodatnih stavki uz nekretninu.</p>
+        <p className={styles.fieldsetEmpty}>{t.extras.empty}</p>
       ) : (
         <div className={styles.loanList}>
           {extras.map((extra, index) => (
@@ -652,7 +642,7 @@ function ExtrasFieldset({ saving, onSave }: SectionProps) {
       )}
       <div className={styles.repeaterControls}>
         <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
-          Dodaj stavku
+          {t.extras.add}
         </button>
       </div>
     </div>
@@ -668,7 +658,7 @@ function CapitalSourcesFieldset({ saving, onSave }: SectionProps) {
   const [newIds, setNewIds] = useState<Set<string>>(new Set());
 
   function handleAdd() {
-    const newSource: CapitalSource = { id: nanoid(8), label: 'Novi izvor', amount: 0 };
+    const newSource: CapitalSource = { id: nanoid(8), label: t.capital.newSource, amount: 0 };
     setValue('inputs.capitalSources', [...sources, newSource], {
       shouldDirty: true,
       shouldValidate: true,
@@ -707,7 +697,7 @@ function CapitalSourcesFieldset({ saving, onSave }: SectionProps) {
   return (
     <div className={`${styles.section} ${styles.fieldsetCapital}`} data-pdf-block="true">
       <div className={styles.sectionHeader}>
-        <h3 className={styles.sectionTitle}>Početni kapital</h3>
+        <h3 className={styles.sectionTitle}>{t.capital.title}</h3>
       </div>
       <div className={styles.loanList}>
         {sources.map((source, index) => (
@@ -723,7 +713,7 @@ function CapitalSourcesFieldset({ saving, onSave }: SectionProps) {
       </div>
       <div className={styles.repeaterControls}>
         <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
-          Dodaj izvor
+          {t.capital.add}
         </button>
       </div>
     </div>
@@ -731,6 +721,7 @@ function CapitalSourcesFieldset({ saving, onSave }: SectionProps) {
 }
 
 function MortgageFieldset(props: SectionProps) {
+  const t = useT();
   const locale = useLocale();
   const {
     register,
@@ -745,12 +736,12 @@ function MortgageFieldset(props: SectionProps) {
   const startMonth = useWatch({ control, name: 'inputs.mortgage.startMonth' });
 
   return (
-    <SectionFieldset title="Stambeni kredit" accentClass={styles.fieldsetMortgage} {...props}>
+    <SectionFieldset title={t.mortgage.title} accentClass={styles.fieldsetMortgage} {...props}>
       {(editing) =>
         editing ? (
           <div className={styles.grid3}>
             <div className={styles.field}>
-              <label htmlFor="mortgage-downpayment">Procenat učešća</label>
+              <label htmlFor="mortgage-downpayment">{t.mortgage.downPaymentPct}</label>
               <div className={styles.fieldWithSuffix}>
                 <input
                   id="mortgage-downpayment"
@@ -766,7 +757,7 @@ function MortgageFieldset(props: SectionProps) {
               <FieldError message={mortgageErrors?.downPaymentPct?.message} />
             </div>
             <div className={styles.field}>
-              <label htmlFor="mortgage-rate">Kamatna stopa (NKS)</label>
+              <label htmlFor="mortgage-rate">{t.mortgage.rate}</label>
               <div className={styles.fieldWithSuffix}>
                 <input
                   id="mortgage-rate"
@@ -782,7 +773,7 @@ function MortgageFieldset(props: SectionProps) {
               <FieldError message={mortgageErrors?.interestRatePct?.message} />
             </div>
             <div className={styles.field}>
-              <label htmlFor="mortgage-term">Rok otplate</label>
+              <label htmlFor="mortgage-term">{t.mortgage.term}</label>
               <div className={styles.fieldWithSuffix}>
                 <input
                   id="mortgage-term"
@@ -792,12 +783,12 @@ function MortgageFieldset(props: SectionProps) {
                   min={1}
                   {...register('inputs.mortgage.termMonths', { valueAsNumber: true })}
                 />
-                <span className={styles.suffix}>mes.</span>
+                <span className={styles.suffix}>{t.mortgage.monthsSuffix}</span>
               </div>
               <FieldError message={mortgageErrors?.termMonths?.message} />
             </div>
             <div className={styles.field}>
-              <label htmlFor="mortgage-start">Početak otplate</label>
+              <label htmlFor="mortgage-start">{t.mortgage.start}</label>
               <Controller
                 control={control as Control<CalculationFormValues>}
                 name="inputs.mortgage.startMonth"
@@ -813,15 +804,15 @@ function MortgageFieldset(props: SectionProps) {
           </div>
         ) : (
           <dl className={styles.viewList}>
-            <ViewRow label="Procenat učešća" value={`${downPaymentPct} %`} />
-            <ViewRow label="Kamatna stopa (NKS)" value={`${interestRatePct} %`} />
+            <ViewRow label={t.mortgage.downPaymentPct} value={`${downPaymentPct} %`} />
+            <ViewRow label={t.mortgage.rate} value={`${interestRatePct} %`} />
             <ViewRow
-              label="Rok otplate"
+              label={t.mortgage.term}
               value={
                 Number.isFinite(termMonths) ? formatMonthsAsYearsAndMonths(locale, termMonths) : '—'
               }
             />
-            <ViewRow label="Početak otplate" value={formatMonthYear(locale, startMonth)} />
+            <ViewRow label={t.mortgage.start} value={formatMonthYear(locale, startMonth)} />
           </dl>
         )
       }
@@ -880,19 +871,16 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
   return (
     <div className={`${styles.section} ${styles.fieldsetLoans}`} data-pdf-block="true">
       <div className={styles.sectionHeader}>
-        <h3 className={styles.sectionTitle}>Dodatne pozajmice</h3>
+        <h3 className={styles.sectionTitle}>{t.loans.title}</h3>
       </div>
       <p className={styles.fieldsetHint}>
-        Sve dodate pozajmice (keš kredit ili pozajmica) ulaze u učešće. Svaka stavka ima svoje
-        dugmad za izmenu i uklanjanje; izmene se čuvaju kada kliknete na <strong>Primeni</strong>.
+        {t.loans.hintBefore} <strong>{t.common.apply}</strong>.
       </p>
       {hasCashLoan ? (
         <EurToRsdRateField rate={eurToRsdRate} saving={saving} onSave={onSave} />
       ) : null}
       {loans.length === 0 ? (
-        <p className={styles.fieldsetEmpty}>
-          Nema dodatnih pozajmica. Dodajte keš kredit ili pozajmicu od prijatelja/porodice.
-        </p>
+        <p className={styles.fieldsetEmpty}>{t.loans.empty}</p>
       ) : (
         <div className={styles.loanList}>
           {loans.map((loan, index) => (
@@ -909,7 +897,7 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
       )}
       <div className={styles.repeaterControls}>
         <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
-          Dodaj pozajmicu
+          {t.loans.add}
         </button>
       </div>
     </div>
@@ -965,14 +953,11 @@ function IncomeSourcesFieldset({ saving, onSave }: SectionProps) {
   return (
     <div className={`${styles.section} ${styles.fieldsetIncome}`} data-pdf-block="true">
       <div className={styles.sectionHeader}>
-        <h3 className={styles.sectionTitle}>Dodatni mesečni prihodi</h3>
+        <h3 className={styles.sectionTitle}>{t.income.title}</h3>
       </div>
-      <p className={styles.fieldsetHint}>
-        Redovni mesečni prihodi (npr. kirija od stana) koji umanjuju mesečno opterećenje u fazama
-        otplate, počev od izabranog meseca.
-      </p>
+      <p className={styles.fieldsetHint}>{t.income.hint}</p>
       {sources.length === 0 ? (
-        <p className={styles.fieldsetEmpty}>Nema dodatnih mesečnih prihoda.</p>
+        <p className={styles.fieldsetEmpty}>{t.income.empty}</p>
       ) : (
         <div className={styles.loanList}>
           {sources.map((source, index) => (
@@ -988,7 +973,7 @@ function IncomeSourcesFieldset({ saving, onSave }: SectionProps) {
       )}
       <div className={styles.repeaterControls}>
         <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
-          Dodaj prihod
+          {t.income.add}
         </button>
       </div>
     </div>
@@ -1006,6 +991,7 @@ function EurToRsdRateField({
   saving: boolean;
   onSave: () => Promise<boolean>;
 }) {
+  const t = useT();
   const { setValue } = useFormContextTyped();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(rate);
@@ -1027,7 +1013,7 @@ function EurToRsdRateField({
 
   return (
     <div className={`${styles.field} ${styles.rateField}`}>
-      <label htmlFor="eur-to-rsd-rate">Kurs EUR → RSD (za prikaz keš kredita u dinarima)</label>
+      <label htmlFor="eur-to-rsd-rate">{t.form.eurToRsdRate}</label>
       {editing ? (
         <>
           <input
@@ -1041,10 +1027,10 @@ function EurToRsdRateField({
           />
           <div className={styles.sectionControls}>
             <button type="button" className="secondary" onClick={handleCancel} disabled={saving}>
-              Otkaži
+              {t.form.cancel}
             </button>
             <button type="button" onClick={handleSave} disabled={saving}>
-              {saving ? 'Čuvam…' : 'Sačuvaj'}
+              {saving ? t.form.saving : t.form.save}
             </button>
           </div>
         </>
@@ -1052,7 +1038,7 @@ function EurToRsdRateField({
         <div className={styles.readonlyField}>
           <span>{Number.isFinite(rate) ? rate : DEFAULT_EUR_TO_RSD_RATE}</span>
           <button type="button" className="secondary" onClick={() => setEditing(true)}>
-            Izmeni
+            {t.common.edit}
           </button>
         </div>
       )}

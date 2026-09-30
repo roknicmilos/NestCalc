@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from '@/lib/i18n/I18nProvider';
+import { useLocale, useT } from '@/lib/i18n/I18nProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { capitalSourceSchema } from '@/lib/schemas';
 import type { CapitalSource } from '@/lib/types';
@@ -20,6 +20,7 @@ type Props = {
 type DraftErrors = Partial<Record<keyof CapitalSource, string>>;
 
 export function CapitalSourceRow({ source, isNew, canRemove, onApply, onRemove }: Props) {
+  const t = useT();
   const locale = useLocale();
   const [draft, setDraft] = useState<CapitalSource>(source);
   const [editing, setEditing] = useState<boolean>(isNew);
@@ -43,7 +44,7 @@ export function CapitalSourceRow({ source, isNew, canRemove, onApply, onRemove }
 
   const isValid = Object.keys(errors).length === 0;
   const removeDisabled = !canRemove && !isNew;
-  const removeTitle = removeDisabled ? 'Mora postojati barem jedan izvor.' : 'Ukloni izvor';
+  const removeTitle = removeDisabled ? t.capitalRow.mustHaveOne : t.capitalRow.removeSource;
 
   function updateField<K extends keyof CapitalSource>(key: K, value: CapitalSource[K]) {
     setDraft((prev) => ({ ...prev, [key]: value }));
@@ -69,22 +70,22 @@ export function CapitalSourceRow({ source, isNew, canRemove, onApply, onRemove }
           </div>
           <div className={styles.loanCardActions}>
             <button type="button" className="secondary" onClick={() => setEditing(true)}>
-              Izmeni
+              {t.common.edit}
             </button>
             <button
               type="button"
               className={styles.removeButton}
               onClick={onRemove}
               disabled={!canRemove}
-              title={!canRemove ? 'Mora postojati barem jedan izvor.' : 'Ukloni izvor'}
+              title={!canRemove ? t.capitalRow.mustHaveOne : t.capitalRow.removeSource}
             >
-              Ukloni
+              {t.common.remove}
             </button>
           </div>
         </div>
         <dl className={styles.loanCardDetails}>
           <div>
-            <dt>Iznos</dt>
+            <dt>{t.capitalRow.amount}</dt>
             <dd>{formatEur(locale, source.amount)}</dd>
           </div>
         </dl>
@@ -96,7 +97,7 @@ export function CapitalSourceRow({ source, isNew, canRemove, onApply, onRemove }
     <div className={`${styles.loanCard} ${styles.loanCardEditing}`}>
       <div className={styles.loanRow}>
         <div className={styles.field}>
-          <label htmlFor={`cap-${source.id}-label`}>Izvor</label>
+          <label htmlFor={`cap-${source.id}-label`}>{t.capitalRow.source}</label>
           <input
             id={`cap-${source.id}-label`}
             type="text"
@@ -108,7 +109,7 @@ export function CapitalSourceRow({ source, isNew, canRemove, onApply, onRemove }
         </div>
 
         <div className={styles.field}>
-          <label htmlFor={`cap-${source.id}-amount`}>Iznos (EUR)</label>
+          <label htmlFor={`cap-${source.id}-amount`}>{t.capitalRow.amountEur}</label>
           <input
             id={`cap-${source.id}-amount`}
             type="number"
@@ -124,16 +125,14 @@ export function CapitalSourceRow({ source, isNew, canRemove, onApply, onRemove }
       </div>
 
       <div className={styles.loanEditFooter}>
-        {!isValid ? (
-          <span className={styles.loanFooterHint}>Ispravite greške pre primene.</span>
-        ) : null}
+        {!isValid ? <span className={styles.loanFooterHint}>{t.common.fixErrors}</span> : null}
         {isValid && isDirty ? (
-          <span className={styles.loanFooterHint}>Izmene još nisu primenjene.</span>
+          <span className={styles.loanFooterHint}>{t.common.unapplied}</span>
         ) : null}
         <div className={styles.loanFooterActions}>
           {!isNew ? (
             <button type="button" className="secondary" onClick={handleCancel}>
-              Otkaži izmene
+              {t.common.cancelChanges}
             </button>
           ) : null}
           <button
@@ -143,10 +142,10 @@ export function CapitalSourceRow({ source, isNew, canRemove, onApply, onRemove }
             disabled={removeDisabled}
             title={removeTitle}
           >
-            Ukloni
+            {t.common.remove}
           </button>
           <button type="button" onClick={handleApply} disabled={!isValid || !isDirty}>
-            Primeni
+            {t.common.apply}
           </button>
         </div>
       </div>
