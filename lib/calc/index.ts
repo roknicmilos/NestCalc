@@ -13,10 +13,7 @@ export { computeLoan } from './loanComputation';
 export { buildPhases } from './phases';
 export { indexToMonthYear, monthYearToIndex } from './monthIndex';
 
-export function computeTotals(
-  inputs: CalculationInputs,
-  now: Date = new Date(),
-): ComputedTotals {
+export function computeTotals(inputs: CalculationInputs, now: Date = new Date()): ComputedTotals {
   const ppap = computePpap(inputs.propertyPrice, inputs.seller);
 
   // PPAP paid "now" is money to set aside today, so it reduces what's available
@@ -73,11 +70,7 @@ export function computeTotals(
     ppapSavingComputations.push(savingComputation);
   }
 
-  const allComputations = [
-    mortgageComputation,
-    ...loanComputations,
-    ...ppapSavingComputations,
-  ];
+  const allComputations = [mortgageComputation, ...loanComputations, ...ppapSavingComputations];
   const phases = buildPhases(allComputations, inputs.incomeSources);
 
   return {

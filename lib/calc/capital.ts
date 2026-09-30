@@ -25,12 +25,10 @@ export function allocateCapital(params: {
   ppap: number;
   downPaymentPct: number;
 }): CapitalAllocation {
-  const { propertyPrice, capitalSources, loans, purchaseCostsFixed, ppap, downPaymentPct } =
-    params;
+  const { propertyPrice, capitalSources, loans, purchaseCostsFixed, ppap, downPaymentPct } = params;
   const totalCapital = sumCapital(capitalSources);
   const loansForDownPayment = sumLoansForDownPayment(loans);
-  const availableForDownPayment =
-    totalCapital + loansForDownPayment - purchaseCostsFixed - ppap;
+  const availableForDownPayment = totalCapital + loansForDownPayment - purchaseCostsFixed - ppap;
   const requiredDownPayment = (propertyPrice * downPaymentPct) / 100;
   const mortgageAmount = Math.max(0, propertyPrice - requiredDownPayment);
   const shortfall = Math.max(0, requiredDownPayment - availableForDownPayment);

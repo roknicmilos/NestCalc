@@ -81,10 +81,7 @@ export function buildPhases(
     // Debt first, then income, so the timeline reads payments before offsets.
     const components = [...debtComponents, ...incomeComponents];
     const monthlyTotal = components.reduce((acc, c) => acc + c.amount, 0);
-    const monthlyBankTotal = components.reduce(
-      (acc, c) => acc + (c.bankDebt ? c.amount : 0),
-      0,
-    );
+    const monthlyBankTotal = components.reduce((acc, c) => acc + (c.bankDebt ? c.amount : 0), 0);
     const componentKey = components.map((c) => c.loanId).join('|');
     intervals.push({
       startIdx: left,

@@ -129,10 +129,7 @@ describe('computeTotals — PPAP deferred to property readiness', () => {
   it('spreads the saving from the configured ppapSavingStartMonth, not "now"', () => {
     // Saving starts Jan 2027, due July 2027 → 6 months; "now" is ignored for the start.
     const now = new Date(2026, 6, 1);
-    const totals = computeTotals(
-      { ...base, ppapSavingStartMonth: { year: 2027, month: 1 } },
-      now,
-    );
+    const totals = computeTotals({ ...base, ppapSavingStartMonth: { year: 2027, month: 1 } }, now);
     expect(totals.ppapSavingMonths).toBe(6);
     expect(totals.ppapMonthlySaving).toBeCloseTo(5750 / 6, 6);
   });
