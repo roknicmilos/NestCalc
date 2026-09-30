@@ -3,7 +3,6 @@ import type {
   addressSchema,
   calculationInputsSchema,
   calculationSchema,
-  calculationSummarySchema,
   capitalSourceSchema,
   incomeSourceSchema,
   loanSchema,
@@ -29,7 +28,6 @@ export type Loan = z.infer<typeof loanSchema>;
 export type MortgageInputs = z.infer<typeof mortgageInputsSchema>;
 export type CalculationInputs = z.infer<typeof calculationInputsSchema>;
 export type Calculation = z.infer<typeof calculationSchema>;
-export type CalculationSummary = z.infer<typeof calculationSummarySchema>;
 
 export type LoanComputation = {
   loan: Loan;

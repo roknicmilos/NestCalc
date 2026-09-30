@@ -20,11 +20,7 @@ export const monthYearSchema = z.object({
 
 export const propertyExtraSchema = z.object({
   id: z.string().min(1),
-  text: z
-    .string()
-    .trim()
-    .min(1, 'Unesite opis pogodnosti.')
-    .max(120, 'Opis je predugačak.'),
+  text: z.string().trim().min(1, 'Unesite opis pogodnosti.').max(120, 'Opis je predugačak.'),
 });
 
 export const capitalSourceSchema = z.object({
@@ -81,9 +77,7 @@ export const calculationInputsSchema = z.object({
   propertyPrice: z.number().finite().min(0, 'Cena mora biti 0 ili veća.'),
   propertyType: propertyTypeSchema.default('APARTMENT'),
   squareMeters: z.number().finite().min(0, 'Kvadratura mora biti 0 ili veća.').default(0),
-  link: z
-    .union([z.literal(''), z.string().trim().url('Unesite ispravan link.')])
-    .default(''),
+  link: z.union([z.literal(''), z.string().trim().url('Unesite ispravan link.')]).default(''),
   address: addressSchema.default({}),
   seller: sellerSchema,
   ppapTiming: ppapTimingSchema.default('NOW'),
@@ -93,11 +87,7 @@ export const calculationInputsSchema = z.object({
   purchaseCostsFixed: z.number().finite().min(0, 'Troškovi moraju biti 0 ili veći.'),
   /** EUR→RSD rate used for secondary RSD amounts in the UI. Optional for backward
    * compatibility with saved calculations; falls back to the default in defaults.ts. */
-  eurToRsdRate: z
-    .number()
-    .finite()
-    .min(0, 'Kurs mora biti veći od 0.')
-    .default(117.5),
+  eurToRsdRate: z.number().finite().min(0, 'Kurs mora biti veći od 0.').default(117.5),
   extras: z.array(propertyExtraSchema).default([]),
   capitalSources: z.array(capitalSourceSchema),
   mortgage: mortgageInputsSchema,
@@ -113,14 +103,4 @@ export const calculationSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   inputs: calculationInputsSchema,
-});
-
-export const calculationSummarySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  updatedAt: z.string(),
-});
-
-export const createCalculationBodySchema = z.object({
-  name: z.string().trim().min(1, 'Naziv je obavezan.').max(80),
 });
