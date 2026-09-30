@@ -29,7 +29,16 @@ npm run lint     # Run ESLint (next lint)
 
 ## Project layout
 
-- `components/` — React UI components (`.tsx`) with co-located SCSS modules.
-- `lib/` — calculation logic (`lib/calc/`), Zod `schemas.ts`, `types.ts`,
-  `defaults.ts`.
+- `app/` — Next.js App Router. `/` renders the single calculator (`CALCULATION_ID` in
+  `lib/config.ts`, stored in `data/<id>.json`); `api/calculations/[id]` serves GET/PUT for it.
+- `components/` — one directory per component (`Name/Name.tsx`, `Name.module.scss`,
+  `index.ts`). Children used by a single parent live in the parent's directory
+  (e.g. `CalculationForm/LoanRow/`); shared ones (`FieldError`, `PendingValue`,
+  `LanguageSwitcher`) are top-level.
+- `lib/` — calculation logic (`lib/calc/`), Zod `schemas.ts` (validation messages are
+  dictionary keys), `types.ts`, `defaults.ts`, locale-aware `format.ts`.
+- `lib/i18n/` — Serbian (default, `sr.ts` defines the `Dictionary` shape) and English
+  (`en.ts`) dictionaries. Locale is stored in the `lang` cookie; use `useT()` /
+  `useLocale()` in client components and `getLocale()` (`lib/i18n/server.ts`) on the server.
+  Add every new UI string to both dictionaries.
 - `styles/` — global SCSS (`globals.scss`).
