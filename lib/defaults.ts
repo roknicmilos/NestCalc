@@ -1,12 +1,6 @@
 import { nanoid } from 'nanoid';
-import type {
-  Calculation,
-  CalculationInputs,
-  IncomeSource,
-  Loan,
-  LoanType,
-  MonthYear,
-} from './types';
+import { getDictionary, LOCALES, type Dictionary } from './i18n';
+import type { IncomeSource, Loan, LoanType, MonthYear } from './types';
 
 /** Default EUR→RSD rate; overridable per calculation in the UI. */
 export const DEFAULT_EUR_TO_RSD_RATE = 117.5;
@@ -29,20 +23,29 @@ export function defaultInterestRateForLoanType(type: LoanType): number {
   }
 }
 
-export function defaultLoanLabel(type: LoanType): string {
+export function defaultLoanLabel(type: LoanType, t: Dictionary): string {
   switch (type) {
     case 'CASH_LOAN':
-      return 'Keš kredit';
+      return t.defaults.cashLoan;
     case 'PRIVATE_LOAN':
-      return 'Pozajmica';
+      return t.defaults.privateLoan;
   }
 }
 
-export function createDefaultLoan(type: LoanType = 'PRIVATE_LOAN', now: Date = new Date()): Loan {
+/** True when `label` is the untouched default label for `type` in any locale. */
+export function isDefaultLoanLabel(label: string, type: LoanType): boolean {
+  return LOCALES.some((l) => defaultLoanLabel(type, getDictionary(l)) === label);
+}
+
+export function createDefaultLoan(
+  t: Dictionary,
+  type: LoanType = 'PRIVATE_LOAN',
+  now: Date = new Date(),
+): Loan {
   return {
     id: nanoid(8),
     type,
-    label: defaultLoanLabel(type),
+    label: defaultLoanLabel(type, t),
     amount: 0,
     interestRatePct: defaultInterestRateForLoanType(type),
     startMonth: currentMonthYear(now),
@@ -50,10 +53,10 @@ export function createDefaultLoan(type: LoanType = 'PRIVATE_LOAN', now: Date = n
   };
 }
 
-export function createDefaultIncomeSource(now: Date = new Date()): IncomeSource {
+export function createDefaultIncomeSource(t: Dictionary, now: Date = new Date()): IncomeSource {
   return {
     id: nanoid(8),
-    label: 'Kirija od stana',
+    label: t.defaults.rent,
     monthlyAmount: 0,
     startMonth: currentMonthYear(now),
   };

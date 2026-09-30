@@ -1,8 +1,12 @@
 'use client';
 
-import { useLocale } from '@/lib/i18n/I18nProvider';
+import { useLocale, useT } from '@/lib/i18n/I18nProvider';
 import { useEffect, useMemo, useState } from 'react';
-import { defaultInterestRateForLoanType, defaultLoanLabel } from '@/lib/defaults';
+import {
+  defaultInterestRateForLoanType,
+  defaultLoanLabel,
+  isDefaultLoanLabel,
+} from '@/lib/defaults';
 import { computeLoan } from '@/lib/calc/loanComputation';
 import { loanSchema } from '@/lib/schemas';
 import type { Loan, LoanType, MonthYear } from '@/lib/types';
@@ -34,6 +38,7 @@ type DraftErrors = Partial<Record<keyof Loan, string>>;
 
 export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props) {
   const locale = useLocale();
+  const t = useT();
   const [draft, setDraft] = useState<Loan>(loan);
   const [editing, setEditing] = useState<boolean>(isNew);
 
@@ -66,8 +71,8 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
       if (prev.interestRatePct === defaultInterestRateForLoanType(prev.type)) {
         next.interestRatePct = defaultInterestRateForLoanType(newType);
       }
-      if (prev.label === defaultLoanLabel(prev.type)) {
-        next.label = defaultLoanLabel(newType);
+      if (isDefaultLoanLabel(prev.label, prev.type)) {
+        next.label = defaultLoanLabel(newType, t);
       }
       return next;
     });

@@ -9,8 +9,8 @@ export const propertyTypeSchema = z.enum(['HOUSE', 'APARTMENT']);
 export const ppapTimingSchema = z.enum(['NOW', 'LATER']);
 
 export const addressSchema = z.object({
-  area: z.string().trim().max(120, 'Deo grada je predugačak.').default(''),
-  street: z.string().trim().max(120, 'Adresa je predugačka.').default(''),
+  area: z.string().trim().max(120, 'areaTooLong').default(''),
+  street: z.string().trim().max(120, 'streetTooLong').default(''),
 });
 
 export const monthYearSchema = z.object({
@@ -20,74 +20,54 @@ export const monthYearSchema = z.object({
 
 export const propertyExtraSchema = z.object({
   id: z.string().min(1),
-  text: z.string().trim().min(1, 'Unesite opis pogodnosti.').max(120, 'Opis je predugačak.'),
+  text: z.string().trim().min(1, 'extraRequired').max(120, 'extraTooLong'),
 });
 
 export const capitalSourceSchema = z.object({
   id: z.string().min(1),
-  label: z.string().min(1, 'Naziv je obavezan.').max(80),
-  amount: z.number().finite().min(0, 'Iznos mora biti 0 ili veći.'),
+  label: z.string().min(1, 'nameRequired').max(80, 'nameTooLong'),
+  amount: z.number().finite().min(0, 'amountMin0'),
 });
 
 export const incomeSourceSchema = z.object({
   id: z.string().min(1),
-  label: z.string().min(1, 'Naziv je obavezan.').max(80),
-  monthlyAmount: z.number().finite().min(0, 'Iznos mora biti 0 ili veći.'),
+  label: z.string().min(1, 'nameRequired').max(80, 'nameTooLong'),
+  monthlyAmount: z.number().finite().min(0, 'amountMin0'),
   startMonth: monthYearSchema,
 });
 
 export const loanSchema = z.object({
   id: z.string().min(1),
   type: loanTypeSchema,
-  label: z.string().min(1, 'Naziv je obavezan.').max(80),
-  amount: z.number().finite().min(0, 'Iznos mora biti 0 ili veći.'),
-  interestRatePct: z
-    .number()
-    .finite()
-    .min(0, 'Kamatna stopa mora biti između 0 i 100.')
-    .max(100, 'Kamatna stopa mora biti između 0 i 100.'),
+  label: z.string().min(1, 'nameRequired').max(80, 'nameTooLong'),
+  amount: z.number().finite().min(0, 'amountMin0'),
+  interestRatePct: z.number().finite().min(0, 'ratePctRange').max(100, 'ratePctRange'),
   startMonth: monthYearSchema,
-  termMonths: z
-    .number()
-    .int('Broj meseci mora biti ceo broj.')
-    .min(1, 'Broj meseci mora biti najmanje 1.')
-    .max(600, 'Broj meseci je previsok.'),
+  termMonths: z.number().int('termInteger').min(1, 'termMin1').max(600, 'termMax'),
 });
 
 export const mortgageInputsSchema = z.object({
-  downPaymentPct: z
-    .number()
-    .finite()
-    .min(0, 'Procenat učešća mora biti između 0 i 100.')
-    .max(100, 'Procenat učešća mora biti između 0 i 100.'),
-  interestRatePct: z
-    .number()
-    .finite()
-    .min(0, 'Kamatna stopa mora biti između 0 i 100.')
-    .max(100, 'Kamatna stopa mora biti između 0 i 100.'),
-  termMonths: z
-    .number()
-    .int('Broj meseci mora biti ceo broj.')
-    .min(1, 'Broj meseci mora biti najmanje 1.')
-    .max(600, 'Broj meseci je previsok.'),
+  downPaymentPct: z.number().finite().min(0, 'downPaymentPctRange').max(100, 'downPaymentPctRange'),
+  interestRatePct: z.number().finite().min(0, 'ratePctRange').max(100, 'ratePctRange'),
+  termMonths: z.number().int('termInteger').min(1, 'termMin1').max(600, 'termMax'),
   startMonth: monthYearSchema,
 });
 
 export const calculationInputsSchema = z.object({
-  propertyPrice: z.number().finite().min(0, 'Cena mora biti 0 ili veća.'),
+  propertyPrice: z.number().finite().min(0, 'priceMin0'),
   propertyType: propertyTypeSchema.default('APARTMENT'),
-  squareMeters: z.number().finite().min(0, 'Kvadratura mora biti 0 ili veća.').default(0),
-  link: z.union([z.literal(''), z.string().trim().url('Unesite ispravan link.')]).default(''),
+  squareMeters: z.number().finite().min(0, 'areaMin0').default(0),
+  link: z.union([z.literal(''), z.string().trim().url('linkInvalid')]).default(''),
   address: addressSchema.default({}),
   seller: sellerSchema,
   ppapTiming: ppapTimingSchema.default('NOW'),
   /** Month from which the deferred PPAP saving is spread. Optional for backward
    * compatibility with saved calculations; falls back to the current month. */
   ppapSavingStartMonth: monthYearSchema.optional(),
-  purchaseCostsFixed: z.number().finite().min(0, 'Troškovi moraju biti 0 ili veći.'),
+  purchaseCostsFixed: z.number().finite().min(0, 'costsMin0'),
   /** EUR→RSD rate used for secondary RSD amounts in the UI. Optional for backward
    * compatibility with saved calculations; falls back to the default in defaults.ts. */
-  eurToRsdRate: z.number().finite().min(0, 'Kurs mora biti veći od 0.').default(117.5),
+  eurToRsdRate: z.number().finite().min(0, 'rateMin').default(117.5),
   extras: z.array(propertyExtraSchema).default([]),
   capitalSources: z.array(capitalSourceSchema),
   mortgage: mortgageInputsSchema,
@@ -99,7 +79,7 @@ export const calculationInputsSchema = z.object({
 
 export const calculationSchema = z.object({
   id: z.string().min(1),
-  name: z.string().trim().min(1, 'Naziv je obavezan.').max(80, 'Naziv je predugačak.'),
+  name: z.string().trim().min(1, 'nameRequired').max(80, 'nameTooLong'),
   createdAt: z.string(),
   updatedAt: z.string(),
   inputs: calculationInputsSchema,

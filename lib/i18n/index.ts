@@ -17,3 +17,16 @@ export function isLocale(value: unknown): value is Locale {
 export function getDictionary(locale: Locale): Dictionary {
   return dictionaries[locale];
 }
+
+/** Looks up a schema validation message key; unknown messages are shown as-is. */
+export function translateMessage(t: Dictionary, message: string): string {
+  return (t.validation as Record<string, string>)[message] ?? message;
+}
+
+/** Display name of a computed phase component: the synthetic mortgage and PPAP
+ * savings rows are translated, user-defined loans keep their stored label. */
+export function componentLabel(c: { loanId: string; label: string }, t: Dictionary): string {
+  if (c.loanId === 'mortgage') return t.computed.mortgage;
+  if (c.loanId === 'ppap-savings') return t.computed.ppapSavings;
+  return c.label;
+}

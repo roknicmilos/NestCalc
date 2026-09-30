@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from '@/lib/i18n/I18nProvider';
+import { useLocale, useT } from '@/lib/i18n/I18nProvider';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
@@ -664,6 +664,7 @@ function ExtrasFieldset({ saving, onSave }: SectionProps) {
 function CapitalSourcesFieldset({ saving, onSave }: SectionProps) {
   const { control, setValue } = useFormContextTyped();
   const sources = (useWatch({ control, name: 'inputs.capitalSources' }) ?? []) as CapitalSource[];
+  const t = useT();
   const [newIds, setNewIds] = useState<Set<string>>(new Set());
 
   function handleAdd() {
@@ -835,13 +836,14 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
   const loans = (useWatch({ control, name: 'inputs.loans' }) ?? []) as Loan[];
   const eurToRsdRate = (useWatch({ control, name: 'inputs.eurToRsdRate' }) ??
     DEFAULT_EUR_TO_RSD_RATE) as number;
+  const t = useT();
   const [newLoanIds, setNewLoanIds] = useState<Set<string>>(new Set());
 
   const hasCashLoan = loans.some((l) => l.type === 'CASH_LOAN');
 
   function handleAdd() {
     const mortgageStart = getValues('inputs.mortgage.startMonth');
-    const newLoan = createDefaultLoan('CASH_LOAN');
+    const newLoan = createDefaultLoan(t, 'CASH_LOAN');
     newLoan.startMonth = mortgageStart;
     setValue('inputs.loans', [...loans, newLoan], { shouldDirty: true, shouldValidate: true });
     setNewLoanIds((prev) => {
@@ -920,10 +922,11 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
 function IncomeSourcesFieldset({ saving, onSave }: SectionProps) {
   const { control, setValue } = useFormContextTyped();
   const sources = (useWatch({ control, name: 'inputs.incomeSources' }) ?? []) as IncomeSource[];
+  const t = useT();
   const [newIds, setNewIds] = useState<Set<string>>(new Set());
 
   function handleAdd() {
-    const newSource = createDefaultIncomeSource();
+    const newSource = createDefaultIncomeSource(t);
     setValue('inputs.incomeSources', [...sources, newSource], {
       shouldDirty: true,
       shouldValidate: true,

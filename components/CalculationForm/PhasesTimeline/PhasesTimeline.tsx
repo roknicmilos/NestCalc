@@ -1,4 +1,5 @@
-import { useLocale } from '@/lib/i18n/I18nProvider';
+import { componentLabel } from '@/lib/i18n';
+import { useLocale, useT } from '@/lib/i18n/I18nProvider';
 import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths } from '@/lib/format';
 import type { ComputedTotals } from '@/lib/types';
 import { PendingValue } from '@/components/PendingValue';
@@ -8,6 +9,7 @@ type Props = { totals: ComputedTotals | null };
 
 export function PhasesTimeline({ totals }: Props) {
   const locale = useLocale();
+  const t = useT();
   return (
     <div className={styles.card} data-pdf-block="true">
       <h3 className={styles.title}>Faze otplate</h3>
@@ -46,7 +48,7 @@ export function PhasesTimeline({ totals }: Props) {
                       key={c.loanId}
                       className={`${styles.componentRow} ${c.income ? styles.componentIncome : ''}`}
                     >
-                      <span className={styles.componentLabel}>{c.label}</span>
+                      <span className={styles.componentLabel}>{componentLabel(c, t)}</span>
                       <span className={styles.componentAmount}>{formatEur(locale, c.amount)}</span>
                     </li>
                   ))}
