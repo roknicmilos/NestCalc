@@ -32,7 +32,7 @@ import type {
 import { z } from 'zod';
 import { ComputedSummary } from './ComputedSummary';
 import { ExportPdfButton } from './ExportPdfButton';
-import { FieldError } from './FieldError';
+import { FieldError } from '@/components/FieldError';
 import { CapitalSourceRow } from './CapitalSourceRow';
 import { ExtraRow } from './ExtraRow';
 import { IncomeSourceRow } from './IncomeSourceRow';
@@ -315,7 +315,11 @@ function BasicsFieldset(props: SectionProps) {
       : null;
 
   return (
-    <SectionFieldset title="Osnovni podaci o kupovini" accentClass={styles.fieldsetBasics} {...props}>
+    <SectionFieldset
+      title="Osnovni podaci o kupovini"
+      accentClass={styles.fieldsetBasics}
+      {...props}
+    >
       {(editing) =>
         editing ? (
           <div className={styles.grid2}>
@@ -806,9 +810,7 @@ function MortgageFieldset(props: SectionProps) {
             <ViewRow label="Kamatna stopa (NKS)" value={`${interestRatePct} %`} />
             <ViewRow
               label="Rok otplate"
-              value={
-                Number.isFinite(termMonths) ? formatMonthsAsYearsAndMonths(termMonths) : '—'
-              }
+              value={Number.isFinite(termMonths) ? formatMonthsAsYearsAndMonths(termMonths) : '—'}
             />
             <ViewRow label="Početak otplate" value={formatMonthYear(startMonth)} />
           </dl>
@@ -955,8 +957,8 @@ function IncomeSourcesFieldset({ saving, onSave }: SectionProps) {
         <h3 className={styles.sectionTitle}>Dodatni mesečni prihodi</h3>
       </div>
       <p className={styles.fieldsetHint}>
-        Redovni mesečni prihodi (npr. kirija od stana) koji umanjuju mesečno opterećenje u
-        fazama otplate, počev od izabranog meseca.
+        Redovni mesečni prihodi (npr. kirija od stana) koji umanjuju mesečno opterećenje u fazama
+        otplate, počev od izabranog meseca.
       </p>
       {sources.length === 0 ? (
         <p className={styles.fieldsetEmpty}>Nema dodatnih mesečnih prihoda.</p>

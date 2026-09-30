@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { propertyExtraSchema } from '@/lib/schemas';
 import type { PropertyExtra } from '@/lib/types';
-import { FieldError } from './FieldError';
+import { FieldError } from '@/components/FieldError';
 // Reuses the loan/capital card styles — extra cards share the same visual layout.
-import styles from './CalculationForm.module.scss';
+import styles from '../CalculationForm.module.scss';
 
 type Props = {
   extra: PropertyExtra;
@@ -22,10 +22,7 @@ export function ExtraRow({ extra, isNew, onApply, onRemove }: Props) {
     setDraft(extra);
   }, [extra]);
 
-  const isDirty = useMemo(
-    () => JSON.stringify(draft) !== JSON.stringify(extra),
-    [draft, extra],
-  );
+  const isDirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(extra), [draft, extra]);
 
   const textError = useMemo(() => {
     const result = propertyExtraSchema.safeParse(draft);

@@ -1,6 +1,6 @@
 import { formatEur, formatMonthYear } from '@/lib/format';
 import type { ComputedTotals } from '@/lib/types';
-import { PendingValue } from './PendingValue';
+import { PendingValue } from '@/components/PendingValue';
 import styles from './ComputedSummary.module.scss';
 
 type Props = { totals: ComputedTotals | null };
@@ -54,10 +54,7 @@ export function ComputedSummary({ totals }: Props) {
           <h4 className={styles.sectionTitle}>Nakon učešća</h4>
           <dl className={styles.list}>
             {showPpap && !ppapDeferred ? (
-              <Row
-                label="Porez na prenos (PPAP)"
-                value={totals ? formatEur(totals.ppap) : null}
-              />
+              <Row label="Porez na prenos (PPAP)" value={totals ? formatEur(totals.ppap) : null} />
             ) : null}
             {showLeftover ? (
               <Row
@@ -74,10 +71,7 @@ export function ComputedSummary({ totals }: Props) {
         <section className={styles.section}>
           <h4 className={styles.sectionTitle}>Buduća obaveza</h4>
           <dl className={styles.list}>
-            <Row
-              label="Porez na prenos (PPAP) — kasnije"
-              value={formatEur(totals.ppap)}
-            />
+            <Row label="Porez na prenos (PPAP) — kasnije" value={formatEur(totals.ppap)} />
             {totals.ppapMonthlySaving !== null ? (
               <Row
                 label="Mesečna štednja za PPAP"

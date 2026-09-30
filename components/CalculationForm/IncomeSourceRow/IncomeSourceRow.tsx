@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { incomeSourceSchema } from '@/lib/schemas';
 import type { IncomeSource, MonthYear } from '@/lib/types';
 import { formatEur, formatMonthYear } from '@/lib/format';
-import { FieldError } from './FieldError';
-import { MonthYearInput } from './MonthYearInput';
+import { FieldError } from '@/components/FieldError';
+import { MonthYearInput } from '../MonthYearInput';
 // Reuses the loan/capital card styles — income cards share the same visual layout.
-import styles from './CalculationForm.module.scss';
+import styles from '../CalculationForm.module.scss';
 
 type Props = {
   source: IncomeSource;
@@ -26,10 +26,7 @@ export function IncomeSourceRow({ source, isNew, onApply, onRemove }: Props) {
     setDraft(source);
   }, [source]);
 
-  const isDirty = useMemo(
-    () => JSON.stringify(draft) !== JSON.stringify(source),
-    [draft, source],
-  );
+  const isDirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(source), [draft, source]);
 
   const errors: DraftErrors = useMemo(() => {
     const result = incomeSourceSchema.safeParse(draft);

@@ -70,8 +70,7 @@ export function ExportPdfButton({ targetRef, fileName, className }: Props) {
       const EPS = 1;
 
       // A cut at y is clean only if no section straddles it (in either column).
-      const isCleanCut = (y: number) =>
-        !blocks.some((b) => b.top + EPS < y && y < b.bottom - EPS);
+      const isCleanCut = (y: number) => !blocks.some((b) => b.top + EPS < y && y < b.bottom - EPS);
 
       // Build slice boundaries, preferring section edges so no section is split across
       // pages. When a section is taller than a page, it gets its own slice (extended to

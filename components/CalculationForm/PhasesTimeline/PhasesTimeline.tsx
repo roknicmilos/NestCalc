@@ -1,6 +1,6 @@
 import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths } from '@/lib/format';
 import type { ComputedTotals } from '@/lib/types';
-import { PendingValue } from './PendingValue';
+import { PendingValue } from '@/components/PendingValue';
 import styles from './PhasesTimeline.module.scss';
 
 type Props = { totals: ComputedTotals | null };
@@ -29,9 +29,7 @@ export function PhasesTimeline({ totals }: Props) {
                 </div>
                 {phase.monthlyBankTotal > 0 ? (
                   <div className={styles.bankTotal}>
-                    <span className={styles.bankTotalLabel}>
-                      Dug banci (stambeni + keš)
-                    </span>
+                    <span className={styles.bankTotalLabel}>Dug banci (stambeni + keš)</span>
                     <span className={styles.bankTotalAmount}>
                       {formatEur(phase.monthlyBankTotal)} / mes.
                     </span>

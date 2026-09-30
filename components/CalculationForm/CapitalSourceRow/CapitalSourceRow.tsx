@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { capitalSourceSchema } from '@/lib/schemas';
 import type { CapitalSource } from '@/lib/types';
 import { formatEur } from '@/lib/format';
-import { FieldError } from './FieldError';
+import { FieldError } from '@/components/FieldError';
 // Reuses the loan card styles — capital source cards share the same visual layout.
-import styles from './CalculationForm.module.scss';
+import styles from '../CalculationForm.module.scss';
 
 type Props = {
   source: CapitalSource;
@@ -26,10 +26,7 @@ export function CapitalSourceRow({ source, isNew, canRemove, onApply, onRemove }
     setDraft(source);
   }, [source]);
 
-  const isDirty = useMemo(
-    () => JSON.stringify(draft) !== JSON.stringify(source),
-    [draft, source],
-  );
+  const isDirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(source), [draft, source]);
 
   const errors: DraftErrors = useMemo(() => {
     const result = capitalSourceSchema.safeParse(draft);

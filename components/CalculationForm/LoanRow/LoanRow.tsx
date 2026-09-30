@@ -6,9 +6,9 @@ import { computeLoan } from '@/lib/calc/loanComputation';
 import { loanSchema } from '@/lib/schemas';
 import type { Loan, LoanType, MonthYear } from '@/lib/types';
 import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths, formatRsd } from '@/lib/format';
-import { FieldError } from './FieldError';
-import { MonthYearInput } from './MonthYearInput';
-import styles from './CalculationForm.module.scss';
+import { FieldError } from '@/components/FieldError';
+import { MonthYearInput } from '../MonthYearInput';
+import styles from '../CalculationForm.module.scss';
 
 const LOAN_TYPE_OPTIONS: { value: LoanType; label: string }[] = [
   { value: 'CASH_LOAN', label: 'KEŠ KREDIT' },
@@ -233,7 +233,9 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
       </div>
 
       <div className={styles.loanEditFooter}>
-        {!isValid ? <span className={styles.loanFooterHint}>Ispravite greške pre primene.</span> : null}
+        {!isValid ? (
+          <span className={styles.loanFooterHint}>Ispravite greške pre primene.</span>
+        ) : null}
         {isValid && isDirty ? (
           <span className={styles.loanFooterHint}>Izmene još nisu primenjene.</span>
         ) : null}
@@ -243,11 +245,7 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
               Otkaži izmene
             </button>
           ) : null}
-          <button
-            type="button"
-            className={styles.removeButton}
-            onClick={onRemove}
-          >
+          <button type="button" className={styles.removeButton} onClick={onRemove}>
             Ukloni
           </button>
           <button type="button" onClick={handleApply} disabled={!isValid || !isDirty}>
