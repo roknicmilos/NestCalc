@@ -12,11 +12,11 @@ export function PhasesTimeline({ totals }: Props) {
   const t = useT();
   return (
     <div className={styles.card} data-pdf-block="true">
-      <h3 className={styles.title}>Faze otplate</h3>
+      <h3 className={styles.title}>{t.timeline.title}</h3>
       {totals === null ? (
         <PendingValue />
       ) : totals.phases.length === 0 ? (
-        <p className={styles.empty}>Nema aktivnih dugova za prikaz.</p>
+        <p className={styles.empty}>{t.timeline.empty}</p>
       ) : (
         <ul className={styles.phases}>
           {totals.phases.map((phase, index) => (
@@ -27,7 +27,7 @@ export function PhasesTimeline({ totals }: Props) {
                     {formatMonthsAsYearsAndMonths(locale, phase.durationMonths)}
                   </span>
                   <span className={styles.phaseTotal}>
-                    {formatEur(locale, phase.monthlyTotal)} / mes.
+                    {t.timeline.perMonth(formatEur(locale, phase.monthlyTotal))}
                   </span>
                 </div>
                 <div className={styles.phaseMeta}>
@@ -36,9 +36,9 @@ export function PhasesTimeline({ totals }: Props) {
                 </div>
                 {phase.monthlyBankTotal > 0 ? (
                   <div className={styles.bankTotal}>
-                    <span className={styles.bankTotalLabel}>Dug banci (stambeni + keš)</span>
+                    <span className={styles.bankTotalLabel}>{t.timeline.bankDebt}</span>
                     <span className={styles.bankTotalAmount}>
-                      {formatEur(locale, phase.monthlyBankTotal)} / mes.
+                      {t.timeline.perMonth(formatEur(locale, phase.monthlyBankTotal))}
                     </span>
                   </div>
                 ) : null}

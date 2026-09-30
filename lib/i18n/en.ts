@@ -8,6 +8,38 @@ export const en: Dictionary = {
   app: {
     title: 'NestCalc',
   },
+  pending: 'waiting for a valid value',
+  summary: {
+    title: 'Overview',
+    downPaymentSection: 'Down payment',
+    totalCapital: 'Total capital',
+    loansForDownPayment: 'Loans for the down payment',
+    availableForDownPayment: 'Available for the down payment',
+    requiredDownPayment: 'Required down payment',
+    shortfall: 'Down payment shortfall',
+    afterDownPaymentSection: 'After the down payment',
+    ppap: 'Property transfer tax (PPAP)',
+    leftover: 'Left over for other costs',
+    futureSection: 'Future obligation',
+    ppapLater: 'Property transfer tax (PPAP) — later',
+    ppapMonthlySaving: 'Monthly savings for PPAP',
+    ppapDeferredNote: (due: string | null, saving: { amount: string; months: number } | null) =>
+      `You don't need to prepare it now — it falls due when the property is ready${due ? ` (around ${due})` : ''}, together with the mortgage.` +
+      (saving
+        ? ` To be ready on time, set aside ${saving.amount} per month for ${saving.months} ${saving.months === 1 ? 'month' : 'months'}.`
+        : ''),
+    mortgageSection: 'Mortgage',
+    mortgageAmount: 'Mortgage amount',
+    mortgageMonthly: 'Monthly mortgage payment',
+    mortgageInterest: 'Total mortgage interest',
+    mortgageTotal: 'Total mortgage repayment',
+  },
+  timeline: {
+    title: 'Repayment phases',
+    empty: 'No active debts to show.',
+    perMonth: (amount: string) => `${amount} / mo.`,
+    bankDebt: 'Bank debt (mortgage + cash loan)',
+  },
   validation: {
     nameRequired: 'Name is required.',
     nameTooLong: 'Name is too long.',

@@ -6,6 +6,38 @@ export const sr = {
   app: {
     title: 'NestCalc',
   },
+  pending: 'čeka ispravnu vrednost',
+  summary: {
+    title: 'Pregled',
+    downPaymentSection: 'Učešće',
+    totalCapital: 'Ukupan kapital',
+    loansForDownPayment: 'Pozajmice za učešće',
+    availableForDownPayment: 'Raspoloživo za učešće',
+    requiredDownPayment: 'Potrebno učešće',
+    shortfall: 'Nedostaje za učešće',
+    afterDownPaymentSection: 'Nakon učešća',
+    ppap: 'Porez na prenos (PPAP)',
+    leftover: 'Preostalo za ostalo',
+    futureSection: 'Buduća obaveza',
+    ppapLater: 'Porez na prenos (PPAP) — kasnije',
+    ppapMonthlySaving: 'Mesečna štednja za PPAP',
+    ppapDeferredNote: (due: string | null, saving: { amount: string; months: number } | null) =>
+      `Ne pripremate sada — dospeva kada nekretnina bude gotova${due ? ` (oko ${due})` : ''}, uz stambeni kredit.` +
+      (saving
+        ? ` Da bi bio spreman na vreme, odvajajte ${saving.amount} mesečno tokom ${saving.months} ${saving.months === 1 ? 'meseca' : 'meseci'}.`
+        : ''),
+    mortgageSection: 'Stambeni kredit',
+    mortgageAmount: 'Iznos stambenog kredita',
+    mortgageMonthly: 'Mesečna rata stambenog kredita',
+    mortgageInterest: 'Ukupna kamata stambenog kredita',
+    mortgageTotal: 'Ukupno za vraćanje stambenog kredita',
+  },
+  timeline: {
+    title: 'Faze otplate',
+    empty: 'Nema aktivnih dugova za prikaz.',
+    perMonth: (amount: string) => `${amount} / mes.`,
+    bankDebt: 'Dug banci (stambeni + keš)',
+  },
   validation: {
     nameRequired: 'Naziv je obavezan.',
     nameTooLong: 'Naziv je predugačak.',

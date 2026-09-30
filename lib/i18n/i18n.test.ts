@@ -6,6 +6,12 @@ function flattenKeys(obj: unknown, prefix = ''): string[] {
   return Object.entries(obj).flatMap(([k, v]) => flattenKeys(v, prefix ? `${prefix}.${k}` : k));
 }
 
+function flattenValues(obj: unknown): string[] {
+  if (typeof obj === 'function') return [String(obj)];
+  if (typeof obj !== 'object' || obj === null) return [String(obj)];
+  return Object.values(obj).flatMap(flattenValues);
+}
+
 describe('i18n', () => {
   it('recognises only supported locales', () => {
     expect(isLocale('sr')).toBe(true);
@@ -23,5 +29,10 @@ describe('i18n', () => {
     for (const locale of LOCALES) {
       expect(flattenKeys(getDictionary(locale)).sort()).toEqual(base);
     }
+  });
+
+  it('has no Serbian diacritics in English strings (untranslated leftovers)', () => {
+    const offenders = flattenValues(getDictionary('en')).filter((v) => /[šđčćžŠĐČĆŽ]/.test(v));
+    expect(offenders).toEqual([]);
   });
 });

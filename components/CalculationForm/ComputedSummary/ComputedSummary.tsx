@@ -1,4 +1,4 @@
-import { useLocale } from '@/lib/i18n/I18nProvider';
+import { useLocale, useT } from '@/lib/i18n/I18nProvider';
 import { formatEur, formatMonthYear } from '@/lib/format';
 import type { ComputedTotals } from '@/lib/types';
 import { PendingValue } from '@/components/PendingValue';
@@ -8,6 +8,7 @@ type Props = { totals: ComputedTotals | null };
 
 export function ComputedSummary({ totals }: Props) {
   const locale = useLocale();
+  const t = useT();
   const leftoverAfterDownPayment = totals
     ? totals.availableForDownPayment - totals.requiredDownPayment
     : 0;
@@ -21,33 +22,33 @@ export function ComputedSummary({ totals }: Props) {
 
   return (
     <div className={styles.card} data-pdf-block="true">
-      <h3 className={styles.title}>Pregled</h3>
+      <h3 className={styles.title}>{t.summary.title}</h3>
 
       <section className={styles.section}>
-        <h4 className={styles.sectionTitle}>Učešće</h4>
+        <h4 className={styles.sectionTitle}>{t.summary.downPaymentSection}</h4>
         <dl className={styles.list}>
           <Row
-            label="Ukupan kapital"
+            label={t.summary.totalCapital}
             value={totals ? formatEur(locale, totals.totalCapital) : null}
             variant="capital"
           />
           <Row
-            label="Pozajmice za učešće"
+            label={t.summary.loansForDownPayment}
             value={totals ? formatEur(locale, totals.loansForDownPayment) : null}
             variant="debt"
           />
           <Row
-            label="Raspoloživo za učešće"
+            label={t.summary.availableForDownPayment}
             value={totals ? formatEur(locale, totals.availableForDownPayment) : null}
             variant="capital"
           />
           <Row
-            label="Potrebno učešće"
+            label={t.summary.requiredDownPayment}
             value={totals ? formatEur(locale, totals.requiredDownPayment) : null}
           />
           {showShortfall ? (
             <Row
-              label="Nedostaje za učešće"
+              label={t.summary.shortfall}
               value={formatEur(locale, totals.shortfall)}
               variant="warn"
             />
@@ -57,17 +58,14 @@ export function ComputedSummary({ totals }: Props) {
 
       {(showPpap && !ppapDeferred) || showLeftover ? (
         <section className={styles.section}>
-          <h4 className={styles.sectionTitle}>Nakon učešća</h4>
+          <h4 className={styles.sectionTitle}>{t.summary.afterDownPaymentSection}</h4>
           <dl className={styles.list}>
             {showPpap && !ppapDeferred ? (
-              <Row
-                label="Porez na prenos (PPAP)"
-                value={totals ? formatEur(locale, totals.ppap) : null}
-              />
+              <Row label={t.summary.ppap} value={totals ? formatEur(locale, totals.ppap) : null} />
             ) : null}
             {showLeftover ? (
               <Row
-                label="Preostalo za ostalo"
+                label={t.summary.leftover}
                 value={formatEur(locale, leftoverAfterDownPayment)}
                 variant="capital"
               />
@@ -78,52 +76,50 @@ export function ComputedSummary({ totals }: Props) {
 
       {ppapDeferred ? (
         <section className={styles.section}>
-          <h4 className={styles.sectionTitle}>Buduća obaveza</h4>
+          <h4 className={styles.sectionTitle}>{t.summary.futureSection}</h4>
           <dl className={styles.list}>
-            <Row label="Porez na prenos (PPAP) — kasnije" value={formatEur(locale, totals.ppap)} />
+            <Row label={t.summary.ppapLater} value={formatEur(locale, totals.ppap)} />
             {totals.ppapMonthlySaving !== null ? (
               <Row
-                label="Mesečna štednja za PPAP"
+                label={t.summary.ppapMonthlySaving}
                 value={formatEur(locale, totals.ppapMonthlySaving)}
                 variant="debt"
               />
             ) : null}
           </dl>
           <p className={styles.note}>
-            Ne pripremate sada — dospeva kada nekretnina bude gotova
-            {totals.ppapDueMonth ? ` (oko ${formatMonthYear(locale, totals.ppapDueMonth)})` : ''},
-            uz stambeni kredit.
-            {totals.ppapMonthlySaving !== null && totals.ppapSavingMonths !== null
-              ? ` Da bi bio spreman na vreme, odvajajte ${formatEur(
-                  locale,
-                  totals.ppapMonthlySaving,
-                )} mesečno tokom ${totals.ppapSavingMonths} ${
-                  totals.ppapSavingMonths === 1 ? 'meseca' : 'meseci'
-                }.`
-              : ''}
+            {t.summary.ppapDeferredNote(
+              totals.ppapDueMonth ? formatMonthYear(locale, totals.ppapDueMonth) : null,
+              totals.ppapMonthlySaving !== null && totals.ppapSavingMonths !== null
+                ? {
+                    amount: formatEur(locale, totals.ppapMonthlySaving),
+                    months: totals.ppapSavingMonths,
+                  }
+                : null,
+            )}
           </p>
         </section>
       ) : null}
 
       <section className={styles.section}>
-        <h4 className={styles.sectionTitle}>Stambeni kredit</h4>
+        <h4 className={styles.sectionTitle}>{t.summary.mortgageSection}</h4>
         <dl className={styles.list}>
           <Row
-            label="Iznos stambenog kredita"
+            label={t.summary.mortgageAmount}
             value={totals ? formatEur(locale, totals.mortgageAmount) : null}
             variant="debt"
           />
           <Row
-            label="Mesečna rata stambenog kredita"
+            label={t.summary.mortgageMonthly}
             value={totals ? formatEur(locale, totals.mortgageComputation.monthlyPayment) : null}
             variant="debt"
           />
           <Row
-            label="Ukupna kamata stambenog kredita"
+            label={t.summary.mortgageInterest}
             value={totals ? formatEur(locale, totals.mortgageComputation.totalInterest) : null}
           />
           <Row
-            label="Ukupno za vraćanje stambenog kredita"
+            label={t.summary.mortgageTotal}
             value={totals ? formatEur(locale, totals.mortgageComputation.totalPaid) : null}
           />
         </dl>
