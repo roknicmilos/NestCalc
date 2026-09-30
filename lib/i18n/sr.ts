@@ -155,6 +155,17 @@ export const sr = {
     empty: 'Nema dodatnih mesečnih prihoda.',
     add: 'Dodaj prihod',
   },
+  pdf: {
+    export: 'Skini PDF',
+    exporting: 'Skidam…',
+    error: 'Greška pri izvozu PDF-a.',
+  },
+  api: {
+    notFound: 'Kalkulacija nije pronađena.',
+    invalidJson: 'Telo zahteva mora biti JSON.',
+    invalidData: 'Neispravni podaci kalkulacije.',
+    idMismatch: 'ID u URL-u i telu zahteva se ne poklapaju.',
+  },
   validation: {
     nameRequired: 'Naziv je obavezan.',
     nameTooLong: 'Naziv je predugačak.',

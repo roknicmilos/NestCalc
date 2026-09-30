@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type RefObject } from 'react';
+import { useT } from '@/lib/i18n/I18nProvider';
 
 type Props = {
   /** Element whose rendered content is captured into the PDF. */
@@ -14,6 +15,7 @@ type Props = {
  * Buttons (and anything marked `data-export-ignore`) are omitted from the capture
  * so the exported document shows only the read-only calculation content. */
 export function ExportPdfButton({ targetRef, fileName, className }: Props) {
+  const t = useT();
   const [exporting, setExporting] = useState(false);
 
   async function handleExport() {
@@ -144,7 +146,7 @@ export function ExportPdfButton({ targetRef, fileName, className }: Props) {
       pdf.save(`${fileName}.pdf`);
     } catch (err) {
       console.error('PDF export failed', err);
-      alert('Greška pri izvozu PDF-a.');
+      alert(t.pdf.error);
     } finally {
       setExporting(false);
     }
@@ -157,7 +159,7 @@ export function ExportPdfButton({ targetRef, fileName, className }: Props) {
       onClick={handleExport}
       disabled={exporting}
     >
-      {exporting ? 'Skidam…' : 'Skini PDF'}
+      {exporting ? t.pdf.exporting : t.pdf.export}
     </button>
   );
 }
