@@ -2,9 +2,9 @@
   "id": "JqTPX58LSk",
   "name": "Veternik, Leptirova",
   "createdAt": "2026-06-15T22:56:24.149Z",
-  "updatedAt": "2026-06-16T21:57:38.605Z",
+  "updatedAt": "2026-09-30T21:29:37.290Z",
   "inputs": {
-    "propertyPrice": 195000,
+    "propertyPrice": 190000,
     "propertyType": "HOUSE",
     "squareMeters": 90,
     "link": "https://drive.google.com/drive/folders/1L1lBCVTRGF10--GupYJ5gIdINb4yFOZH",
@@ -44,7 +44,7 @@
     ],
     "mortgage": {
       "downPaymentPct": 20,
-      "interestRatePct": 4.5,
+      "interestRatePct": 4.75,
       "termMonths": 360,
       "startMonth": {
         "year": 2026,
@@ -53,11 +53,23 @@
     },
     "loans": [
       {
-        "id": "uBZeJ_dU",
-        "type": "CASH_LOAN",
-        "label": "Keš kredit",
-        "amount": 13000,
-        "interestRatePct": 8.2,
+        "id": "S_kZWJ3K",
+        "type": "PRIVATE_LOAN",
+        "label": "Duško",
+        "amount": 7000,
+        "interestRatePct": 0,
+        "startMonth": {
+          "year": 2026,
+          "month": 8
+        },
+        "termMonths": 7
+      },
+      {
+        "id": "MwZGHDaA",
+        "type": "PRIVATE_LOAN",
+        "label": "PredPozajmica",
+        "amount": 7000,
+        "interestRatePct": 0,
         "startMonth": {
           "year": 2026,
           "month": 7
