@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
-import { CALCULATION_ID } from '@/lib/config';
 import { getDictionary } from '@/lib/i18n';
 import { getLocale } from '@/lib/i18n/server';
 import { calculationSchema } from '@/lib/schemas';
 import { CalculationNotFoundError, readCalculation, writeCalculation } from '@/lib/storage';
 
 export const dynamic = 'force-dynamic';
-
-type RouteContext = { params: Promise<{ id: string }> };
 
 async function notFoundResponse() {
   const t = await getT();
@@ -18,11 +15,9 @@ async function getT() {
   return getDictionary(await getLocale());
 }
 
-export async function GET(_request: Request, context: RouteContext) {
-  const { id } = await context.params;
-  if (id !== CALCULATION_ID) return await notFoundResponse();
+export async function GET() {
   try {
-    const calc = await readCalculation(id);
+    const calc = await readCalculation();
     return NextResponse.json(calc);
   } catch (err) {
     if (err instanceof CalculationNotFoundError) {
@@ -32,9 +27,7 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 }
 
-export async function PUT(request: Request, context: RouteContext) {
-  const { id } = await context.params;
-  if (id !== CALCULATION_ID) return await notFoundResponse();
+export async function PUT(request: Request) {
   let payload: unknown;
   try {
     payload = await request.json();
@@ -47,9 +40,6 @@ export async function PUT(request: Request, context: RouteContext) {
       { error: (await getT()).api.invalidData, issues: parsed.error.flatten() },
       { status: 400 },
     );
-  }
-  if (parsed.data.id !== id) {
-    return NextResponse.json({ error: (await getT()).api.idMismatch }, { status: 400 });
   }
   const updated = { ...parsed.data, updatedAt: new Date().toISOString() };
   const stored = await writeCalculation(updated);

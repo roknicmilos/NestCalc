@@ -85,7 +85,6 @@ export const calculationInputsSchema = z.object({
 });
 
 export const calculationSchema = z.object({
-  id: z.string().min(1),
   name: z.string().trim().min(1, 'nameRequired').max(80, 'nameTooLong'),
   createdAt: z.string(),
   updatedAt: z.string(),

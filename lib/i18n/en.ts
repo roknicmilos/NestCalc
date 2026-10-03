@@ -166,7 +166,6 @@ export const en: Dictionary = {
     notFound: 'Calculation not found.',
     invalidJson: 'The request body must be JSON.',
     invalidData: 'Invalid calculation data.',
-    idMismatch: 'The ID in the URL and in the request body do not match.',
   },
   validation: {
     numberInvalid: 'Enter a number.',

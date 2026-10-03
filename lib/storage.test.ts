@@ -1,16 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { CALCULATION_ID } from './config';
-import { CalculationNotFoundError, readCalculation } from './storage';
+import { calculationSchema } from './schemas';
+import seed from '../data/seeds/calculator.json';
 
-describe('storage', () => {
-  it('throws CalculationNotFoundError for an unknown id', async () => {
-    await expect(readCalculation('does-not-exist')).rejects.toBeInstanceOf(
-      CalculationNotFoundError,
-    );
-  });
-
-  it('reads the configured calculation', async () => {
-    const calc = await readCalculation(CALCULATION_ID);
-    expect(calc.id).toBe('JqTPX58LSk');
+describe('calculator seed', () => {
+  it('is a valid calculation', () => {
+    expect(calculationSchema.safeParse(seed).success).toBe(true);
   });
 });

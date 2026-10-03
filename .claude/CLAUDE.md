@@ -29,8 +29,9 @@ npm run lint     # Run ESLint (next lint)
 
 ## Project layout
 
-- `app/` — Next.js App Router. `/` renders the single calculator (`CALCULATION_ID` in
-  `lib/config.ts`, stored in `data/<id>.json`); `api/calculations/[id]` serves GET/PUT for it.
+- `app/` — Next.js App Router. `/` renders the single calculator; `api/calculator` serves GET/PUT for it.
+- `data/` — `seeds/calculator.json` is the tracked seed; `npm run setup` (also run on `npm install`)
+  copies seeds into `data/storage/` (git-ignored, the machine-local "database" the app reads/writes).
 - `components/` — one directory per component (`Name/Name.tsx`, `Name.module.scss`,
   `index.ts`). Children used by a single parent live in the parent's directory
   (e.g. `CalculationForm/LoanRow/`); shared ones (`FieldError`, `PendingValue`,

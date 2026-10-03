@@ -103,14 +103,13 @@ export function CalculationForm({ initial }: Props) {
     setSaveError(null);
     setSaving(true);
     const payload: Calculation = {
-      id: initial.id,
       name: values.name.trim(),
       createdAt: initial.createdAt,
       updatedAt: new Date().toISOString(),
       inputs: values.inputs,
     };
     try {
-      const response = await fetch(`/api/calculations/${initial.id}`, {
+      const response = await fetch('/api/calculator', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

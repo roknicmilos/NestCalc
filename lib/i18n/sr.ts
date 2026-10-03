@@ -164,7 +164,6 @@ export const sr = {
     notFound: 'Kalkulacija nije pronađena.',
     invalidJson: 'Telo zahteva mora biti JSON.',
     invalidData: 'Neispravni podaci kalkulacije.',
-    idMismatch: 'ID u URL-u i telu zahteva se ne poklapaju.',
   },
   validation: {
     numberInvalid: 'Unesite broj.',

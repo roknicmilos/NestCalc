@@ -8,3 +8,6 @@ coverage/
 .DS_Store
 .idea/
 tmp/
+
+# Local data storage (machine-specific, seeded from data/seeds/)
+data/storage/
