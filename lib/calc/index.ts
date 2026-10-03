@@ -1,6 +1,11 @@
 import type { CalculationInputs, ComputedTotals, Loan } from '../types';
 import { currentMonthYear } from '../defaults';
-import { computeDownPayment, sumPurchaseCosts } from './capital';
+import {
+  computeDownPayment,
+  sumFurnishing,
+  sumFurnishingByCategory,
+  sumPurchaseCosts,
+} from './capital';
 import { computeLoan } from './loanComputation';
 import { monthYearToIndex } from './monthIndex';
 import { buildPhases } from './phases';
@@ -8,7 +13,12 @@ import { computePpap } from './ppap';
 
 export { monthlyPayment } from './pmt';
 export { computePpap, PPAP_RATE } from './ppap';
-export { computeDownPayment, sumPurchaseCosts } from './capital';
+export {
+  computeDownPayment,
+  sumFurnishing,
+  sumFurnishingByCategory,
+  sumPurchaseCosts,
+} from './capital';
 export { computeLoan } from './loanComputation';
 export { buildPhases, splitPhasesAtMonth } from './phases';
 export { indexToMonthYear, monthYearToIndex } from './monthIndex';
@@ -20,6 +30,7 @@ export function computeTotals(inputs: CalculationInputs, now: Date = new Date())
     inputs.ppapTiming === 'LATER' && ppap > 0 ? inputs.mortgage.startMonth : null;
 
   const purchaseCosts = sumPurchaseCosts(inputs.purchaseCosts);
+  const furnishing = sumFurnishing(inputs.furnishing);
   const downPayment = computeDownPayment(inputs.propertyPrice, inputs.mortgage.downPaymentPct);
 
   const mortgageLoan: Loan = {
@@ -64,7 +75,8 @@ export function computeTotals(inputs: CalculationInputs, now: Date = new Date())
   const allComputations = [mortgageComputation, ...loanComputations, ...ppapSavingComputations];
   const phases = buildPhases(allComputations);
 
-  const totalCost = downPayment.requiredDownPayment + purchaseCosts + mortgageComputation.totalPaid;
+  const totalCost =
+    downPayment.requiredDownPayment + purchaseCosts + mortgageComputation.totalPaid + furnishing;
   // Everything owed back: the mortgage plus the additional loans, interest included.
   const totalDebt = loanComputations.reduce(
     (acc, c) => acc + c.totalPaid,
@@ -80,6 +92,8 @@ export function computeTotals(inputs: CalculationInputs, now: Date = new Date())
     purchaseCosts,
     requiredDownPayment: downPayment.requiredDownPayment,
     mortgageAmount: downPayment.mortgageAmount,
+    furnishing,
+    furnishingByCategory: sumFurnishingByCategory(inputs.furnishing),
     totalCost,
     totalDebt,
     mortgageComputation,

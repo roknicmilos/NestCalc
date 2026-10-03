@@ -24,6 +24,10 @@ export const en: Dictionary = {
         ? ` To be ready on time, set aside ${saving.amount} per month for ${saving.months} ${saving.months === 1 ? 'month' : 'months'}.`
         : ''),
     totalsSection: 'Total',
+    furnishingSection: 'Furnishing the apartment',
+    furnishingInterior: 'Interior',
+    furnishingExterior: 'Exterior',
+    furnishingTotal: 'Total furnishing',
     totalCost: 'Total cost',
     totalDebt: 'Total debt',
     mortgageSection: 'Mortgage',
@@ -50,6 +54,10 @@ export const en: Dictionary = {
   loanType: {
     CASH_LOAN: 'CASH LOAN',
     PRIVATE_LOAN: 'PRIVATE LOAN',
+  },
+  furnishingCategory: {
+    interior: 'INTERIOR',
+    exterior: 'EXTERIOR',
   },
   loanRow: {
     type: 'Type',
@@ -124,6 +132,20 @@ export const en: Dictionary = {
     empty: 'No additional loans. Add a cash loan or a loan from friends/family.',
     add: 'Add loan',
   },
+  furnishing: {
+    title: 'Furnishing the apartment',
+    hintBefore:
+      'Add items for furnishing the apartment (e.g. kitchen). Their sum is added to the total cost. Each item has its own edit and remove buttons; changes are saved when you click',
+    empty: 'No items. Add e.g. a kitchen, furniture or appliances.',
+    add: 'Add item',
+    name: 'Name',
+    namePlaceholder: 'e.g. Kitchen',
+    price: 'Price',
+    priceEur: 'Price (EUR)',
+    category: 'Category',
+    description: 'Description',
+    descriptionPlaceholder: 'e.g. Model, dimensions, seller…',
+  },
   pdf: {
     export: 'Download PDF',
     exporting: 'Downloading…',
@@ -138,6 +160,7 @@ export const en: Dictionary = {
     numberInvalid: 'Enter a number.',
     nameRequired: 'Name is required.',
     nameTooLong: 'Name is too long.',
+    descriptionTooLong: 'Description is too long.',
     propertyTypeTooLong: 'Property type is too long.',
     areaTooLong: 'Neighbourhood is too long.',
     streetTooLong: 'Address is too long.',

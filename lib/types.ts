@@ -4,6 +4,8 @@ import type {
   calculationInputsSchema,
   calculationSchema,
   dayCountSchema,
+  furnishingCategorySchema,
+  furnishingItemSchema,
   loanSchema,
   loanTypeSchema,
   monthYearSchema,
@@ -20,6 +22,8 @@ export type PpapTiming = z.infer<typeof ppapTimingSchema>;
 export type Address = z.infer<typeof addressSchema>;
 export type MonthYear = z.infer<typeof monthYearSchema>;
 export type Loan = z.infer<typeof loanSchema>;
+export type FurnishingCategory = z.infer<typeof furnishingCategorySchema>;
+export type FurnishingItem = z.infer<typeof furnishingItemSchema>;
 export type MortgageInputs = z.infer<typeof mortgageInputsSchema>;
 export type PurchaseCosts = z.infer<typeof purchaseCostsSchema>;
 export type CalculationInputs = z.infer<typeof calculationInputsSchema>;
@@ -70,7 +74,11 @@ export type ComputedTotals = {
   purchaseCosts: number;
   requiredDownPayment: number;
   mortgageAmount: number;
-  /** Down payment + purchase costs + total mortgage repayment. */
+  /** Furnishing totals split by category. */
+  furnishingByCategory: Record<FurnishingCategory, number>;
+  /** Sum of all furnishing item prices. */
+  furnishing: number;
+  /** Down payment + purchase costs + total mortgage repayment + furnishing. */
   totalCost: number;
   /** Total repayment (interest included) of the mortgage plus all additional loans. */
   totalDebt: number;

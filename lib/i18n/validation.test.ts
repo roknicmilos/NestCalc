@@ -3,6 +3,7 @@ import { defaultLoanLabel, isDefaultLoanLabel } from '../defaults';
 import {
   calculationInputsSchema,
   calculationSchema,
+  furnishingItemSchema,
   loanSchema,
   mortgageInputsSchema,
   purchaseCostsSchema,
@@ -25,6 +26,7 @@ const badMessages = messages(
   shape.link.safeParse('not a url'),
   purchaseCostsSchema.safeParse({ preliminaryContract: -1, principalContract: 238 }),
   shape.eurToRsdRate.safeParse(-1),
+  furnishingItemSchema.safeParse({ id: 'a', label: '', price: -1, description: 'x'.repeat(301) }),
   loanSchema.safeParse({
     id: 'a',
     type: 'CASH_LOAN',

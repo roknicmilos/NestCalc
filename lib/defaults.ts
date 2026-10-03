@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import { getDictionary, LOCALES, type Dictionary } from './i18n';
-import type { Loan, LoanType, MonthYear } from './types';
+import type { FurnishingItem, Loan, LoanType, MonthYear } from './types';
 
 /** Default EUR→RSD rate; overridable per calculation in the UI. */
 export const DEFAULT_EUR_TO_RSD_RATE = 117.5;
@@ -51,4 +51,8 @@ export function createDefaultLoan(
     startMonth: currentMonthYear(now),
     termMonths: 24,
   };
+}
+
+export function createDefaultFurnishingItem(): FurnishingItem {
+  return { id: nanoid(8), label: '', category: 'interior', price: 0, description: '' };
 }

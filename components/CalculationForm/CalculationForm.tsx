@@ -13,14 +13,26 @@ import {
   type Control,
 } from 'react-hook-form';
 import { computeTotals } from '@/lib/calc';
-import { createDefaultLoan, currentMonthYear, DEFAULT_EUR_TO_RSD_RATE } from '@/lib/defaults';
+import {
+  createDefaultFurnishingItem,
+  createDefaultLoan,
+  currentMonthYear,
+  DEFAULT_EUR_TO_RSD_RATE,
+} from '@/lib/defaults';
 import { calculationInputsSchema } from '@/lib/schemas';
 import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths } from '@/lib/format';
-import type { Calculation, CalculationInputs, ComputedTotals, Loan } from '@/lib/types';
+import type {
+  Calculation,
+  CalculationInputs,
+  ComputedTotals,
+  FurnishingItem,
+  Loan,
+} from '@/lib/types';
 import { z } from 'zod';
 import { ComputedSummary } from './ComputedSummary';
 import { ExportPdfButton } from './ExportPdfButton';
 import { FieldError } from '@/components/FieldError';
+import { FurnishingRow } from './FurnishingRow';
 import { LoanRow } from './LoanRow';
 import { MonthYearInput } from './MonthYearInput';
 import { PhasesTimeline } from './PhasesTimeline';
@@ -148,6 +160,7 @@ export function CalculationForm({ initial }: Props) {
               <BasicsFieldset {...section} />
               <MortgageFieldset {...section} />
               <ManualLoansFieldset {...section} />
+              <FurnishingFieldset {...section} />
             </div>
             <div className={styles.summaryColumn}>
               <ComputedSummary totals={totals} />
@@ -841,6 +854,96 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
         )}
         <div className={styles.repeaterControls}>
           <IconButton icon="add" label={t.loans.add} onClick={handleAdd} disabled={saving} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Like loans, furnishing has no section-level edit/save: each card manages its own
+ * edit/remove, and applying or removing a card persists the calculation. */
+function FurnishingFieldset({ saving, onSave }: SectionProps) {
+  const { control, setValue } = useFormContextTyped();
+  const items = (useWatch({ control, name: 'inputs.furnishing' }) ?? []) as FurnishingItem[];
+  const t = useT();
+  const [newItemIds, setNewItemIds] = useState<Set<string>>(new Set());
+  const [open, setOpen] = useState(false);
+
+  function handleAdd() {
+    const newItem = createDefaultFurnishingItem();
+    setValue('inputs.furnishing', [...items, newItem], { shouldDirty: true, shouldValidate: true });
+    setNewItemIds((prev) => new Set(prev).add(newItem.id));
+  }
+
+  function handleApply(index: number, updated: FurnishingItem) {
+    const next = items.map((item, i) => (i === index ? updated : item));
+    setValue('inputs.furnishing', next, { shouldDirty: true, shouldValidate: true });
+    setNewItemIds((prev) => {
+      const ns = new Set(prev);
+      ns.delete(updated.id);
+      return ns;
+    });
+    void onSave();
+  }
+
+  function handleRemove(index: number) {
+    const removed = items[index];
+    const next = items.filter((_, i) => i !== index);
+    setValue('inputs.furnishing', next, { shouldDirty: true, shouldValidate: true });
+    setNewItemIds((prev) => {
+      const ns = new Set(prev);
+      ns.delete(removed.id);
+      return ns;
+    });
+    // A brand-new card that was never applied has nothing persisted yet — skip the save.
+    if (!newItemIds.has(removed.id)) void onSave();
+  }
+
+  return (
+    <div
+      className={`${styles.section} ${styles.fieldsetLoans}`}
+      data-pdf-block="true"
+      data-collapsed={open ? undefined : 'true'}
+    >
+      <div className={styles.sectionHeader}>
+        <h3
+          className={`${styles.sectionTitle} ${styles.collapsibleTitle}`}
+          role="button"
+          tabIndex={0}
+          aria-expanded={open}
+          onClick={() => setOpen((value) => !value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setOpen((value) => !value);
+            }
+          }}
+        >
+          <span className={styles.collapsibleChevron} aria-hidden="true" />
+          {t.furnishing.title}
+        </h3>
+      </div>
+      <div hidden={!open} data-pdf-expand="true">
+        <p className={styles.fieldsetHint}>
+          {t.furnishing.hintBefore} <strong>{t.common.apply}</strong>.
+        </p>
+        {items.length === 0 ? (
+          <p className={styles.fieldsetEmpty}>{t.furnishing.empty}</p>
+        ) : (
+          <div className={styles.loanList}>
+            {items.map((item, index) => (
+              <FurnishingRow
+                key={item.id}
+                item={item}
+                isNew={newItemIds.has(item.id)}
+                onApply={(updated) => handleApply(index, updated)}
+                onRemove={() => handleRemove(index)}
+              />
+            ))}
+          </div>
+        )}
+        <div className={styles.repeaterControls}>
+          <IconButton icon="add" label={t.furnishing.add} onClick={handleAdd} disabled={saving} />
         </div>
       </div>
     </div>

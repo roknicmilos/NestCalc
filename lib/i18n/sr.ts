@@ -22,6 +22,10 @@ export const sr = {
         ? ` Da bi bio spreman na vreme, odvajajte ${saving.amount} mesečno tokom ${saving.months} ${saving.months === 1 ? 'meseca' : 'meseci'}.`
         : ''),
     totalsSection: 'Ukupno',
+    furnishingSection: 'Opremanje stana',
+    furnishingInterior: 'Enterijer',
+    furnishingExterior: 'Eksterijer',
+    furnishingTotal: 'Ukupno za opremanje',
     totalCost: 'Ukupan trošak',
     totalDebt: 'Ukupan dug',
     mortgageSection: 'Stambeni kredit',
@@ -48,6 +52,10 @@ export const sr = {
   loanType: {
     CASH_LOAN: 'KEŠ KREDIT',
     PRIVATE_LOAN: 'POZAJMICA',
+  },
+  furnishingCategory: {
+    interior: 'ENTERIJER',
+    exterior: 'EKSTERIJER',
   },
   loanRow: {
     type: 'Tip',
@@ -122,6 +130,20 @@ export const sr = {
     empty: 'Nema dodatnih pozajmica. Dodajte keš kredit ili pozajmicu od prijatelja/porodice.',
     add: 'Dodaj pozajmicu',
   },
+  furnishing: {
+    title: 'Opremanje stana',
+    hintBefore:
+      'Dodajte stavke za opremanje stana (npr. kuhinja). Njihov zbir ulazi u ukupan trošak. Svaka stavka ima svoje dugmad za izmenu i uklanjanje; izmene se čuvaju kada kliknete na',
+    empty: 'Nema stavki. Dodajte npr. kuhinju, nameštaj ili aparate.',
+    add: 'Dodaj stavku',
+    name: 'Naziv',
+    namePlaceholder: 'npr. Kuhinja',
+    price: 'Cena',
+    priceEur: 'Cena (EUR)',
+    category: 'Kategorija',
+    description: 'Opis',
+    descriptionPlaceholder: 'npr. Model, dimenzije, prodavac…',
+  },
   pdf: {
     export: 'Skini PDF',
     exporting: 'Skidam…',
@@ -136,6 +158,7 @@ export const sr = {
     numberInvalid: 'Unesite broj.',
     nameRequired: 'Naziv je obavezan.',
     nameTooLong: 'Naziv je predugačak.',
+    descriptionTooLong: 'Opis je predugačak.',
     propertyTypeTooLong: 'Tip nekretnine je predugačak.',
     areaTooLong: 'Deo grada je predugačak.',
     streetTooLong: 'Adresa je predugačka.',

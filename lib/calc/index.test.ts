@@ -13,6 +13,7 @@ describe('computeTotals — 230k EUR sample with cash + private loans covering d
     ppapTiming: 'NOW',
     purchaseCosts: { preliminaryContract: 1000, principalContract: 1000 },
     eurToRsdRate: 117.5,
+    furnishing: [],
     mortgage: {
       downPaymentPct: 20,
       dayCount: 'STANDARD',
@@ -74,6 +75,7 @@ describe('computeTotals — PPAP deferred to property readiness', () => {
     ppapTiming: 'LATER',
     purchaseCosts: { preliminaryContract: 1000, principalContract: 1000 },
     eurToRsdRate: 117.5,
+    furnishing: [],
     mortgage: {
       downPaymentPct: 20,
       dayCount: 'STANDARD',
@@ -140,6 +142,7 @@ describe('computeTotals — no loans', () => {
       ppapTiming: 'NOW',
       purchaseCosts: { preliminaryContract: 0, principalContract: 0 },
       eurToRsdRate: 117.5,
+      furnishing: [],
       mortgage: {
         downPaymentPct: 20,
         dayCount: 'STANDARD',
@@ -167,6 +170,7 @@ describe('computeTotals — total cost and total debt', () => {
     ppapTiming: 'NOW',
     purchaseCosts: { preliminaryContract: 500, principalContract: 500 },
     eurToRsdRate: 117.5,
+    furnishing: [],
     mortgage: {
       downPaymentPct: 20,
       dayCount: 'STANDARD',
@@ -189,6 +193,20 @@ describe('computeTotals — total cost and total debt', () => {
 
   it('sums down payment, purchase costs and the total mortgage repayment', () => {
     expect(computeTotals(inputs).totalCost).toBe(20000 + 1000 + 80000);
+  });
+
+  it('adds furnishing to the total cost but not to the total debt', () => {
+    const withFurnishing: CalculationInputs = {
+      ...inputs,
+      furnishing: [
+        { id: 'kitchen', label: 'Kitchen', price: 8000, category: 'interior', description: '' },
+        { id: 'sofa', label: 'Sofa', price: 1200, category: 'interior', description: '' },
+      ],
+    };
+    const totals = computeTotals(withFurnishing);
+    expect(totals.furnishing).toBe(9200);
+    expect(totals.totalCost).toBe(20000 + 1000 + 80000 + 9200);
+    expect(totals.totalDebt).toBeCloseTo(80000 + 5000, 6);
   });
 
   it('sums the mortgage and additional loans repayment as total debt', () => {

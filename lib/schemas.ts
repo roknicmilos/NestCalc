@@ -34,6 +34,17 @@ export const loanSchema = z.object({
   dayCount: dayCountSchema.optional(),
 });
 
+export const furnishingCategorySchema = z.enum(['interior', 'exterior']);
+
+export const furnishingItemSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1, 'nameRequired').max(80, 'nameTooLong'),
+  price: z.number(NUMBER_ERRORS).finite().min(0, 'amountMin0'),
+  /** Optional for backward compatibility with items saved before categories existed. */
+  category: furnishingCategorySchema.default('interior'),
+  description: z.string().trim().max(300, 'descriptionTooLong').default(''),
+});
+
 export const mortgageInputsSchema = z.object({
   downPaymentPct: z
     .number(NUMBER_ERRORS)
@@ -76,6 +87,8 @@ export const calculationInputsSchema = z.object({
   eurToRsdRate: z.number(NUMBER_ERRORS).finite().min(0, 'rateMin').default(117.5),
   mortgage: mortgageInputsSchema,
   loans: z.array(loanSchema),
+  /** Furnishing items (e.g. kitchen). Optional for backward compatibility with saved calculations. */
+  furnishing: z.array(furnishingItemSchema).default([]),
 });
 
 export const calculationSchema = z.object({

@@ -85,6 +85,25 @@ export function ComputedSummary({ totals }: Props) {
       </section>
 
       <section className={styles.section}>
+        <h4 className={styles.sectionTitle}>{t.summary.furnishingSection}</h4>
+        <dl className={styles.list}>
+          <Row
+            label={t.summary.furnishingInterior}
+            value={totals ? formatEur(locale, totals.furnishingByCategory.interior) : null}
+          />
+          <Row
+            label={t.summary.furnishingExterior}
+            value={totals ? formatEur(locale, totals.furnishingByCategory.exterior) : null}
+          />
+          <Row
+            label={t.summary.furnishingTotal}
+            value={totals ? formatEur(locale, totals.furnishing) : null}
+            variant="total"
+          />
+        </dl>
+      </section>
+
+      <section className={styles.section}>
         <h4 className={styles.sectionTitle}>{t.summary.totalsSection}</h4>
         <dl className={styles.list}>
           <Row
