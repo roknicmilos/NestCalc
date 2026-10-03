@@ -111,6 +111,11 @@ export const en: Dictionary = {
     term: 'Repayment term',
     monthsSuffix: 'mo.',
     start: 'Repayment start',
+    dayCount: 'Interest accrual',
+    dayCountStandard: 'Standard (rate / 12)',
+    dayCountActual: 'Bank (actual days, 365/360)',
+    dayCountHint:
+      'Many banks accrue interest on actual days, which makes the monthly payment slightly higher.',
   },
   loans: {
     title: 'Additional loans',

@@ -5,6 +5,10 @@ const NUMBER_ERRORS = { invalid_type_error: 'numberInvalid', required_error: 'nu
 
 export const loanTypeSchema = z.enum(['CASH_LOAN', 'PRIVATE_LOAN']);
 
+/** STANDARD: rate/12 per month. ACTUAL_365_360: bank-style actual/360 accrual, i.e. the
+ * nominal rate scaled by 365/360. */
+export const dayCountSchema = z.enum(['STANDARD', 'ACTUAL_365_360']);
+
 export const sellerSchema = z.enum(['INDIVIDUAL', 'INVESTOR']);
 
 export const ppapTimingSchema = z.enum(['NOW', 'LATER']);
@@ -27,6 +31,7 @@ export const loanSchema = z.object({
   interestRatePct: z.number(NUMBER_ERRORS).finite().min(0, 'ratePctRange').max(100, 'ratePctRange'),
   startMonth: monthYearSchema,
   termMonths: z.number(NUMBER_ERRORS).int('termInteger').min(1, 'termMin1').max(600, 'termMax'),
+  dayCount: dayCountSchema.optional(),
 });
 
 export const mortgageInputsSchema = z.object({
@@ -38,6 +43,8 @@ export const mortgageInputsSchema = z.object({
   interestRatePct: z.number(NUMBER_ERRORS).finite().min(0, 'ratePctRange').max(100, 'ratePctRange'),
   termMonths: z.number(NUMBER_ERRORS).int('termInteger').min(1, 'termMin1').max(600, 'termMax'),
   startMonth: monthYearSchema,
+  /** Optional for backward compatibility with saved calculations. */
+  dayCount: dayCountSchema.default('STANDARD'),
 });
 
 export const DEFAULT_CONTRACT_COST = 238;

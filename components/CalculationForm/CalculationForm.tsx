@@ -629,6 +629,7 @@ function MortgageFieldset(props: SectionProps) {
   const interestRatePct = useWatch({ control, name: 'inputs.mortgage.interestRatePct' });
   const termMonths = useWatch({ control, name: 'inputs.mortgage.termMonths' });
   const startMonth = useWatch({ control, name: 'inputs.mortgage.startMonth' });
+  const dayCount = useWatch({ control, name: 'inputs.mortgage.dayCount' });
 
   return (
     <SectionFieldset title={t.mortgage.title} accentClass={styles.fieldsetMortgage} {...props}>
@@ -696,6 +697,25 @@ function MortgageFieldset(props: SectionProps) {
                 )}
               />
             </div>
+            <div className={`${styles.field} ${styles.fieldFull}`}>
+              <label htmlFor="mortgage-daycount">{t.mortgage.dayCount}</label>
+              <Controller
+                control={control as Control<CalculationFormValues>}
+                name="inputs.mortgage.dayCount"
+                render={({ field }) => (
+                  <select
+                    id="mortgage-daycount"
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  >
+                    <option value="STANDARD">{t.mortgage.dayCountStandard}</option>
+                    <option value="ACTUAL_365_360">{t.mortgage.dayCountActual}</option>
+                  </select>
+                )}
+              />
+              <span className={styles.fieldHint}>{t.mortgage.dayCountHint}</span>
+            </div>
           </div>
         ) : (
           <dl className={`${styles.viewList} ${styles.viewListTwoCol}`}>
@@ -708,6 +728,14 @@ function MortgageFieldset(props: SectionProps) {
               }
             />
             <ViewRow label={t.mortgage.start} value={formatMonthYear(locale, startMonth)} />
+            <ViewRow
+              label={t.mortgage.dayCount}
+              value={
+                dayCount === 'ACTUAL_365_360'
+                  ? t.mortgage.dayCountActual
+                  : t.mortgage.dayCountStandard
+              }
+            />
           </dl>
         )
       }

@@ -15,6 +15,7 @@ describe('computeTotals — 230k EUR sample with cash + private loans covering d
     eurToRsdRate: 117.5,
     mortgage: {
       downPaymentPct: 20,
+      dayCount: 'STANDARD',
       interestRatePct: 4.5,
       termMonths: 360,
       startMonth: { year: 2027, month: 7 },
@@ -75,6 +76,7 @@ describe('computeTotals — PPAP deferred to property readiness', () => {
     eurToRsdRate: 117.5,
     mortgage: {
       downPaymentPct: 20,
+      dayCount: 'STANDARD',
       interestRatePct: 4.5,
       termMonths: 360,
       startMonth: { year: 2027, month: 7 },
@@ -140,6 +142,7 @@ describe('computeTotals — no loans', () => {
       eurToRsdRate: 117.5,
       mortgage: {
         downPaymentPct: 20,
+        dayCount: 'STANDARD',
         interestRatePct: 4.5,
         termMonths: 360,
         startMonth: { year: 2026, month: 1 },
@@ -166,6 +169,7 @@ describe('computeTotals — total cost and total debt', () => {
     eurToRsdRate: 117.5,
     mortgage: {
       downPaymentPct: 20,
+      dayCount: 'STANDARD',
       interestRatePct: 0,
       termMonths: 100,
       startMonth: { year: 2026, month: 6 },

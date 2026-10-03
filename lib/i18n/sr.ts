@@ -109,6 +109,11 @@ export const sr = {
     term: 'Rok otplate',
     monthsSuffix: 'mes.',
     start: 'Početak otplate',
+    dayCount: 'Obračun kamate',
+    dayCountStandard: 'Standardni (kamata / 12)',
+    dayCountActual: 'Banka (stvarni dani, 365/360)',
+    dayCountHint:
+      'Mnoge banke obračunavaju kamatu po stvarnom broju dana, pa je mesečna rata nešto veća.',
   },
   loans: {
     title: 'Dodatne pozajmice',

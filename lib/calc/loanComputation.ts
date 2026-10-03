@@ -3,7 +3,7 @@ import { indexToMonthYear, monthYearToIndex } from './monthIndex';
 import { monthlyPayment } from './pmt';
 
 export function computeLoan(loan: Loan): LoanComputation {
-  const pmt = monthlyPayment(loan.interestRatePct, loan.termMonths, loan.amount);
+  const pmt = monthlyPayment(loan.interestRatePct, loan.termMonths, loan.amount, loan.dayCount);
   const totalPaid = pmt * loan.termMonths;
   const totalInterest = Math.max(0, totalPaid - loan.amount);
   const startIdx = monthYearToIndex(loan.startMonth);

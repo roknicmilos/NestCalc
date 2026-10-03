@@ -28,6 +28,7 @@ export function computeTotals(inputs: CalculationInputs, now: Date = new Date())
     label: 'Stambeni kredit',
     amount: downPayment.mortgageAmount,
     interestRatePct: inputs.mortgage.interestRatePct,
+    dayCount: inputs.mortgage.dayCount,
     startMonth: inputs.mortgage.startMonth,
     termMonths: inputs.mortgage.termMonths,
   };

@@ -26,6 +26,7 @@
       "downPaymentPct": 20,
       "interestRatePct": 4.8,
       "termMonths": 240,
+      "dayCount": "ACTUAL_365_360",
       "startMonth": {
         "year": 2026,
         "month": 10

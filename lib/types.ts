@@ -3,6 +3,7 @@ import type {
   addressSchema,
   calculationInputsSchema,
   calculationSchema,
+  dayCountSchema,
   loanSchema,
   loanTypeSchema,
   monthYearSchema,
@@ -13,6 +14,7 @@ import type {
 } from './schemas';
 
 export type LoanType = z.infer<typeof loanTypeSchema>;
+export type DayCount = z.infer<typeof dayCountSchema>;
 export type Seller = z.infer<typeof sellerSchema>;
 export type PpapTiming = z.infer<typeof ppapTimingSchema>;
 export type Address = z.infer<typeof addressSchema>;

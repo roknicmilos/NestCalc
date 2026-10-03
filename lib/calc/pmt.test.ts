@@ -6,6 +6,11 @@ describe('monthlyPayment', () => {
     expect(monthlyPayment(5, 12, 0)).toBe(0);
   });
 
+  it('scales the rate by 365/360 for the bank day-count (152000 EUR, 4.8%, 240 months)', () => {
+    expect(monthlyPayment(4.8, 240, 152000)).toBeCloseTo(986.42, 2);
+    expect(monthlyPayment(4.8, 240, 152000, 'ACTUAL_365_360')).toBeCloseTo(991.97, 2);
+  });
+
   it('returns 0 when term is 0', () => {
     expect(monthlyPayment(5, 0, 1000)).toBe(0);
   });
