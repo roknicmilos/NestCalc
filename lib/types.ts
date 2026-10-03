@@ -10,7 +10,6 @@ import type {
   monthYearSchema,
   mortgageInputsSchema,
   ppapTimingSchema,
-  propertyExtraSchema,
   propertyTypeSchema,
   sellerSchema,
 } from './schemas';
@@ -19,7 +18,6 @@ export type LoanType = z.infer<typeof loanTypeSchema>;
 export type Seller = z.infer<typeof sellerSchema>;
 export type PpapTiming = z.infer<typeof ppapTimingSchema>;
 export type PropertyType = z.infer<typeof propertyTypeSchema>;
-export type PropertyExtra = z.infer<typeof propertyExtraSchema>;
 export type Address = z.infer<typeof addressSchema>;
 export type MonthYear = z.infer<typeof monthYearSchema>;
 export type CapitalSource = z.infer<typeof capitalSourceSchema>;

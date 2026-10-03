@@ -21,11 +21,6 @@ export const monthYearSchema = z.object({
   month: z.number(NUMBER_ERRORS).int().min(1).max(12),
 });
 
-export const propertyExtraSchema = z.object({
-  id: z.string().min(1),
-  text: z.string().trim().min(1, 'extraRequired').max(120, 'extraTooLong'),
-});
-
 export const capitalSourceSchema = z.object({
   id: z.string().min(1),
   label: z.string().min(1, 'nameRequired').max(80, 'nameTooLong'),
@@ -75,7 +70,6 @@ export const calculationInputsSchema = z.object({
   /** EUR→RSD rate used for secondary RSD amounts in the UI. Optional for backward
    * compatibility with saved calculations; falls back to the default in defaults.ts. */
   eurToRsdRate: z.number(NUMBER_ERRORS).finite().min(0, 'rateMin').default(117.5),
-  extras: z.array(propertyExtraSchema).default([]),
   capitalSources: z.array(capitalSourceSchema),
   mortgage: mortgageInputsSchema,
   loans: z.array(loanSchema),

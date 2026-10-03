@@ -6,7 +6,7 @@
     "propertyPrice": 190000,
     "propertyType": "HOUSE",
     "squareMeters": 90,
-    "link": "https://drive.google.com/drive/folders/1L1lBCVTRGF10--GupYJ5gIdINb4yFOZH",
+    "link": "https://drive.google.com/drive/folders/150d_hovUcCOrBtL9bsDWzqQyyonE5C75",
     "address": {
       "area": "Veternik",
       "street": "Leptirova 68"
@@ -19,16 +19,6 @@
     },
     "purchaseCostsFixed": 2000,
     "eurToRsdRate": 117.5,
-    "extras": [
-      {
-        "id": "AdJtMkW9",
-        "text": "Dvorište od 150 m2"
-      },
-      {
-        "id": "OB5WcgL4",
-        "text": "Ograda sa dekorativnim kamenom"
-      }
-    ],
     "capitalSources": [
       {
         "id": "eeTPQ8Jp",

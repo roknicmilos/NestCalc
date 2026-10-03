@@ -28,14 +28,12 @@ import type {
   ComputedTotals,
   IncomeSource,
   Loan,
-  PropertyExtra,
 } from '@/lib/types';
 import { z } from 'zod';
 import { ComputedSummary } from './ComputedSummary';
 import { ExportPdfButton } from './ExportPdfButton';
 import { FieldError } from '@/components/FieldError';
 import { CapitalSourceRow } from './CapitalSourceRow';
-import { ExtraRow } from './ExtraRow';
 import { IncomeSourceRow } from './IncomeSourceRow';
 import { LoanRow } from './LoanRow';
 import { MonthYearInput } from './MonthYearInput';
@@ -141,15 +139,16 @@ export function CalculationForm({ initial }: Props) {
   return (
     <FormProvider {...methods}>
       <form onSubmit={(e) => e.preventDefault()} noValidate>
-        <div className={styles.toolbar} data-export-ignore="true">
-          <ExportPdfButton
-            targetRef={exportRef}
-            fileName={toFileName(watched?.name ?? initial.name, t.form.fileNameFallback)}
-          />
-        </div>
-
         <div ref={exportRef}>
-          <NameSection {...section} />
+          <div className={styles.topRow}>
+            <NameSection {...section} />
+            <div className={styles.toolbar} data-export-ignore="true">
+              <ExportPdfButton
+                targetRef={exportRef}
+                fileName={toFileName(watched?.name ?? initial.name, t.form.fileNameFallback)}
+              />
+            </div>
+          </div>
 
           {saveError ? (
             <p style={{ color: 'var(--color-danger)', marginBottom: 'var(--space-4)' }}>
@@ -160,7 +159,6 @@ export function CalculationForm({ initial }: Props) {
           <div className={styles.layout}>
             <div className={styles.formColumn}>
               <BasicsFieldset {...section} />
-              <ExtrasFieldset {...section} />
               <CapitalSourcesFieldset {...section} />
               <MortgageFieldset {...section} />
               <ManualLoansFieldset {...section} />
@@ -555,7 +553,7 @@ function BasicsFieldset(props: SectionProps) {
                         rel="noopener noreferrer"
                         title={link}
                       >
-                        {link.length > 20 ? `${link.slice(0, 20)}...` : link}
+                        {t.basics.linkLabel}
                       </a>
                     ) : (
                       '—'
@@ -568,83 +566,6 @@ function BasicsFieldset(props: SectionProps) {
         )
       }
     </SectionFieldset>
-  );
-}
-
-/** Free-text list of perks bundled with the property (garage, parking, pantry…).
- * Purely descriptive — no amounts, no effect on the calculation. Like capital sources,
- * there's no section-level edit/save: each card manages its own edit/remove, and applying
- * or removing a card persists the calculation. */
-function ExtrasFieldset({ saving, onSave }: SectionProps) {
-  const t = useT();
-  const { control, setValue } = useFormContextTyped();
-  const extras = (useWatch({ control, name: 'inputs.extras' }) ?? []) as PropertyExtra[];
-  const [newIds, setNewIds] = useState<Set<string>>(new Set());
-
-  function handleAdd() {
-    const newExtra: PropertyExtra = { id: nanoid(8), text: '' };
-    setValue('inputs.extras', [...extras, newExtra], {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-    setNewIds((prev) => {
-      const next = new Set(prev);
-      next.add(newExtra.id);
-      return next;
-    });
-  }
-
-  function handleApply(index: number, updated: PropertyExtra) {
-    const next = extras.map((x, i) => (i === index ? updated : x));
-    setValue('inputs.extras', next, { shouldDirty: true, shouldValidate: true });
-    setNewIds((prev) => {
-      const ns = new Set(prev);
-      ns.delete(updated.id);
-      return ns;
-    });
-    void onSave();
-  }
-
-  function handleRemove(index: number) {
-    const removed = extras[index];
-    const next = extras.filter((_, i) => i !== index);
-    setValue('inputs.extras', next, { shouldDirty: true, shouldValidate: true });
-    setNewIds((prev) => {
-      const ns = new Set(prev);
-      ns.delete(removed.id);
-      return ns;
-    });
-    // A brand-new card that was never applied has nothing persisted yet — skip the save.
-    if (!newIds.has(removed.id)) void onSave();
-  }
-
-  return (
-    <div className={`${styles.section} ${styles.fieldsetExtras}`} data-pdf-block="true">
-      <div className={styles.sectionHeader}>
-        <h3 className={styles.sectionTitle}>{t.extras.title}</h3>
-      </div>
-      <p className={styles.fieldsetHint}>{t.extras.hint}</p>
-      {extras.length === 0 ? (
-        <p className={styles.fieldsetEmpty}>{t.extras.empty}</p>
-      ) : (
-        <div className={styles.loanList}>
-          {extras.map((extra, index) => (
-            <ExtraRow
-              key={extra.id}
-              extra={extra}
-              isNew={newIds.has(extra.id)}
-              onApply={(updated) => handleApply(index, updated)}
-              onRemove={() => handleRemove(index)}
-            />
-          ))}
-        </div>
-      )}
-      <div className={styles.repeaterControls}>
-        <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
-          {t.extras.add}
-        </button>
-      </div>
-    </div>
   );
 }
 
