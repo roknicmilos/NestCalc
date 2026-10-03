@@ -1,0 +1,19 @@
+[Unit]
+Description=NestCalc (Next.js standalone server)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/nestcalc/prod/app
+Environment=NODE_ENV=production
+Environment=PORT=3001
+Environment=HOSTNAME=127.0.0.1
+Environment=NESTCALC_DATA_DIR=/var/www/nestcalc/prod/data
+# Must match `which node` on the droplet.
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
