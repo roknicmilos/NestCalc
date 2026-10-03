@@ -5,7 +5,7 @@ import { computeTotals } from './index';
 describe('computeTotals — 230k EUR sample with cash + private loans covering down payment', () => {
   const inputs: CalculationInputs = {
     propertyPrice: 230000,
-    propertyType: 'APARTMENT',
+    propertyType: 'Apartment',
     squareMeters: 0,
     link: '',
     address: { area: '', street: '' },
@@ -73,7 +73,7 @@ describe('computeTotals — 230k EUR sample with cash + private loans covering d
 describe('computeTotals — PPAP deferred to property readiness', () => {
   const base: CalculationInputs = {
     propertyPrice: 230000,
-    propertyType: 'APARTMENT',
+    propertyType: 'Apartment',
     squareMeters: 0,
     link: '',
     address: { area: '', street: '' },
@@ -145,7 +145,7 @@ describe('computeTotals — no loans, capital below requirement', () => {
   it('reports a shortfall without creating any derived loan', () => {
     const inputs: CalculationInputs = {
       propertyPrice: 100000,
-      propertyType: 'APARTMENT',
+      propertyType: 'Apartment',
       squareMeters: 0,
       link: '',
       address: { area: '', street: '' },

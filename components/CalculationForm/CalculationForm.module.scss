@@ -11,6 +11,11 @@
   flex: none;
 }
 
+.toolbar.toolbar button,
+.toolbar.toolbar button:hover:not(:disabled) {
+  background: #fff;
+}
+
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);

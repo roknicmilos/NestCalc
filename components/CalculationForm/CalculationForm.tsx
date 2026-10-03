@@ -324,21 +324,7 @@ function BasicsFieldset(props: SectionProps) {
           <div className={styles.grid2}>
             <div className={styles.field}>
               <label htmlFor="property-type">{t.basics.propertyType}</label>
-              <Controller
-                control={control as Control<CalculationFormValues>}
-                name="inputs.propertyType"
-                render={({ field }) => (
-                  <select
-                    id="property-type"
-                    value={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                  >
-                    <option value="APARTMENT">{t.basics.apartment}</option>
-                    <option value="HOUSE">{t.basics.house}</option>
-                  </select>
-                )}
-              />
+              <input id="property-type" type="text" {...register('inputs.propertyType')} />
               <FieldError message={errors.inputs?.propertyType?.message} />
             </div>
 
@@ -505,7 +491,7 @@ function BasicsFieldset(props: SectionProps) {
             <dl className={styles.viewList}>
               <ViewRow
                 label={t.basics.propertyType}
-                value={propertyType === 'HOUSE' ? t.basics.house : t.basics.apartment}
+                value={propertyType}
               />
               <ViewRow
                 label={t.basics.seller}

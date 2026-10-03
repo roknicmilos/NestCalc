@@ -7,8 +7,6 @@ export const loanTypeSchema = z.enum(['CASH_LOAN', 'PRIVATE_LOAN']);
 
 export const sellerSchema = z.enum(['INDIVIDUAL', 'INVESTOR']);
 
-export const propertyTypeSchema = z.enum(['HOUSE', 'APARTMENT']);
-
 export const ppapTimingSchema = z.enum(['NOW', 'LATER']);
 
 export const addressSchema = z.object({
@@ -57,7 +55,7 @@ export const mortgageInputsSchema = z.object({
 
 export const calculationInputsSchema = z.object({
   propertyPrice: z.number(NUMBER_ERRORS).finite().min(0, 'priceMin0'),
-  propertyType: propertyTypeSchema.default('APARTMENT'),
+  propertyType: z.string().trim().max(120, 'propertyTypeTooLong').default(''),
   squareMeters: z.number(NUMBER_ERRORS).finite().min(0, 'areaMin0').default(0),
   link: z.union([z.literal(''), z.string().trim().url('linkInvalid')]).default(''),
   address: addressSchema.default({}),
