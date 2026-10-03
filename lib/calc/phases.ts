@@ -1,4 +1,4 @@
-import type { DebtPhase, DebtPhaseComponent, LoanComputation } from '../types';
+import type { DebtPhase, DebtPhaseComponent, LoanComputation, MonthYear } from '../types';
 import { indexToMonthYear, monthYearToIndex } from './monthIndex';
 
 type Active = {
@@ -85,4 +85,39 @@ export function buildPhases(loanComputations: LoanComputation[]): DebtPhase[] {
     monthlyBankTotal: iv.monthlyBankTotal,
     components: iv.components,
   }));
+}
+
+/**
+ * Splits phases at the first day of `currentMonth`: a month's debt counts as paid out as
+ * soon as the next month begins, so everything before `currentMonth` is paid out and
+ * everything from `currentMonth` on is upcoming. A phase spanning the boundary is cut in two.
+ */
+export function splitPhasesAtMonth(
+  phases: DebtPhase[],
+  currentMonth: MonthYear,
+): { paid: DebtPhase[]; upcoming: DebtPhase[] } {
+  const boundary = monthYearToIndex(currentMonth);
+  const paid: DebtPhase[] = [];
+  const upcoming: DebtPhase[] = [];
+  for (const phase of phases) {
+    const startIdx = monthYearToIndex(phase.startMonth);
+    const endIdx = monthYearToIndex(phase.endMonth);
+    if (endIdx < boundary) {
+      paid.push(phase);
+    } else if (startIdx >= boundary) {
+      upcoming.push(phase);
+    } else {
+      paid.push({
+        ...phase,
+        endMonth: indexToMonthYear(boundary - 1),
+        durationMonths: boundary - startIdx,
+      });
+      upcoming.push({
+        ...phase,
+        startMonth: currentMonth,
+        durationMonths: endIdx - boundary + 1,
+      });
+    }
+  }
+  return { paid, upcoming };
 }

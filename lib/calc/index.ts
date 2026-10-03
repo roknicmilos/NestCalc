@@ -10,7 +10,7 @@ export { monthlyPayment } from './pmt';
 export { computePpap, PPAP_RATE } from './ppap';
 export { computeDownPayment, sumPurchaseCosts } from './capital';
 export { computeLoan } from './loanComputation';
-export { buildPhases } from './phases';
+export { buildPhases, splitPhasesAtMonth } from './phases';
 export { indexToMonthYear, monthYearToIndex } from './monthIndex';
 
 export function computeTotals(inputs: CalculationInputs, now: Date = new Date()): ComputedTotals {

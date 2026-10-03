@@ -1,14 +1,43 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { splitPhasesAtMonth } from '@/lib/calc';
+import { currentMonthYear } from '@/lib/defaults';
 import { componentLabel } from '@/lib/i18n';
 import { useLocale, useT } from '@/lib/i18n/I18nProvider';
 import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths } from '@/lib/format';
-import type { ComputedTotals } from '@/lib/types';
+import type { ComputedTotals, DebtPhase } from '@/lib/types';
 import { PendingValue } from '@/components/PendingValue';
 import styles from './PhasesTimeline.module.scss';
 
 type Props = { totals: ComputedTotals | null };
 
 export function PhasesTimeline({ totals }: Props) {
+  const t = useT();
+  // A month's debt counts as paid out as soon as the next month begins.
+  const { paid, upcoming } = useMemo(
+    () =>
+      totals
+        ? splitPhasesAtMonth(totals.phases, currentMonthYear())
+        : { paid: null, upcoming: null },
+    [totals],
+  );
+  return (
+    <>
+      <PhasesCard title={t.timeline.paidTitle} phases={paid} emptyText={t.timeline.paidEmpty} />
+      <PhasesCard title={t.timeline.upcomingTitle} phases={upcoming} emptyText={t.timeline.empty} />
+    </>
+  );
+}
+
+function PhasesCard({
+  title,
+  phases,
+  emptyText,
+}: {
+  title: string;
+  /** `null` while the inputs are invalid and nothing can be computed. */
+  phases: DebtPhase[] | null;
+  emptyText: string;
+}) {
   const locale = useLocale();
   const t = useT();
   const [open, setOpen] = useState(false);
@@ -31,16 +60,16 @@ export function PhasesTimeline({ totals }: Props) {
         }}
       >
         <span className={styles.collapsibleChevron} aria-hidden="true" />
-        {t.timeline.title}
+        {title}
       </h3>
       <div hidden={!open} data-pdf-expand="true">
-        {totals === null ? (
+        {phases === null ? (
           <PendingValue />
-        ) : totals.phases.length === 0 ? (
-          <p className={styles.empty}>{t.timeline.empty}</p>
+        ) : phases.length === 0 ? (
+          <p className={styles.empty}>{emptyText}</p>
         ) : (
           <ul className={styles.phases}>
-            {totals.phases.map((phase, index) => (
+            {phases.map((phase, index) => (
               <li key={`${phase.startMonth.year}-${phase.startMonth.month}-${index}`}>
                 <div className={styles.phase}>
                   <div className={styles.phaseHeader}>

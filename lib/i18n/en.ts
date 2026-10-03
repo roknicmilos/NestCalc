@@ -29,7 +29,9 @@ export const en: Dictionary = {
     mortgageTotal: 'Total mortgage repayment',
   },
   timeline: {
-    title: 'Repayment phases',
+    paidTitle: 'Paid out',
+    upcomingTitle: 'Upcoming payments',
+    paidEmpty: 'Nothing has been paid out yet.',
     empty: 'No active debts to show.',
     perMonth: (amount: string) => `${amount} / mo.`,
     bankDebt: 'Bank debt (mortgage + cash loan)',

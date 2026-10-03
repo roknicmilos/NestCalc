@@ -27,7 +27,9 @@ export const sr = {
     mortgageTotal: 'Ukupno za vraćanje stambenog kredita',
   },
   timeline: {
-    title: 'Faze otplate',
+    paidTitle: 'Isplaćeno',
+    upcomingTitle: 'Predstojeća plaćanja',
+    paidEmpty: 'Još ništa nije isplaćeno.',
     empty: 'Nema aktivnih dugova za prikaz.',
     perMonth: (amount: string) => `${amount} / mes.`,
     bankDebt: 'Dug banci (stambeni + keš)',

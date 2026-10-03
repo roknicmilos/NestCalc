@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LoanComputation } from '../types';
-import { buildPhases } from './phases';
+import { buildPhases, splitPhasesAtMonth } from './phases';
 
 function makeComputation(
   id: string,
@@ -90,5 +90,36 @@ describe('buildPhases', () => {
     expect(phases).toHaveLength(2);
     expect(phases[0].components.map((c) => c.loanId)).toEqual(['a']);
     expect(phases[1].components.map((c) => c.loanId)).toEqual(['b']);
+  });
+});
+
+describe('splitPhasesAtMonth', () => {
+  const phases = buildPhases([
+    makeComputation('a', 'A', 2026, 1, 3, 100),
+    makeComputation('b', 'B', 2026, 6, 6, 200),
+  ]);
+
+  it('treats a phase ending the month before as paid out', () => {
+    const { paid, upcoming } = splitPhasesAtMonth(phases, { year: 2026, month: 4 });
+    expect(paid).toHaveLength(1);
+    expect(paid[0].endMonth).toEqual({ year: 2026, month: 3 });
+    expect(upcoming).toHaveLength(1);
+    expect(upcoming[0].startMonth).toEqual({ year: 2026, month: 6 });
+  });
+
+  it('keeps a phase starting in the current month as upcoming', () => {
+    const { paid, upcoming } = splitPhasesAtMonth(phases, { year: 2026, month: 1 });
+    expect(paid).toHaveLength(0);
+    expect(upcoming).toHaveLength(2);
+  });
+
+  it('cuts a phase that spans the current month', () => {
+    const { paid, upcoming } = splitPhasesAtMonth(phases, { year: 2026, month: 8 });
+    expect(paid.map((p) => p.durationMonths)).toEqual([3, 2]);
+    expect(paid[1].endMonth).toEqual({ year: 2026, month: 7 });
+    expect(upcoming).toHaveLength(1);
+    expect(upcoming[0].startMonth).toEqual({ year: 2026, month: 8 });
+    expect(upcoming[0].durationMonths).toBe(4);
+    expect(upcoming[0].monthlyTotal).toBe(200);
   });
 });
