@@ -1,7 +1,7 @@
 {
   "name": "Veternik, Leptirova",
   "createdAt": "2026-06-15T22:56:24.149Z",
-  "updatedAt": "2026-09-30T21:29:37.290Z",
+  "updatedAt": "2026-10-03T09:33:58.134Z",
   "inputs": {
     "propertyPrice": 190000,
     "propertyType": "Apartment with courtyard",
@@ -24,11 +24,11 @@
     "eurToRsdRate": 117.5,
     "mortgage": {
       "downPaymentPct": 20,
-      "interestRatePct": 4.75,
-      "termMonths": 360,
+      "interestRatePct": 4.8,
+      "termMonths": 240,
       "startMonth": {
         "year": 2026,
-        "month": 9
+        "month": 10
       }
     },
     "loans": [
