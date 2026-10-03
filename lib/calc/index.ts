@@ -63,6 +63,13 @@ export function computeTotals(inputs: CalculationInputs, now: Date = new Date())
   const allComputations = [mortgageComputation, ...loanComputations, ...ppapSavingComputations];
   const phases = buildPhases(allComputations);
 
+  const totalCost = downPayment.requiredDownPayment + purchaseCosts + mortgageComputation.totalPaid;
+  // Everything owed back: the mortgage plus the additional loans, interest included.
+  const totalDebt = loanComputations.reduce(
+    (acc, c) => acc + c.totalPaid,
+    mortgageComputation.totalPaid,
+  );
+
   return {
     ppap,
     ppapTiming: inputs.ppapTiming,
@@ -72,6 +79,8 @@ export function computeTotals(inputs: CalculationInputs, now: Date = new Date())
     purchaseCosts,
     requiredDownPayment: downPayment.requiredDownPayment,
     mortgageAmount: downPayment.mortgageAmount,
+    totalCost,
+    totalDebt,
     mortgageComputation,
     loanComputations,
     phases,

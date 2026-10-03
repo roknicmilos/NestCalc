@@ -23,6 +23,9 @@ export const en: Dictionary = {
       (saving
         ? ` To be ready on time, set aside ${saving.amount} per month for ${saving.months} ${saving.months === 1 ? 'month' : 'months'}.`
         : ''),
+    totalsSection: 'Total',
+    totalCost: 'Total cost',
+    totalDebt: 'Total debt',
     mortgageSection: 'Mortgage',
     mortgageAmount: 'Mortgage amount',
     mortgageInterest: 'Total mortgage interest',

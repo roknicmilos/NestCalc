@@ -41,6 +41,7 @@ function PhasesCard({
   const locale = useLocale();
   const t = useT();
   const [open, setOpen] = useState(false);
+  const total = (phases ?? []).reduce((acc, p) => acc + p.monthlyTotal * p.durationMonths, 0);
   function toggle() {
     setOpen((value) => !value);
   }
@@ -61,6 +62,9 @@ function PhasesCard({
       >
         <span className={styles.collapsibleChevron} aria-hidden="true" />
         {title}
+        {phases !== null ? (
+          <span className={styles.titleTotal}>{formatEur(locale, total)}</span>
+        ) : null}
       </h3>
       <div hidden={!open} data-pdf-expand="true">
         {phases === null ? (

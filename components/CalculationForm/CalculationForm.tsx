@@ -634,7 +634,7 @@ function MortgageFieldset(props: SectionProps) {
     <SectionFieldset title={t.mortgage.title} accentClass={styles.fieldsetMortgage} {...props}>
       {(editing) =>
         editing ? (
-          <div className={styles.grid3}>
+          <div className={styles.grid2}>
             <div className={styles.field}>
               <label htmlFor="mortgage-downpayment">{t.mortgage.downPaymentPct}</label>
               <div className={styles.fieldWithSuffix}>
@@ -698,7 +698,7 @@ function MortgageFieldset(props: SectionProps) {
             </div>
           </div>
         ) : (
-          <dl className={styles.viewList}>
+          <dl className={`${styles.viewList} ${styles.viewListTwoCol}`}>
             <ViewRow label={t.mortgage.downPaymentPct} value={`${downPaymentPct} %`} />
             <ViewRow label={t.mortgage.rate} value={`${interestRatePct} %`} />
             <ViewRow

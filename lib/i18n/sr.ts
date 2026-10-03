@@ -21,6 +21,9 @@ export const sr = {
       (saving
         ? ` Da bi bio spreman na vreme, odvajajte ${saving.amount} mesečno tokom ${saving.months} ${saving.months === 1 ? 'meseca' : 'meseci'}.`
         : ''),
+    totalsSection: 'Ukupno',
+    totalCost: 'Ukupan trošak',
+    totalDebt: 'Ukupan dug',
     mortgageSection: 'Stambeni kredit',
     mortgageAmount: 'Iznos stambenog kredita',
     mortgageInterest: 'Ukupna kamata stambenog kredita',

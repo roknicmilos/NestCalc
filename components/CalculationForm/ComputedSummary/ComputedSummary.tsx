@@ -83,6 +83,22 @@ export function ComputedSummary({ totals }: Props) {
           />
         </dl>
       </section>
+
+      <section className={styles.section}>
+        <h4 className={styles.sectionTitle}>{t.summary.totalsSection}</h4>
+        <dl className={styles.list}>
+          <Row
+            label={t.summary.totalCost}
+            value={totals ? formatEur(locale, totals.totalCost) : null}
+            variant="total"
+          />
+          <Row
+            label={t.summary.totalDebt}
+            value={totals ? formatEur(locale, totals.totalDebt) : null}
+            variant="danger"
+          />
+        </dl>
+      </section>
     </div>
   );
 }
@@ -94,12 +110,13 @@ function Row({
 }: {
   label: string;
   value: string | null;
-  variant?: 'debt' | 'total';
+  variant?: 'debt' | 'total' | 'danger';
 }) {
   const className = [
     styles.row,
     variant === 'total' ? styles.total : null,
     variant === 'debt' ? styles.debt : null,
+    variant === 'danger' ? styles.danger : null,
   ]
     .filter(Boolean)
     .join(' ');

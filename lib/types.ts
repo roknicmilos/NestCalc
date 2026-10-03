@@ -68,6 +68,10 @@ export type ComputedTotals = {
   purchaseCosts: number;
   requiredDownPayment: number;
   mortgageAmount: number;
+  /** Down payment + purchase costs + total mortgage repayment. */
+  totalCost: number;
+  /** Total repayment (interest included) of the mortgage plus all additional loans. */
+  totalDebt: number;
   mortgageComputation: LoanComputation;
   loanComputations: LoanComputation[];
   phases: DebtPhase[];

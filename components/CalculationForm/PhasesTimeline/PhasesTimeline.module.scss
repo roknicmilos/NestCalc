@@ -20,6 +20,12 @@
   user-select: none;
 }
 
+.titleTotal {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent);
+}
+
 .collapsibleChevron::before {
   content: '▾';
   display: inline-block;

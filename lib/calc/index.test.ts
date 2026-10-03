@@ -152,3 +152,42 @@ describe('computeTotals — no loans', () => {
     expect(totals.loanComputations).toHaveLength(0);
   });
 });
+
+describe('computeTotals — total cost and total debt', () => {
+  const inputs: CalculationInputs = {
+    propertyPrice: 100000,
+    propertyType: 'Apartment',
+    squareMeters: 0,
+    link: '',
+    address: { area: '', street: '' },
+    seller: 'INVESTOR',
+    ppapTiming: 'NOW',
+    purchaseCosts: { preliminaryContract: 500, principalContract: 500 },
+    eurToRsdRate: 117.5,
+    mortgage: {
+      downPaymentPct: 20,
+      interestRatePct: 0,
+      termMonths: 100,
+      startMonth: { year: 2026, month: 6 },
+    },
+    loans: [
+      {
+        id: 'friend',
+        type: 'PRIVATE_LOAN',
+        label: 'Friend',
+        amount: 5000,
+        interestRatePct: 0,
+        startMonth: { year: 2026, month: 1 },
+        termMonths: 10,
+      },
+    ],
+  };
+
+  it('sums down payment, purchase costs and the total mortgage repayment', () => {
+    expect(computeTotals(inputs).totalCost).toBe(20000 + 1000 + 80000);
+  });
+
+  it('sums the mortgage and additional loans repayment as total debt', () => {
+    expect(computeTotals(inputs).totalDebt).toBeCloseTo(80000 + 5000, 6);
+  });
+});

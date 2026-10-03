@@ -208,6 +208,10 @@
   font-size: 0.875rem;
 }
 
+.viewListTwoCol {
+  grid-template-columns: 1fr 1fr;
+}
+
 .viewList > div {
   display: flex;
   flex-direction: column;
