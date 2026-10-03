@@ -13,11 +13,6 @@ describe('computeTotals — 230k EUR sample with cash + private loans covering d
     ppapTiming: 'NOW',
     purchaseCosts: { preliminaryContract: 1000, principalContract: 1000 },
     eurToRsdRate: 117.5,
-    incomeSources: [],
-    capitalSources: [
-      { id: 'a', label: 'Moje', amount: 17000 },
-      { id: 'b', label: 'Poklon porodice', amount: 10000 },
-    ],
     mortgage: {
       downPaymentPct: 20,
       interestRatePct: 4.5,
@@ -52,13 +47,10 @@ describe('computeTotals — 230k EUR sample with cash + private loans covering d
     expect(totals.ppap).toBeCloseTo(5750, 6);
   });
 
-  it('counts loans as part of available for down payment', () => {
-    expect(totals.totalCapital).toBe(27000);
-    expect(totals.loansForDownPayment).toBe(26750);
-    expect(totals.availableForDownPayment).toBe(46000);
+  it('computes purchase costs, the required down payment and the mortgage amount', () => {
+    expect(totals.purchaseCosts).toBe(2000);
     expect(totals.requiredDownPayment).toBe(46000);
     expect(totals.mortgageAmount).toBe(184000);
-    expect(totals.shortfall).toBe(0);
   });
 
   it('computes mortgage monthly payment ~932.30 EUR', () => {
@@ -81,8 +73,6 @@ describe('computeTotals — PPAP deferred to property readiness', () => {
     ppapTiming: 'LATER',
     purchaseCosts: { preliminaryContract: 1000, principalContract: 1000 },
     eurToRsdRate: 117.5,
-    incomeSources: [],
-    capitalSources: [{ id: 'a', label: 'Moje', amount: 48000 }],
     mortgage: {
       downPaymentPct: 20,
       interestRatePct: 4.5,
@@ -92,13 +82,10 @@ describe('computeTotals — PPAP deferred to property readiness', () => {
     loans: [],
   };
 
-  it('still reports the PPAP amount but keeps it out of money to prepare now', () => {
+  it('still reports the PPAP amount', () => {
     const totals = computeTotals(base);
     expect(totals.ppap).toBeCloseTo(5750, 6);
-    // 48000 capital - 2000 fixed costs, with PPAP NOT subtracted (it is deferred).
-    expect(totals.availableForDownPayment).toBeCloseTo(46000, 6);
     expect(totals.requiredDownPayment).toBe(46000);
-    expect(totals.shortfall).toBe(0);
   });
 
   it('marks the PPAP due month as the mortgage start month', () => {
@@ -134,15 +121,13 @@ describe('computeTotals — PPAP deferred to property readiness', () => {
 
   it('has no due month or saving when PPAP is paid now', () => {
     const totals = computeTotals({ ...base, ppapTiming: 'NOW' });
-    // Paying now eats into available capital: 48000 - 2000 - 5750 = 40250.
-    expect(totals.availableForDownPayment).toBeCloseTo(40250, 6);
     expect(totals.ppapDueMonth).toBeNull();
     expect(totals.ppapMonthlySaving).toBeNull();
   });
 });
 
-describe('computeTotals — no loans, capital below requirement', () => {
-  it('reports a shortfall without creating any derived loan', () => {
+describe('computeTotals — no loans', () => {
+  it('creates no loan computations', () => {
     const inputs: CalculationInputs = {
       propertyPrice: 100000,
       propertyType: 'Apartment',
@@ -153,8 +138,6 @@ describe('computeTotals — no loans, capital below requirement', () => {
       ppapTiming: 'NOW',
       purchaseCosts: { preliminaryContract: 0, principalContract: 0 },
       eurToRsdRate: 117.5,
-      incomeSources: [],
-      capitalSources: [{ id: 'a', label: 'A', amount: 5000 }],
       mortgage: {
         downPaymentPct: 20,
         interestRatePct: 4.5,
@@ -165,7 +148,7 @@ describe('computeTotals — no loans, capital below requirement', () => {
     };
     const totals = computeTotals(inputs);
     expect(totals.ppap).toBe(0);
-    expect(totals.shortfall).toBe(15000);
+    expect(totals.mortgageAmount).toBe(80000);
     expect(totals.loanComputations).toHaveLength(0);
   });
 });

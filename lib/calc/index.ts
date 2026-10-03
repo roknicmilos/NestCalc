@@ -1,6 +1,6 @@
 import type { CalculationInputs, ComputedTotals, Loan } from '../types';
 import { currentMonthYear } from '../defaults';
-import { allocateCapital, sumPurchaseCosts } from './capital';
+import { computeDownPayment, sumPurchaseCosts } from './capital';
 import { computeLoan } from './loanComputation';
 import { monthYearToIndex } from './monthIndex';
 import { buildPhases } from './phases';
@@ -8,7 +8,7 @@ import { computePpap } from './ppap';
 
 export { monthlyPayment } from './pmt';
 export { computePpap, PPAP_RATE } from './ppap';
-export { allocateCapital, sumCapital, sumLoansForDownPayment, sumPurchaseCosts } from './capital';
+export { computeDownPayment, sumPurchaseCosts } from './capital';
 export { computeLoan } from './loanComputation';
 export { buildPhases } from './phases';
 export { indexToMonthYear, monthYearToIndex } from './monthIndex';
@@ -16,28 +16,17 @@ export { indexToMonthYear, monthYearToIndex } from './monthIndex';
 export function computeTotals(inputs: CalculationInputs, now: Date = new Date()): ComputedTotals {
   const ppap = computePpap(inputs.propertyPrice, inputs.seller);
 
-  // PPAP paid "now" is money to set aside today, so it reduces what's available
-  // for the down payment. When deferred to property readiness it does not — it
-  // comes due later (at the mortgage start month) and is surfaced separately.
-  const ppapNow = inputs.ppapTiming === 'NOW' ? ppap : 0;
   const ppapDueMonth =
     inputs.ppapTiming === 'LATER' && ppap > 0 ? inputs.mortgage.startMonth : null;
 
   const purchaseCosts = sumPurchaseCosts(inputs.purchaseCosts);
-  const allocation = allocateCapital({
-    propertyPrice: inputs.propertyPrice,
-    capitalSources: inputs.capitalSources,
-    loans: inputs.loans,
-    purchaseCosts,
-    ppap: ppapNow,
-    downPaymentPct: inputs.mortgage.downPaymentPct,
-  });
+  const downPayment = computeDownPayment(inputs.propertyPrice, inputs.mortgage.downPaymentPct);
 
   const mortgageLoan: Loan = {
     id: 'mortgage',
     type: 'CASH_LOAN',
     label: 'Stambeni kredit',
-    amount: allocation.mortgageAmount,
+    amount: downPayment.mortgageAmount,
     interestRatePct: inputs.mortgage.interestRatePct,
     startMonth: inputs.mortgage.startMonth,
     termMonths: inputs.mortgage.termMonths,
@@ -72,7 +61,7 @@ export function computeTotals(inputs: CalculationInputs, now: Date = new Date())
   }
 
   const allComputations = [mortgageComputation, ...loanComputations, ...ppapSavingComputations];
-  const phases = buildPhases(allComputations, inputs.incomeSources);
+  const phases = buildPhases(allComputations);
 
   return {
     ppap,
@@ -80,13 +69,9 @@ export function computeTotals(inputs: CalculationInputs, now: Date = new Date())
     ppapDueMonth,
     ppapMonthlySaving,
     ppapSavingMonths,
-    totalCapital: allocation.totalCapital,
-    loansForDownPayment: allocation.loansForDownPayment,
     purchaseCosts,
-    availableForDownPayment: allocation.availableForDownPayment,
-    requiredDownPayment: allocation.requiredDownPayment,
-    mortgageAmount: allocation.mortgageAmount,
-    shortfall: allocation.shortfall,
+    requiredDownPayment: downPayment.requiredDownPayment,
+    mortgageAmount: downPayment.mortgageAmount,
     mortgageComputation,
     loanComputations,
     phases,

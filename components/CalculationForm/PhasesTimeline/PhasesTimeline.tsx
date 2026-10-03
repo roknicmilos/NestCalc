@@ -44,10 +44,7 @@ export function PhasesTimeline({ totals }: Props) {
                 ) : null}
                 <ul className={styles.components}>
                   {phase.components.map((c) => (
-                    <li
-                      key={c.loanId}
-                      className={`${styles.componentRow} ${c.income ? styles.componentIncome : ''}`}
-                    >
+                    <li key={c.loanId} className={styles.componentRow}>
                       <span className={styles.componentLabel}>{componentLabel(c, t)}</span>
                       <span className={styles.componentAmount}>{formatEur(locale, c.amount)}</span>
                     </li>

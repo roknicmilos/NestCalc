@@ -118,18 +118,9 @@
   margin-bottom: 0;
 }
 
-/* Section accents: green = your own (non-debt) money, warmer/red tones = debt. */
+/* Section accents: warmer/red tones = debt. */
 .fieldsetBasics {
   border-left: 4px solid var(--color-border);
-}
-
-.fieldsetCapital {
-  border-left: 4px solid var(--color-primary);
-  background: rgba(47, 111, 85, 0.05);
-}
-
-.fieldsetCapital .sectionTitle {
-  color: var(--color-primary);
 }
 
 .fieldsetMortgage {
@@ -148,15 +139,6 @@
 
 .fieldsetLoans .sectionTitle {
   color: var(--color-danger);
-}
-
-.fieldsetIncome {
-  border-left: 4px solid var(--color-success);
-  background: rgba(47, 111, 85, 0.05);
-}
-
-.fieldsetIncome .sectionTitle {
-  color: var(--color-success);
 }
 
 .grid2 {
@@ -234,6 +216,10 @@
   margin: 0;
   font-weight: 600;
   overflow-wrap: anywhere;
+}
+
+.viewList dd.accentValue {
+  color: var(--color-accent);
 }
 
 .nameValue {

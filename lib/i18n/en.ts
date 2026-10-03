@@ -12,15 +12,9 @@ export const en: Dictionary = {
   summary: {
     title: 'Overview',
     downPaymentSection: 'Down payment',
-    totalCapital: 'Total capital',
-    loansForDownPayment: 'Loans for the down payment',
+    downPaymentTotal: 'Total down payment',
     purchaseCosts: 'Purchase costs',
-    availableForDownPayment: 'Available for the down payment',
     requiredDownPayment: 'Required down payment',
-    shortfall: 'Down payment shortfall',
-    afterDownPaymentSection: 'After the down payment',
-    ppap: 'Property transfer tax (PPAP)',
-    leftover: 'Left over for other costs',
     futureSection: 'Future obligation',
     ppapLater: 'Property transfer tax (PPAP) — later',
     ppapMonthlySaving: 'Monthly savings for PPAP',
@@ -31,7 +25,6 @@ export const en: Dictionary = {
         : ''),
     mortgageSection: 'Mortgage',
     mortgageAmount: 'Mortgage amount',
-    mortgageMonthly: 'Monthly mortgage payment',
     mortgageInterest: 'Total mortgage interest',
     mortgageTotal: 'Total mortgage repayment',
   },
@@ -52,20 +45,6 @@ export const en: Dictionary = {
   loanType: {
     CASH_LOAN: 'CASH LOAN',
     PRIVATE_LOAN: 'PRIVATE LOAN',
-  },
-  capitalRow: {
-    source: 'Source',
-    amount: 'Amount',
-    amountEur: 'Amount (EUR)',
-    mustHaveOne: 'There must be at least one source.',
-    removeSource: 'Remove source',
-  },
-  incomeRow: {
-    name: 'Name',
-    monthlyAmount: 'Monthly amount',
-    monthlyAmountEur: 'Monthly amount (EUR)',
-    start: 'Start',
-    removeSource: 'Remove source',
   },
   loanRow: {
     type: 'Type',
@@ -120,11 +99,6 @@ export const en: Dictionary = {
     viewPpapLater: 'Later (when the property is finished)',
     viewPpapNow: 'Now (with the down payment)',
   },
-  capital: {
-    title: 'Starting capital',
-    add: 'Add source',
-    newSource: 'New source',
-  },
   mortgage: {
     title: 'Mortgage',
     downPaymentPct: 'Down payment percentage',
@@ -136,15 +110,9 @@ export const en: Dictionary = {
   loans: {
     title: 'Additional loans',
     hintBefore:
-      'All added loans (cash loan or private loan) go towards the down payment. Each item has its own edit and remove buttons; changes are saved when you click',
+      'All added loans (cash loan or private loan) add to the monthly burden. Each item has its own edit and remove buttons; changes are saved when you click',
     empty: 'No additional loans. Add a cash loan or a loan from friends/family.',
     add: 'Add loan',
-  },
-  income: {
-    title: 'Additional monthly income',
-    hint: 'Regular monthly income (e.g. rent from the apartment) that reduces the monthly burden in the repayment phases, starting from the chosen month.',
-    empty: 'No additional monthly income.',
-    add: 'Add income',
   },
   pdf: {
     export: 'Download PDF',
@@ -178,7 +146,6 @@ export const en: Dictionary = {
   defaults: {
     cashLoan: 'Cash loan',
     privateLoan: 'Private loan',
-    rent: 'Rent from the apartment',
   },
   computed: {
     mortgage: 'Mortgage',

@@ -51,16 +51,17 @@
   font-weight: 600;
 }
 
-.capital .value {
-  color: var(--color-primary);
+.total .label {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.total .value {
+  color: var(--color-accent);
 }
 
 .debt .value {
   color: var(--color-accent);
-}
-
-.warn .value {
-  color: var(--color-warning);
 }
 
 .note {

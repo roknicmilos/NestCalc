@@ -13,28 +13,14 @@ import {
   type Control,
 } from 'react-hook-form';
 import { computeTotals } from '@/lib/calc';
-import {
-  createDefaultIncomeSource,
-  createDefaultLoan,
-  currentMonthYear,
-  DEFAULT_EUR_TO_RSD_RATE,
-} from '@/lib/defaults';
+import { createDefaultLoan, currentMonthYear, DEFAULT_EUR_TO_RSD_RATE } from '@/lib/defaults';
 import { calculationInputsSchema } from '@/lib/schemas';
 import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths } from '@/lib/format';
-import type {
-  Calculation,
-  CalculationInputs,
-  CapitalSource,
-  ComputedTotals,
-  IncomeSource,
-  Loan,
-} from '@/lib/types';
+import type { Calculation, CalculationInputs, ComputedTotals, Loan } from '@/lib/types';
 import { z } from 'zod';
 import { ComputedSummary } from './ComputedSummary';
 import { ExportPdfButton } from './ExportPdfButton';
 import { FieldError } from '@/components/FieldError';
-import { CapitalSourceRow } from './CapitalSourceRow';
-import { IncomeSourceRow } from './IncomeSourceRow';
 import { LoanRow } from './LoanRow';
 import { MonthYearInput } from './MonthYearInput';
 import { PhasesTimeline } from './PhasesTimeline';
@@ -160,10 +146,8 @@ export function CalculationForm({ initial }: Props) {
           <div className={styles.layout}>
             <div className={styles.formColumn}>
               <BasicsFieldset {...section} />
-              <CapitalSourcesFieldset {...section} />
               <MortgageFieldset {...section} />
               <ManualLoansFieldset {...section} />
-              <IncomeSourcesFieldset {...section} />
             </div>
             <div className={styles.summaryColumn}>
               <ComputedSummary totals={totals} />
@@ -287,11 +271,11 @@ function SectionFieldset({
 }
 
 /** A read-only label/value pair, matching the look of the loan/capital detail cards. */
-function ViewRow({ label, value }: { label: string; value: ReactNode }) {
+function ViewRow({ label, value, accent }: { label: string; value: ReactNode; accent?: boolean }) {
   return (
     <div>
       <dt>{label}</dt>
-      <dd>{value}</dd>
+      <dd className={accent ? styles.accentValue : undefined}>{value}</dd>
     </div>
   );
 }
@@ -573,7 +557,7 @@ function BasicsFieldset(props: SectionProps) {
                   value={formatMonthYear(locale, ppapSavingStartMonth ?? currentMonthYear())}
                 />
               ) : null}
-              <ViewRow label={t.basics.price} value={formatEur(locale, propertyPrice)} />
+              <ViewRow label={t.basics.price} value={formatEur(locale, propertyPrice)} accent />
               <ViewRow
                 label={t.basics.squareMeters}
                 value={Number.isFinite(squareMeters) ? `${squareMeters} m²` : '—'}
@@ -582,6 +566,7 @@ function BasicsFieldset(props: SectionProps) {
               <ViewRow
                 label={t.basics.pricePerSqm}
                 value={pricePerSqm === null ? '—' : formatEur(locale, pricePerSqm)}
+                accent
               />
               <ViewRow label={t.basics.street} value={street || '—'} />
               <ViewRow
@@ -609,10 +594,12 @@ function BasicsFieldset(props: SectionProps) {
                 <ViewRow
                   label={t.basics.preliminaryContract}
                   value={formatEur(locale, purchaseCosts?.preliminaryContract ?? NaN)}
+                  accent
                 />
                 <ViewRow
                   label={t.basics.principalContract}
                   value={formatEur(locale, purchaseCosts?.principalContract ?? NaN)}
+                  accent
                 />
               </dl>
             </div>
@@ -620,75 +607,6 @@ function BasicsFieldset(props: SectionProps) {
         )
       }
     </SectionFieldset>
-  );
-}
-
-/** Like loans, capital sources have no section-level edit/save: each card manages its
- * own edit/remove, and applying or removing a card persists the calculation. */
-function CapitalSourcesFieldset({ saving, onSave }: SectionProps) {
-  const { control, setValue } = useFormContextTyped();
-  const sources = (useWatch({ control, name: 'inputs.capitalSources' }) ?? []) as CapitalSource[];
-  const t = useT();
-  const [newIds, setNewIds] = useState<Set<string>>(new Set());
-
-  function handleAdd() {
-    const newSource: CapitalSource = { id: nanoid(8), label: t.capital.newSource, amount: 0 };
-    setValue('inputs.capitalSources', [...sources, newSource], {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-    setNewIds((prev) => {
-      const next = new Set(prev);
-      next.add(newSource.id);
-      return next;
-    });
-  }
-
-  function handleApply(index: number, updated: CapitalSource) {
-    const next = sources.map((s, i) => (i === index ? updated : s));
-    setValue('inputs.capitalSources', next, { shouldDirty: true, shouldValidate: true });
-    setNewIds((prev) => {
-      const ns = new Set(prev);
-      ns.delete(updated.id);
-      return ns;
-    });
-    void onSave();
-  }
-
-  function handleRemove(index: number) {
-    const removed = sources[index];
-    const next = sources.filter((_, i) => i !== index);
-    setValue('inputs.capitalSources', next, { shouldDirty: true, shouldValidate: true });
-    setNewIds((prev) => {
-      const ns = new Set(prev);
-      ns.delete(removed.id);
-      return ns;
-    });
-    // A brand-new card that was never applied has nothing persisted yet — skip the save.
-    if (!newIds.has(removed.id)) void onSave();
-  }
-
-  return (
-    <div className={`${styles.section} ${styles.fieldsetCapital}`} data-pdf-block="true">
-      <div className={styles.sectionHeader}>
-        <h3 className={styles.sectionTitle}>{t.capital.title}</h3>
-      </div>
-      <div className={styles.loanList}>
-        {sources.map((source, index) => (
-          <CapitalSourceRow
-            key={source.id}
-            source={source}
-            isNew={newIds.has(source.id)}
-            canRemove={sources.length > 1}
-            onApply={(updated) => handleApply(index, updated)}
-            onRemove={() => handleRemove(index)}
-          />
-        ))}
-      </div>
-      <div className={styles.repeaterControls}>
-        <IconButton icon="add" label={t.capital.add} onClick={handleAdd} disabled={saving} />
-      </div>
-    </div>
   );
 }
 
@@ -869,80 +787,6 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
       )}
       <div className={styles.repeaterControls}>
         <IconButton icon="add" label={t.loans.add} onClick={handleAdd} disabled={saving} />
-      </div>
-    </div>
-  );
-}
-
-/** Recurring monthly income (e.g. rent) that offsets the monthly burden in the repayment
- * phases. Like loans and capital sources, each card manages its own edit/remove and
- * applying or removing a card persists the calculation. */
-function IncomeSourcesFieldset({ saving, onSave }: SectionProps) {
-  const { control, setValue } = useFormContextTyped();
-  const sources = (useWatch({ control, name: 'inputs.incomeSources' }) ?? []) as IncomeSource[];
-  const t = useT();
-  const [newIds, setNewIds] = useState<Set<string>>(new Set());
-
-  function handleAdd() {
-    const newSource = createDefaultIncomeSource(t);
-    setValue('inputs.incomeSources', [...sources, newSource], {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-    setNewIds((prev) => {
-      const next = new Set(prev);
-      next.add(newSource.id);
-      return next;
-    });
-  }
-
-  function handleApply(index: number, updated: IncomeSource) {
-    const next = sources.map((s, i) => (i === index ? updated : s));
-    setValue('inputs.incomeSources', next, { shouldDirty: true, shouldValidate: true });
-    setNewIds((prev) => {
-      const ns = new Set(prev);
-      ns.delete(updated.id);
-      return ns;
-    });
-    void onSave();
-  }
-
-  function handleRemove(index: number) {
-    const removed = sources[index];
-    const next = sources.filter((_, i) => i !== index);
-    setValue('inputs.incomeSources', next, { shouldDirty: true, shouldValidate: true });
-    setNewIds((prev) => {
-      const ns = new Set(prev);
-      ns.delete(removed.id);
-      return ns;
-    });
-    // A brand-new card that was never applied has nothing persisted yet — skip the save.
-    if (!newIds.has(removed.id)) void onSave();
-  }
-
-  return (
-    <div className={`${styles.section} ${styles.fieldsetIncome}`} data-pdf-block="true">
-      <div className={styles.sectionHeader}>
-        <h3 className={styles.sectionTitle}>{t.income.title}</h3>
-      </div>
-      <p className={styles.fieldsetHint}>{t.income.hint}</p>
-      {sources.length === 0 ? (
-        <p className={styles.fieldsetEmpty}>{t.income.empty}</p>
-      ) : (
-        <div className={styles.loanList}>
-          {sources.map((source, index) => (
-            <IncomeSourceRow
-              key={source.id}
-              source={source}
-              isNew={newIds.has(source.id)}
-              onApply={(updated) => handleApply(index, updated)}
-              onRemove={() => handleRemove(index)}
-            />
-          ))}
-        </div>
-      )}
-      <div className={styles.repeaterControls}>
-        <IconButton icon="add" label={t.income.add} onClick={handleAdd} disabled={saving} />
       </div>
     </div>
   );

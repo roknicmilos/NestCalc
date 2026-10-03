@@ -22,18 +22,6 @@
       "principalContract": 238
     },
     "eurToRsdRate": 117.5,
-    "capitalSources": [
-      {
-        "id": "eeTPQ8Jp",
-        "label": "Ušteđevina",
-        "amount": 18000
-      },
-      {
-        "id": "clfD3SiL",
-        "label": "Poklon porodice",
-        "amount": 10000
-      }
-    ],
     "mortgage": {
       "downPaymentPct": 20,
       "interestRatePct": 4.75,
@@ -67,17 +55,6 @@
           "month": 7
         },
         "termMonths": 24
-      }
-    ],
-    "incomeSources": [
-      {
-        "id": "tG0FjXtS",
-        "label": "Kirija od stana",
-        "monthlyAmount": 300,
-        "startMonth": {
-          "year": 2027,
-          "month": 7
-        }
       }
     ]
   }

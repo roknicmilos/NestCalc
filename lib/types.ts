@@ -3,8 +3,6 @@ import type {
   addressSchema,
   calculationInputsSchema,
   calculationSchema,
-  capitalSourceSchema,
-  incomeSourceSchema,
   loanSchema,
   loanTypeSchema,
   monthYearSchema,
@@ -19,8 +17,6 @@ export type Seller = z.infer<typeof sellerSchema>;
 export type PpapTiming = z.infer<typeof ppapTimingSchema>;
 export type Address = z.infer<typeof addressSchema>;
 export type MonthYear = z.infer<typeof monthYearSchema>;
-export type CapitalSource = z.infer<typeof capitalSourceSchema>;
-export type IncomeSource = z.infer<typeof incomeSourceSchema>;
 export type Loan = z.infer<typeof loanSchema>;
 export type MortgageInputs = z.infer<typeof mortgageInputsSchema>;
 export type PurchaseCosts = z.infer<typeof purchaseCostsSchema>;
@@ -38,14 +34,11 @@ export type LoanComputation = {
 export type DebtPhaseComponent = {
   loanId: string;
   label: string;
-  /** Monthly amount: positive for debt/savings, negative for income that offsets the
-   * monthly burden. */
+  /** Monthly amount owed for this component. */
   amount: number;
   /** True for debt owed to a bank (stambeni kredit / keš kredit), false for
    * private loans (pozajmica) and PPAP savings. */
   bankDebt: boolean;
-  /** True for recurring income (e.g. rent) that reduces the monthly total. */
-  income: boolean;
 };
 
 export type DebtPhase = {
@@ -71,14 +64,10 @@ export type ComputedTotals = {
   ppapMonthlySaving: number | null;
   /** Number of months over which the deferred PPAP saving is spread. `null` unless deferred. */
   ppapSavingMonths: number | null;
-  totalCapital: number;
-  loansForDownPayment: number;
   /** Sum of all itemised purchase costs. */
   purchaseCosts: number;
-  availableForDownPayment: number;
   requiredDownPayment: number;
   mortgageAmount: number;
-  shortfall: number;
   mortgageComputation: LoanComputation;
   loanComputations: LoanComputation[];
   phases: DebtPhase[];

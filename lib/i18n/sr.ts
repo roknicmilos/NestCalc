@@ -10,15 +10,9 @@ export const sr = {
   summary: {
     title: 'Pregled',
     downPaymentSection: 'Učešće',
-    totalCapital: 'Ukupan kapital',
-    loansForDownPayment: 'Pozajmice za učešće',
+    downPaymentTotal: 'Ukupno učešće',
     purchaseCosts: 'Troškovi kupovine',
-    availableForDownPayment: 'Raspoloživo za učešće',
     requiredDownPayment: 'Potrebno učešće',
-    shortfall: 'Nedostaje za učešće',
-    afterDownPaymentSection: 'Nakon učešća',
-    ppap: 'Porez na prenos (PPAP)',
-    leftover: 'Preostalo za ostalo',
     futureSection: 'Buduća obaveza',
     ppapLater: 'Porez na prenos (PPAP) — kasnije',
     ppapMonthlySaving: 'Mesečna štednja za PPAP',
@@ -29,7 +23,6 @@ export const sr = {
         : ''),
     mortgageSection: 'Stambeni kredit',
     mortgageAmount: 'Iznos stambenog kredita',
-    mortgageMonthly: 'Mesečna rata stambenog kredita',
     mortgageInterest: 'Ukupna kamata stambenog kredita',
     mortgageTotal: 'Ukupno za vraćanje stambenog kredita',
   },
@@ -50,20 +43,6 @@ export const sr = {
   loanType: {
     CASH_LOAN: 'KEŠ KREDIT',
     PRIVATE_LOAN: 'POZAJMICA',
-  },
-  capitalRow: {
-    source: 'Izvor',
-    amount: 'Iznos',
-    amountEur: 'Iznos (EUR)',
-    mustHaveOne: 'Mora postojati barem jedan izvor.',
-    removeSource: 'Ukloni izvor',
-  },
-  incomeRow: {
-    name: 'Naziv',
-    monthlyAmount: 'Mesečni iznos',
-    monthlyAmountEur: 'Mesečni iznos (EUR)',
-    start: 'Početak',
-    removeSource: 'Ukloni izvor',
   },
   loanRow: {
     type: 'Tip',
@@ -118,11 +97,6 @@ export const sr = {
     viewPpapLater: 'Kasnije (kada je nekretnina gotova)',
     viewPpapNow: 'Sada (uz učešće)',
   },
-  capital: {
-    title: 'Početni kapital',
-    add: 'Dodaj izvor',
-    newSource: 'Novi izvor',
-  },
   mortgage: {
     title: 'Stambeni kredit',
     downPaymentPct: 'Procenat učešća',
@@ -134,15 +108,9 @@ export const sr = {
   loans: {
     title: 'Dodatne pozajmice',
     hintBefore:
-      'Sve dodate pozajmice (keš kredit ili pozajmica) ulaze u učešće. Svaka stavka ima svoje dugmad za izmenu i uklanjanje; izmene se čuvaju kada kliknete na',
+      'Sve dodate pozajmice (keš kredit ili pozajmica) ulaze u mesečno opterećenje. Svaka stavka ima svoje dugmad za izmenu i uklanjanje; izmene se čuvaju kada kliknete na',
     empty: 'Nema dodatnih pozajmica. Dodajte keš kredit ili pozajmicu od prijatelja/porodice.',
     add: 'Dodaj pozajmicu',
-  },
-  income: {
-    title: 'Dodatni mesečni prihodi',
-    hint: 'Redovni mesečni prihodi (npr. kirija od stana) koji umanjuju mesečno opterećenje u fazama otplate, počev od izabranog meseca.',
-    empty: 'Nema dodatnih mesečnih prihoda.',
-    add: 'Dodaj prihod',
   },
   pdf: {
     export: 'Skini PDF',
@@ -176,7 +144,6 @@ export const sr = {
   defaults: {
     cashLoan: 'Keš kredit',
     privateLoan: 'Pozajmica',
-    rent: 'Kirija od stana',
   },
   computed: {
     mortgage: 'Stambeni kredit',

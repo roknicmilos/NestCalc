@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import { getDictionary, LOCALES, type Dictionary } from './i18n';
-import type { IncomeSource, Loan, LoanType, MonthYear } from './types';
+import type { Loan, LoanType, MonthYear } from './types';
 
 /** Default EUR→RSD rate; overridable per calculation in the UI. */
 export const DEFAULT_EUR_TO_RSD_RATE = 117.5;
@@ -50,14 +50,5 @@ export function createDefaultLoan(
     interestRatePct: defaultInterestRateForLoanType(type),
     startMonth: currentMonthYear(now),
     termMonths: 24,
-  };
-}
-
-export function createDefaultIncomeSource(t: Dictionary, now: Date = new Date()): IncomeSource {
-  return {
-    id: nanoid(8),
-    label: t.defaults.rent,
-    monthlyAmount: 0,
-    startMonth: currentMonthYear(now),
   };
 }

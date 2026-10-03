@@ -1,4 +1,4 @@
-import type { DebtPhase, DebtPhaseComponent, IncomeSource, LoanComputation } from '../types';
+import type { DebtPhase, DebtPhaseComponent, LoanComputation } from '../types';
 import { indexToMonthYear, monthYearToIndex } from './monthIndex';
 
 type Active = {
@@ -7,15 +7,7 @@ type Active = {
   endIdx: number;
 };
 
-type ActiveIncome = {
-  source: IncomeSource;
-  startIdx: number;
-};
-
-export function buildPhases(
-  loanComputations: LoanComputation[],
-  incomeSources: IncomeSource[] = [],
-): DebtPhase[] {
+export function buildPhases(loanComputations: LoanComputation[]): DebtPhase[] {
   const actives: Active[] = loanComputations
     .filter((c) => c.loan.termMonths > 0 && c.monthlyPayment > 0)
     .map((c) => {
@@ -26,19 +18,10 @@ export function buildPhases(
 
   if (actives.length === 0) return [];
 
-  // Income is open-ended: it applies from its start month onward, but only ever
-  // surfaces inside debt phases (which end once the last loan is paid off).
-  const incomes: ActiveIncome[] = incomeSources
-    .filter((s) => s.monthlyAmount > 0)
-    .map((s) => ({ source: s, startIdx: monthYearToIndex(s.startMonth) }));
-
   const boundarySet = new Set<number>();
   for (const a of actives) {
     boundarySet.add(a.startIdx);
     boundarySet.add(a.endIdx + 1);
-  }
-  for (const inc of incomes) {
-    boundarySet.add(inc.startIdx);
   }
   const boundaries = [...boundarySet].sort((a, b) => a - b);
 
@@ -58,28 +41,14 @@ export function buildPhases(
     if (right <= left) continue;
     const activeHere = actives.filter((a) => a.startIdx <= left && a.endIdx >= left);
     if (activeHere.length === 0) continue;
-    const debtComponents: DebtPhaseComponent[] = activeHere
+    const components: DebtPhaseComponent[] = activeHere
       .map((a) => ({
         loanId: a.computation.loan.id,
         label: a.computation.loan.label,
         amount: a.computation.monthlyPayment,
         bankDebt: a.computation.loan.type === 'CASH_LOAN',
-        income: false,
       }))
       .sort((a, b) => a.loanId.localeCompare(b.loanId));
-    // Income that has already started by this interval offsets the monthly burden.
-    const incomeComponents: DebtPhaseComponent[] = incomes
-      .filter((inc) => inc.startIdx <= left)
-      .map((inc) => ({
-        loanId: inc.source.id,
-        label: inc.source.label,
-        amount: -inc.source.monthlyAmount,
-        bankDebt: false,
-        income: true,
-      }))
-      .sort((a, b) => a.loanId.localeCompare(b.loanId));
-    // Debt first, then income, so the timeline reads payments before offsets.
-    const components = [...debtComponents, ...incomeComponents];
     const monthlyTotal = components.reduce((acc, c) => acc + c.amount, 0);
     const monthlyBankTotal = components.reduce((acc, c) => acc + (c.bankDebt ? c.amount : 0), 0);
     const componentKey = components.map((c) => c.loanId).join('|');

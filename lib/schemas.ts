@@ -19,19 +19,6 @@ export const monthYearSchema = z.object({
   month: z.number(NUMBER_ERRORS).int().min(1).max(12),
 });
 
-export const capitalSourceSchema = z.object({
-  id: z.string().min(1),
-  label: z.string().min(1, 'nameRequired').max(80, 'nameTooLong'),
-  amount: z.number(NUMBER_ERRORS).finite().min(0, 'amountMin0'),
-});
-
-export const incomeSourceSchema = z.object({
-  id: z.string().min(1),
-  label: z.string().min(1, 'nameRequired').max(80, 'nameTooLong'),
-  monthlyAmount: z.number(NUMBER_ERRORS).finite().min(0, 'amountMin0'),
-  startMonth: monthYearSchema,
-});
-
 export const loanSchema = z.object({
   id: z.string().min(1),
   type: loanTypeSchema,
@@ -80,12 +67,8 @@ export const calculationInputsSchema = z.object({
   /** EUR→RSD rate used for secondary RSD amounts in the UI. Optional for backward
    * compatibility with saved calculations; falls back to the default in defaults.ts. */
   eurToRsdRate: z.number(NUMBER_ERRORS).finite().min(0, 'rateMin').default(117.5),
-  capitalSources: z.array(capitalSourceSchema),
   mortgage: mortgageInputsSchema,
   loans: z.array(loanSchema),
-  /** Recurring monthly income (e.g. rent) that offsets the monthly burden in the
-   * repayment phases. Optional for backward compatibility with saved calculations. */
-  incomeSources: z.array(incomeSourceSchema).default([]),
 });
 
 export const calculationSchema = z.object({
