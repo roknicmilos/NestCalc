@@ -30,7 +30,7 @@ describe('storage directory override', () => {
     await writeCalculation(calculationSchema.parse(seed));
 
     await expect(fs.stat(path.join(dir, 'calculator.json'))).resolves.toBeDefined();
-    expect((await readCalculation()).id).toBe(seed.id);
+    expect((await readCalculation()).name).toBe(seed.name);
   });
 
   it('reports the configured path when the file is missing', async () => {
