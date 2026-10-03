@@ -43,3 +43,7 @@ npm run lint     # Run ESLint (next lint)
   `useLocale()` in client components and `getLocale()` (`lib/i18n/server.ts`) on the server.
   Add every new UI string to both dictionaries.
 - `styles/` — global SCSS (`globals.scss`).
+- `public/` — PWA assets: `sw.js` (intentionally navigation-only; never intercepts `/api/*`), `offline.html`,
+  `icons/` (generated from `scripts/icon.svg` by `npm run icons`).
+- `deploy/` — systemd unit and nginx site for the droplet. `docs/DEPLOY.md` has the setup and `npm run deploy` flow.
+  On the server the data dir is set via `NESTCALC_DATA_DIR` (defaults to `data/storage` locally).
