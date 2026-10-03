@@ -14,6 +14,7 @@ import { formatEur, formatMonthYear, formatMonthsAsYearsAndMonths, formatRsd } f
 import { FieldError } from '@/components/FieldError';
 import { MonthYearInput } from '../MonthYearInput';
 import styles from '../CalculationForm.module.scss';
+import { IconButton } from '@/components/IconButton';
 
 const LOAN_TYPES: LoanType[] = ['CASH_LOAN', 'PRIVATE_LOAN'];
 
@@ -92,12 +93,8 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
             <span className={styles.loanLabel}>{loan.label}</span>
           </div>
           <div className={styles.loanCardActions}>
-            <button type="button" className="secondary" onClick={() => setEditing(true)}>
-              {t.common.edit}
-            </button>
-            <button type="button" className={styles.removeButton} onClick={onRemove}>
-              {t.common.remove}
-            </button>
+            <IconButton icon="edit" label={t.common.edit} onClick={() => setEditing(true)} />
+            <IconButton icon="remove" label={t.common.remove} onClick={onRemove} />
           </div>
         </div>
         <dl className={styles.loanCardDetails}>
@@ -248,9 +245,7 @@ export function LoanRow({ loan, isNew, eurToRsdRate, onApply, onRemove }: Props)
               {t.common.cancelChanges}
             </button>
           ) : null}
-          <button type="button" className={styles.removeButton} onClick={onRemove}>
-            {t.common.remove}
-          </button>
+          <IconButton icon="remove" label={t.common.remove} onClick={onRemove} />
           <button type="button" onClick={handleApply} disabled={!isValid || !isDirty}>
             {t.common.apply}
           </button>

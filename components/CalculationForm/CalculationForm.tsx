@@ -41,6 +41,7 @@ import { PhasesTimeline } from './PhasesTimeline';
 import type { CalculationFormValues } from './calculation-form-types';
 import { nanoid } from 'nanoid';
 import styles from './CalculationForm.module.scss';
+import { IconButton } from '@/components/IconButton';
 
 const formSchema = z.object({
   name: z.string().trim().min(1, 'nameRequired').max(80, 'nameTooLong'),
@@ -198,11 +199,7 @@ function SectionControls({
   }
 
   if (!editing) {
-    return (
-      <button type="button" className="secondary" onClick={() => setEditing(true)}>
-        {t.common.edit}
-      </button>
-    );
+    return <IconButton icon="edit" label={t.common.edit} onClick={() => setEditing(true)} />;
   }
   return (
     <div className={styles.sectionControls}>
@@ -689,9 +686,7 @@ function CapitalSourcesFieldset({ saving, onSave }: SectionProps) {
         ))}
       </div>
       <div className={styles.repeaterControls}>
-        <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
-          {t.capital.add}
-        </button>
+        <IconButton icon="add" label={t.capital.add} onClick={handleAdd} disabled={saving} />
       </div>
     </div>
   );
@@ -873,9 +868,7 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
         </div>
       )}
       <div className={styles.repeaterControls}>
-        <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
-          {t.loans.add}
-        </button>
+        <IconButton icon="add" label={t.loans.add} onClick={handleAdd} disabled={saving} />
       </div>
     </div>
   );
@@ -949,9 +942,7 @@ function IncomeSourcesFieldset({ saving, onSave }: SectionProps) {
         </div>
       )}
       <div className={styles.repeaterControls}>
-        <button type="button" className="secondary" onClick={handleAdd} disabled={saving}>
-          {t.income.add}
-        </button>
+        <IconButton icon="add" label={t.income.add} onClick={handleAdd} disabled={saving} />
       </div>
     </div>
   );
@@ -1014,9 +1005,7 @@ function EurToRsdRateField({
       ) : (
         <div className={styles.readonlyField}>
           <span>{Number.isFinite(rate) ? rate : DEFAULT_EUR_TO_RSD_RATE}</span>
-          <button type="button" className="secondary" onClick={() => setEditing(true)}>
-            {t.common.edit}
-          </button>
+          <IconButton icon="edit" label={t.common.edit} onClick={() => setEditing(true)} />
         </div>
       )}
     </div>

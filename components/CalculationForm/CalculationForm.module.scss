@@ -423,18 +423,6 @@
   justify-content: flex-end;
 }
 
-.removeButton {
-  background: transparent;
-  border: 1px solid var(--color-danger);
-  color: var(--color-danger);
-  padding: var(--space-1) var(--space-3);
-  font-size: 0.875rem;
-}
-
-.removeButton:hover:not(:disabled) {
-  background: rgba(179, 38, 30, 0.08);
-}
-
 .headerBar {
   display: flex;
   justify-content: space-between;

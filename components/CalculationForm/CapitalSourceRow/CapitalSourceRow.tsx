@@ -8,6 +8,7 @@ import { formatEur } from '@/lib/format';
 import { FieldError } from '@/components/FieldError';
 // Reuses the loan card styles — capital source cards share the same visual layout.
 import styles from '../CalculationForm.module.scss';
+import { IconButton } from '@/components/IconButton';
 
 type Props = {
   source: CapitalSource;
@@ -69,18 +70,14 @@ export function CapitalSourceRow({ source, isNew, canRemove, onApply, onRemove }
             <span className={styles.loanLabel}>{source.label}</span>
           </div>
           <div className={styles.loanCardActions}>
-            <button type="button" className="secondary" onClick={() => setEditing(true)}>
-              {t.common.edit}
-            </button>
-            <button
-              type="button"
-              className={styles.removeButton}
+            <IconButton icon="edit" label={t.common.edit} onClick={() => setEditing(true)} />
+            <IconButton
+              icon="remove"
+              label={t.capitalRow.removeSource}
+              title={!canRemove ? t.capitalRow.mustHaveOne : t.capitalRow.removeSource}
               onClick={onRemove}
               disabled={!canRemove}
-              title={!canRemove ? t.capitalRow.mustHaveOne : t.capitalRow.removeSource}
-            >
-              {t.common.remove}
-            </button>
+            />
           </div>
         </div>
         <dl className={styles.loanCardDetails}>
@@ -135,15 +132,13 @@ export function CapitalSourceRow({ source, isNew, canRemove, onApply, onRemove }
               {t.common.cancelChanges}
             </button>
           ) : null}
-          <button
-            type="button"
-            className={styles.removeButton}
+          <IconButton
+            icon="remove"
+            label={t.capitalRow.removeSource}
+            title={removeTitle}
             onClick={onRemove}
             disabled={removeDisabled}
-            title={removeTitle}
-          >
-            {t.common.remove}
-          </button>
+          />
           <button type="button" onClick={handleApply} disabled={!isValid || !isDirty}>
             {t.common.apply}
           </button>

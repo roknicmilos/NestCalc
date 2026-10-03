@@ -9,6 +9,7 @@ import { FieldError } from '@/components/FieldError';
 import { MonthYearInput } from '../MonthYearInput';
 // Reuses the loan/capital card styles — income cards share the same visual layout.
 import styles from '../CalculationForm.module.scss';
+import { IconButton } from '@/components/IconButton';
 
 type Props = {
   source: IncomeSource;
@@ -67,17 +68,8 @@ export function IncomeSourceRow({ source, isNew, onApply, onRemove }: Props) {
             <span className={styles.loanLabel}>{source.label}</span>
           </div>
           <div className={styles.loanCardActions}>
-            <button type="button" className="secondary" onClick={() => setEditing(true)}>
-              {t.common.edit}
-            </button>
-            <button
-              type="button"
-              className={styles.removeButton}
-              onClick={onRemove}
-              title={t.incomeRow.removeSource}
-            >
-              {t.common.remove}
-            </button>
+            <IconButton icon="edit" label={t.common.edit} onClick={() => setEditing(true)} />
+            <IconButton icon="remove" label={t.incomeRow.removeSource} onClick={onRemove} />
           </div>
         </div>
         <dl className={styles.loanCardDetails}>
@@ -145,14 +137,7 @@ export function IncomeSourceRow({ source, isNew, onApply, onRemove }: Props) {
               {t.common.cancelChanges}
             </button>
           ) : null}
-          <button
-            type="button"
-            className={styles.removeButton}
-            onClick={onRemove}
-            title={t.incomeRow.removeSource}
-          >
-            {t.common.remove}
-          </button>
+          <IconButton icon="remove" label={t.incomeRow.removeSource} onClick={onRemove} />
           <button type="button" onClick={handleApply} disabled={!isValid || !isDirty}>
             {t.common.apply}
           </button>
