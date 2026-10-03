@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
+import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister';
 import { getDictionary } from '@/lib/i18n';
 import { I18nProvider } from '@/lib/i18n/I18nProvider';
 import { getLocale } from '@/lib/i18n/server';
@@ -20,6 +21,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang={locale === 'sr' ? 'sr-Latn' : 'en'}>
       <body>
+        <ServiceWorkerRegister />
         <I18nProvider locale={locale}>{children}</I18nProvider>
       </body>
     </html>
