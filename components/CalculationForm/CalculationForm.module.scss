@@ -1,14 +1,22 @@
+/* Same columns as .layout so the name bar matches the width of the form column below. */
 .topRow {
-  flex-wrap: wrap;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-5);
   margin-bottom: var(--space-5);
+}
+
+@media (max-width: 960px) {
+  .topRow {
+    grid-template-columns: 1fr;
+  }
 }
 
 .toolbar {
   display: flex;
   flex: none;
+  justify-content: flex-end;
 }
 
 .toolbar.toolbar button,
@@ -413,7 +421,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex: 1;
   min-width: 0;
   gap: var(--space-4);
   background: var(--color-surface);

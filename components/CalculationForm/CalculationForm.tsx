@@ -292,9 +292,14 @@ function NameSection({ saving, onSave, onCancel }: SectionProps) {
   return (
     <div className={styles.headerBar} data-pdf-block="true">
       <div className={styles.headerName}>
-        <label htmlFor="calc-name">{t.form.calcName}</label>
         {editing ? (
-          <input id="calc-name" type="text" maxLength={80} {...register('name')} />
+          <input
+            id="calc-name"
+            type="text"
+            maxLength={80}
+            aria-label={t.form.calcName}
+            {...register('name')}
+          />
         ) : (
           <span className={styles.nameValue}>{name}</span>
         )}
