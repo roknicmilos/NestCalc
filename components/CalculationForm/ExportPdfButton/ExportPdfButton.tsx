@@ -46,6 +46,10 @@ export function ExportPdfButton({ targetRef, fileName, className }: Props) {
           // Expand any collapsed details so their content is contained by the card
           // (otherwise html2canvas paints it overflowing outside the section border).
           clonedNode.querySelectorAll('details').forEach((d) => (d.open = true));
+          // Sections collapsed in the UI are still exported in full.
+          clonedNode
+            .querySelectorAll<HTMLElement>('[data-pdf-expand]')
+            .forEach((el) => (el.hidden = false));
           const rootTop = clonedNode.getBoundingClientRect().top;
           measuredWidth = clonedNode.offsetWidth;
           blockRects = Array.from(clonedNode.querySelectorAll('[data-pdf-block]')).map((el) => {

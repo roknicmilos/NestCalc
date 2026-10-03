@@ -221,6 +221,7 @@ function SectionControls({
 function SectionFieldset({
   title,
   accentClass,
+  collapsible = false,
   saving,
   onSave,
   onCancel,
@@ -228,22 +229,60 @@ function SectionFieldset({
 }: SectionProps & {
   title: string;
   accentClass: string;
+  /** Lets the whole section body be collapsed by clicking the title. */
+  collapsible?: boolean;
   children: (editing: boolean) => ReactNode;
 }) {
   const [editing, setEditing] = useState(false);
+  const [open, setOpen] = useState(true);
+  const expanded = !collapsible || open;
+  function toggle() {
+    setOpen((value) => !value);
+  }
   return (
-    <div className={`${styles.section} ${accentClass}`} data-pdf-block="true">
+    <div
+      className={`${styles.section} ${accentClass}`}
+      data-pdf-block="true"
+      data-collapsed={expanded ? undefined : 'true'}
+    >
       <div className={styles.sectionHeader}>
-        <h3 className={styles.sectionTitle}>{title}</h3>
+        {collapsible ? (
+          <h3
+            className={`${styles.sectionTitle} ${styles.collapsibleTitle}`}
+            role="button"
+            tabIndex={0}
+            aria-expanded={expanded}
+            onClick={toggle}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggle();
+              }
+            }}
+          >
+            <span className={styles.collapsibleChevron} aria-hidden="true" />
+            {title}
+          </h3>
+        ) : (
+          <h3 className={styles.sectionTitle}>{title}</h3>
+        )}
         <SectionControls
           editing={editing}
-          setEditing={setEditing}
+          setEditing={(value) => {
+            setEditing(value);
+            if (value) setOpen(true);
+          }}
           saving={saving}
           onSave={onSave}
           onCancel={onCancel}
         />
       </div>
-      <fieldset className={styles.sectionBody} disabled={!editing}>
+      <fieldset
+        className={styles.sectionBody}
+        disabled={!editing}
+        hidden={!expanded}
+        data-pdf-expand="true"
+      >
         {children(editing)}
       </fieldset>
     </div>
@@ -308,7 +347,7 @@ function BasicsFieldset(props: SectionProps) {
   const ppapSavingStartMonth = useWatch({ control, name: 'inputs.ppapSavingStartMonth' });
   const propertyPrice = useWatch({ control, name: 'inputs.propertyPrice' });
   const squareMeters = useWatch({ control, name: 'inputs.squareMeters' });
-  const purchaseCostsFixed = useWatch({ control, name: 'inputs.purchaseCostsFixed' });
+  const purchaseCosts = useWatch({ control, name: 'inputs.purchaseCosts' });
   const area = useWatch({ control, name: 'inputs.address.area' });
   const street = useWatch({ control, name: 'inputs.address.street' });
   const link = useWatch({ control, name: 'inputs.link' });
@@ -318,7 +357,12 @@ function BasicsFieldset(props: SectionProps) {
       : null;
 
   return (
-    <SectionFieldset title={t.basics.title} accentClass={styles.fieldsetBasics} {...props}>
+    <SectionFieldset
+      title={t.basics.title}
+      accentClass={styles.fieldsetBasics}
+      collapsible
+      {...props}
+    >
       {(editing) =>
         editing ? (
           <div className={styles.grid2}>
@@ -437,22 +481,6 @@ function BasicsFieldset(props: SectionProps) {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="purchase-costs">{t.basics.purchaseCosts}</label>
-              <div className={styles.fieldWithSuffix}>
-                <input
-                  id="purchase-costs"
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  min={0}
-                  {...register('inputs.purchaseCostsFixed', { valueAsNumber: true })}
-                />
-                <span className={styles.suffix}>EUR</span>
-              </div>
-              <FieldError message={errors.inputs?.purchaseCostsFixed?.message} />
-            </div>
-
-            <div className={styles.field}>
               <label htmlFor="address-area">{t.basics.area}</label>
               <input
                 id="address-area"
@@ -485,14 +513,53 @@ function BasicsFieldset(props: SectionProps) {
               />
               <FieldError message={errors.inputs?.link?.message} />
             </div>
+
+            <div className={`${styles.subsection} ${styles.fieldFull}`}>
+              <h4 className={styles.subsectionTitle}>{t.basics.purchaseCosts}</h4>
+              <div className={styles.grid2}>
+                <div className={styles.field}>
+                  <label htmlFor="preliminary-contract">{t.basics.preliminaryContract}</label>
+                  <div className={styles.fieldWithSuffix}>
+                    <input
+                      id="preliminary-contract"
+                      type="number"
+                      inputMode="decimal"
+                      step="any"
+                      min={0}
+                      {...register('inputs.purchaseCosts.preliminaryContract', {
+                        valueAsNumber: true,
+                      })}
+                    />
+                    <span className={styles.suffix}>EUR</span>
+                  </div>
+                  <FieldError
+                    message={errors.inputs?.purchaseCosts?.preliminaryContract?.message}
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="principal-contract">{t.basics.principalContract}</label>
+                  <div className={styles.fieldWithSuffix}>
+                    <input
+                      id="principal-contract"
+                      type="number"
+                      inputMode="decimal"
+                      step="any"
+                      min={0}
+                      {...register('inputs.purchaseCosts.principalContract', {
+                        valueAsNumber: true,
+                      })}
+                    />
+                    <span className={styles.suffix}>EUR</span>
+                  </div>
+                  <FieldError message={errors.inputs?.purchaseCosts?.principalContract?.message} />
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <>
             <dl className={styles.viewList}>
-              <ViewRow
-                label={t.basics.propertyType}
-                value={propertyType}
-              />
+              <ViewRow label={t.basics.propertyType} value={propertyType} />
               <ViewRow
                 label={t.basics.seller}
                 value={seller === 'INDIVIDUAL' ? t.basics.individual : t.basics.investor}
@@ -514,40 +581,44 @@ function BasicsFieldset(props: SectionProps) {
                 label={t.basics.squareMeters}
                 value={Number.isFinite(squareMeters) ? `${squareMeters} m²` : '—'}
               />
-              <ViewRow
-                label={t.basics.viewPurchaseCosts}
-                value={formatEur(locale, purchaseCostsFixed)}
-              />
               <ViewRow label={t.basics.area} value={area || '—'} />
+              <ViewRow
+                label={t.basics.pricePerSqm}
+                value={pricePerSqm === null ? '—' : formatEur(locale, pricePerSqm)}
+              />
+              <ViewRow label={t.basics.street} value={street || '—'} />
+              <ViewRow
+                label={t.basics.link}
+                value={
+                  link ? (
+                    <a
+                      className={styles.linkValue}
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={link}
+                    >
+                      {t.basics.linkLabel}
+                    </a>
+                  ) : (
+                    '—'
+                  )
+                }
+              />
             </dl>
-            <details className={styles.collapsible}>
-              <summary className={styles.collapsibleSummary}>{t.basics.moreDetails}</summary>
-              <dl className={`${styles.viewList} ${styles.collapsibleContent}`}>
+            <div className={styles.subsection}>
+              <h4 className={styles.subsectionTitle}>{t.basics.purchaseCosts}</h4>
+              <dl className={styles.viewList}>
                 <ViewRow
-                  label={t.basics.pricePerSqm}
-                  value={pricePerSqm === null ? '—' : formatEur(locale, pricePerSqm)}
+                  label={t.basics.preliminaryContract}
+                  value={formatEur(locale, purchaseCosts?.preliminaryContract ?? NaN)}
                 />
-                <ViewRow label={t.basics.street} value={street || '—'} />
                 <ViewRow
-                  label={t.basics.link}
-                  value={
-                    link ? (
-                      <a
-                        className={styles.linkValue}
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={link}
-                      >
-                        {t.basics.linkLabel}
-                      </a>
-                    ) : (
-                      '—'
-                    )
-                  }
+                  label={t.basics.principalContract}
+                  value={formatEur(locale, purchaseCosts?.principalContract ?? NaN)}
                 />
               </dl>
-            </details>
+            </div>
           </>
         )
       }

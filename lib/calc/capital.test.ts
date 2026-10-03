@@ -68,7 +68,7 @@ describe('allocateCapital', () => {
           termMonths: 24,
         },
       ],
-      purchaseCostsFixed: 2000,
+      purchaseCosts: 2000,
       ppap: 5750,
       downPaymentPct: 20,
     });
@@ -85,7 +85,7 @@ describe('allocateCapital', () => {
       propertyPrice: 100000,
       capitalSources: [{ id: 'a', label: 'A', amount: 5000 }],
       loans: [],
-      purchaseCostsFixed: 0,
+      purchaseCosts: 0,
       ppap: 0,
       downPaymentPct: 20,
     });

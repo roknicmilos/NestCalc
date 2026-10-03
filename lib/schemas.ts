@@ -53,6 +53,13 @@ export const mortgageInputsSchema = z.object({
   startMonth: monthYearSchema,
 });
 
+export const DEFAULT_CONTRACT_COST = 238;
+
+export const purchaseCostsSchema = z.object({
+  preliminaryContract: z.number(NUMBER_ERRORS).finite().min(0, 'costsMin0'),
+  principalContract: z.number(NUMBER_ERRORS).finite().min(0, 'costsMin0'),
+});
+
 export const calculationInputsSchema = z.object({
   propertyPrice: z.number(NUMBER_ERRORS).finite().min(0, 'priceMin0'),
   propertyType: z.string().trim().max(120, 'propertyTypeTooLong').default(''),
@@ -64,7 +71,12 @@ export const calculationInputsSchema = z.object({
   /** Month from which the deferred PPAP saving is spread. Optional for backward
    * compatibility with saved calculations; falls back to the current month. */
   ppapSavingStartMonth: monthYearSchema.optional(),
-  purchaseCostsFixed: z.number(NUMBER_ERRORS).finite().min(0, 'costsMin0'),
+  /** Itemised purchase costs. Optional for backward compatibility with saved calculations
+   * that predate the breakdown (they fall back to the defaults). */
+  purchaseCosts: purchaseCostsSchema.default({
+    preliminaryContract: DEFAULT_CONTRACT_COST,
+    principalContract: DEFAULT_CONTRACT_COST,
+  }),
   /** EUR→RSD rate used for secondary RSD amounts in the UI. Optional for backward
    * compatibility with saved calculations; falls back to the default in defaults.ts. */
   eurToRsdRate: z.number(NUMBER_ERRORS).finite().min(0, 'rateMin').default(117.5),

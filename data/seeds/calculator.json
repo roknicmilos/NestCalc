@@ -17,7 +17,10 @@
       "year": 2026,
       "month": 6
     },
-    "purchaseCostsFixed": 2000,
+    "purchaseCosts": {
+      "preliminaryContract": 238,
+      "principalContract": 238
+    },
     "eurToRsdRate": 117.5,
     "capitalSources": [
       {

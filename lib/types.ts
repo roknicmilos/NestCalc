@@ -10,6 +10,7 @@ import type {
   monthYearSchema,
   mortgageInputsSchema,
   ppapTimingSchema,
+  purchaseCostsSchema,
   sellerSchema,
 } from './schemas';
 
@@ -22,6 +23,7 @@ export type CapitalSource = z.infer<typeof capitalSourceSchema>;
 export type IncomeSource = z.infer<typeof incomeSourceSchema>;
 export type Loan = z.infer<typeof loanSchema>;
 export type MortgageInputs = z.infer<typeof mortgageInputsSchema>;
+export type PurchaseCosts = z.infer<typeof purchaseCostsSchema>;
 export type CalculationInputs = z.infer<typeof calculationInputsSchema>;
 export type Calculation = z.infer<typeof calculationSchema>;
 
@@ -71,6 +73,8 @@ export type ComputedTotals = {
   ppapSavingMonths: number | null;
   totalCapital: number;
   loansForDownPayment: number;
+  /** Sum of all itemised purchase costs. */
+  purchaseCosts: number;
   availableForDownPayment: number;
   requiredDownPayment: number;
   mortgageAmount: number;

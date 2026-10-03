@@ -38,6 +38,11 @@ export function ComputedSummary({ totals }: Props) {
             variant="debt"
           />
           <Row
+            label={t.summary.purchaseCosts}
+            value={totals ? formatEur(locale, totals.purchaseCosts) : null}
+            variant="debt"
+          />
+          <Row
             label={t.summary.availableForDownPayment}
             value={totals ? formatEur(locale, totals.availableForDownPayment) : null}
             variant="capital"

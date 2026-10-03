@@ -6,6 +6,7 @@ import {
   capitalSourceSchema,
   loanSchema,
   mortgageInputsSchema,
+  purchaseCostsSchema,
 } from '../schemas';
 import { componentLabel, getDictionary, LOCALES, translateMessage } from './index';
 
@@ -23,7 +24,7 @@ const badMessages = messages(
   loanSchema.shape.termMonths.safeParse(NaN),
   shape.squareMeters.safeParse(-1),
   shape.link.safeParse('not a url'),
-  shape.purchaseCostsFixed.safeParse(-1),
+  purchaseCostsSchema.safeParse({ preliminaryContract: -1, principalContract: 238 }),
   shape.eurToRsdRate.safeParse(-1),
   capitalSourceSchema.safeParse({ id: 'a', label: '', amount: -1 }),
   capitalSourceSchema.safeParse({ id: 'a', label: 'x'.repeat(81), amount: 1 }),

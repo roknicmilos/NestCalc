@@ -1,6 +1,6 @@
 import type { CalculationInputs, ComputedTotals, Loan } from '../types';
 import { currentMonthYear } from '../defaults';
-import { allocateCapital } from './capital';
+import { allocateCapital, sumPurchaseCosts } from './capital';
 import { computeLoan } from './loanComputation';
 import { monthYearToIndex } from './monthIndex';
 import { buildPhases } from './phases';
@@ -8,7 +8,7 @@ import { computePpap } from './ppap';
 
 export { monthlyPayment } from './pmt';
 export { computePpap, PPAP_RATE } from './ppap';
-export { allocateCapital, sumCapital, sumLoansForDownPayment } from './capital';
+export { allocateCapital, sumCapital, sumLoansForDownPayment, sumPurchaseCosts } from './capital';
 export { computeLoan } from './loanComputation';
 export { buildPhases } from './phases';
 export { indexToMonthYear, monthYearToIndex } from './monthIndex';
@@ -23,11 +23,12 @@ export function computeTotals(inputs: CalculationInputs, now: Date = new Date())
   const ppapDueMonth =
     inputs.ppapTiming === 'LATER' && ppap > 0 ? inputs.mortgage.startMonth : null;
 
+  const purchaseCosts = sumPurchaseCosts(inputs.purchaseCosts);
   const allocation = allocateCapital({
     propertyPrice: inputs.propertyPrice,
     capitalSources: inputs.capitalSources,
     loans: inputs.loans,
-    purchaseCostsFixed: inputs.purchaseCostsFixed,
+    purchaseCosts,
     ppap: ppapNow,
     downPaymentPct: inputs.mortgage.downPaymentPct,
   });
@@ -81,6 +82,7 @@ export function computeTotals(inputs: CalculationInputs, now: Date = new Date())
     ppapSavingMonths,
     totalCapital: allocation.totalCapital,
     loansForDownPayment: allocation.loansForDownPayment,
+    purchaseCosts,
     availableForDownPayment: allocation.availableForDownPayment,
     requiredDownPayment: allocation.requiredDownPayment,
     mortgageAmount: allocation.mortgageAmount,

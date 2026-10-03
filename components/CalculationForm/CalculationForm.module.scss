@@ -95,38 +95,27 @@
   margin-top: var(--space-3);
 }
 
-/* Collapsible "more details" block in the read-only basics view. */
-.collapsible {
-  margin-top: var(--space-4);
-  border-top: 1px solid var(--color-border);
-  padding-top: var(--space-3);
-}
-
-.collapsibleSummary {
+/* Section title that toggles the whole section body. */
+.collapsibleTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-primary);
-  list-style: none;
   user-select: none;
 }
 
-.collapsibleSummary::-webkit-details-marker {
-  display: none;
-}
-
-.collapsibleSummary::before {
-  content: '▸';
-  display: inline-block;
-  margin-right: var(--space-2);
-}
-
-details[open] > .collapsibleSummary::before {
+.collapsibleChevron::before {
   content: '▾';
+  display: inline-block;
+  color: var(--color-primary);
 }
 
-.collapsibleContent {
-  margin-top: var(--space-3);
+[data-collapsed='true'] .collapsibleChevron::before {
+  content: '▸';
+}
+
+[data-collapsed='true'] .sectionHeader {
+  margin-bottom: 0;
 }
 
 /* Section accents: green = your own (non-debt) money, warmer/red tones = debt. */
@@ -469,4 +458,19 @@ details[open] > .collapsibleSummary::before {
 .headerActions {
   display: flex;
   align-items: center;
+}
+
+.subsection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.subsectionTitle {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
