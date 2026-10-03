@@ -6,7 +6,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-HOST=blueprint-do
+HOST=digital-ocean
 APP_DIR=/var/www/nestcalc/prod/app
 
 npm run build
