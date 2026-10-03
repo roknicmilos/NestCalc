@@ -719,6 +719,7 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
     DEFAULT_EUR_TO_RSD_RATE) as number;
   const t = useT();
   const [newLoanIds, setNewLoanIds] = useState<Set<string>>(new Set());
+  const [open, setOpen] = useState(false);
 
   const hasCashLoan = loans.some((l) => l.type === 'CASH_LOAN');
 
@@ -759,34 +760,55 @@ function ManualLoansFieldset({ saving, onSave }: SectionProps) {
   }
 
   return (
-    <div className={`${styles.section} ${styles.fieldsetLoans}`} data-pdf-block="true">
+    <div
+      className={`${styles.section} ${styles.fieldsetLoans}`}
+      data-pdf-block="true"
+      data-collapsed={open ? undefined : 'true'}
+    >
       <div className={styles.sectionHeader}>
-        <h3 className={styles.sectionTitle}>{t.loans.title}</h3>
+        <h3
+          className={`${styles.sectionTitle} ${styles.collapsibleTitle}`}
+          role="button"
+          tabIndex={0}
+          aria-expanded={open}
+          onClick={() => setOpen((value) => !value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setOpen((value) => !value);
+            }
+          }}
+        >
+          <span className={styles.collapsibleChevron} aria-hidden="true" />
+          {t.loans.title}
+        </h3>
       </div>
-      <p className={styles.fieldsetHint}>
-        {t.loans.hintBefore} <strong>{t.common.apply}</strong>.
-      </p>
-      {hasCashLoan ? (
-        <EurToRsdRateField rate={eurToRsdRate} saving={saving} onSave={onSave} />
-      ) : null}
-      {loans.length === 0 ? (
-        <p className={styles.fieldsetEmpty}>{t.loans.empty}</p>
-      ) : (
-        <div className={styles.loanList}>
-          {loans.map((loan, index) => (
-            <LoanRow
-              key={loan.id}
-              loan={loan}
-              isNew={newLoanIds.has(loan.id)}
-              eurToRsdRate={eurToRsdRate}
-              onApply={(updated) => handleApply(index, updated)}
-              onRemove={() => handleRemove(index)}
-            />
-          ))}
+      <div hidden={!open} data-pdf-expand="true">
+        <p className={styles.fieldsetHint}>
+          {t.loans.hintBefore} <strong>{t.common.apply}</strong>.
+        </p>
+        {hasCashLoan ? (
+          <EurToRsdRateField rate={eurToRsdRate} saving={saving} onSave={onSave} />
+        ) : null}
+        {loans.length === 0 ? (
+          <p className={styles.fieldsetEmpty}>{t.loans.empty}</p>
+        ) : (
+          <div className={styles.loanList}>
+            {loans.map((loan, index) => (
+              <LoanRow
+                key={loan.id}
+                loan={loan}
+                isNew={newLoanIds.has(loan.id)}
+                eurToRsdRate={eurToRsdRate}
+                onApply={(updated) => handleApply(index, updated)}
+                onRemove={() => handleRemove(index)}
+              />
+            ))}
+          </div>
+        )}
+        <div className={styles.repeaterControls}>
+          <IconButton icon="add" label={t.loans.add} onClick={handleAdd} disabled={saving} />
         </div>
-      )}
-      <div className={styles.repeaterControls}>
-        <IconButton icon="add" label={t.loans.add} onClick={handleAdd} disabled={saving} />
       </div>
     </div>
   );

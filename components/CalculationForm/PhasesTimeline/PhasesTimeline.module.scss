@@ -12,6 +12,28 @@
   margin: 0 0 var(--space-4);
 }
 
+.collapsibleTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.collapsibleChevron::before {
+  content: '▾';
+  display: inline-block;
+  color: var(--color-primary);
+}
+
+[data-collapsed='true'] .collapsibleChevron::before {
+  content: '▸';
+}
+
+[data-collapsed='true'] .title {
+  margin-bottom: 0;
+}
+
 .phases {
   list-style: none;
   padding: 0;
