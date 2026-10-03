@@ -11,3 +11,6 @@ tmp/
 
 # Local data storage (machine-specific, seeded from data/seeds/)
 data/storage/
+
+# Superpowers specs and plans (local only)
+docs/superpowers/
