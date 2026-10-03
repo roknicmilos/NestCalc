@@ -3,8 +3,11 @@ import path from 'node:path';
 import { calculationSchema } from './schemas';
 import type { Calculation } from './types';
 
-/** Machine-local "database"; git-ignored. Populated from `data/seeds/` by `npm run setup`. */
-const STORAGE_DIR = path.join(process.cwd(), 'data', 'storage');
+/**
+ * Machine-local "database"; git-ignored. Populated from `data/seeds/` by `npm run setup`.
+ * `NESTCALC_DATA_DIR` overrides the location (used on the server, outside the deployed app dir).
+ */
+const STORAGE_DIR = process.env.NESTCALC_DATA_DIR ?? path.join(process.cwd(), 'data', 'storage');
 const CALCULATOR_PATH = path.join(STORAGE_DIR, 'calculator.json');
 const CALCULATOR_TMP_PATH = path.join(STORAGE_DIR, '.calculator.json.tmp');
 
